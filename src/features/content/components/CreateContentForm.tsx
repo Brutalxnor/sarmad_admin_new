@@ -1,0 +1,438 @@
+import { useState, useRef, useEffect } from 'react'
+import { useCreateArticle, useUpdateArticle, useTopics } from '../hooks/use-content'
+import type { ContentItem } from '../types'
+import { RichTextEditor } from '@/shared/components/RichTextEditor'
+import { useLanguage } from '@/shared/context/LanguageContext'
+import { ArrowLeft, Image as ImageIcon, Eye, Save, UserRound } from 'lucide-react'
+
+interface CreateContentFormProps {
+    initialData?: Partial<ContentItem>
+    onSuccess?: () => void
+    onCancel?: () => void
+}
+
+export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateContentFormProps) {
+    const { mutate: createContent, isPending: isCreating } = useCreateArticle()
+    const { mutate: updateContent, isPending: isUpdating } = useUpdateArticle()
+    const { direction, language } = useLanguage()
+
+    const { data: topics = [], isLoading: isLoadingTopics } = useTopics()
+    const isPending = isCreating || isUpdating || isLoadingTopics
+    const isEditMode = !!initialData?.id
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    // Helper to extract topic ID and name Safely
+    const getInitialTopicData = (data: Partial<ContentItem> | undefined) => {
+        if (!data) return { topicId: '', topicName: '' }
+
+        const topic = data.topic
+        const topicIdFromData = data.topic_id
+
+        // If topic is an object, it's the joined Topic from backend
+        if (topic && typeof topic === 'object') {
+            const topicId = topicIdFromData || topic.id || ''
+            const topicName = language === 'ar' ? (topic.name_ar || topic.name_en) : (topic.name_en || topic.name_ar)
+            return { topicId, topicName }
+        }
+
+        // If topic is a string, it might be a legacy name
+        const topicName = typeof topic === 'string' ? topic : ''
+        return { topicId: topicIdFromData || '', topicName }
+    }
+
+    const { topicId: initialTopicId, topicName: initialTopicName } = getInitialTopicData(initialData)
+
+    const [formData, setFormData] = useState<Partial<ContentItem>>({
+        type: 'article',
+        title: '',
+        language: 'ar',
+        status: 'draft',
+        description: '',
+        duration: '',
+        media_url: '',
+        author: '',
+        ...initialData,
+        topic: initialTopicName,
+        topic_id: initialTopicId
+    })
+
+    useEffect(() => {
+        if (initialData) {
+            const { topicId, topicName } = getInitialTopicData(initialData)
+
+            // Resolve topic_id from topics list if we only have a name
+            let resolvedTopicId = topicId
+            if (!resolvedTopicId && topicName && topics.length > 0) {
+                const foundTopic = topics.find(t =>
+                    t.name_ar === topicName ||
+                    t.name_en === topicName ||
+                    t.id === topicId
+                )
+                if (foundTopic) resolvedTopicId = foundTopic.id
+            }
+
+            setFormData(prev => ({
+                ...prev,
+                ...initialData,
+                topic: topicName,
+                topic_id: resolvedTopicId || topicId
+            }))
+
+            if (initialData.thumbnail_image && typeof initialData.thumbnail_image === 'string') {
+                setPreviewUrl(initialData.thumbnail_image)
+            }
+        }
+    }, [initialData, language, topics])
+
+    const [previewUrl, setPreviewUrl] = useState<string | null>(
+        processPreviewUrl(initialData?.thumbnail_image)
+    )
+
+    function processPreviewUrl(image: string | File | undefined) {
+        if (typeof image === 'string') return image
+        return null
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setFormData(prev => ({ ...prev, thumbnail_image: file }))
+            setPreviewUrl(URL.createObjectURL(file))
+        }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (isEditMode && initialData?.id) {
+            updateContent({ id: initialData.id, data: formData }, { onSuccess: () => onSuccess?.() })
+        } else {
+            createContent(formData, { onSuccess: () => onSuccess?.() })
+        }
+    }
+
+    return (
+        <div className="max-w-[1400px] mx-auto px-6 py-10 animate-fade-in">
+            {/* Top Navigation / Breadcrumbs */}
+            <div className={`flex mb-8 ${direction === 'rtl' ? 'justify-start' : 'justify-end'}`}>
+                <div className="flex items-center gap-2 text-sm font-bold">
+                    <span className="text-slate-800 font-black">
+                        {formData.type === 'video'
+                            ? (language === 'ar' ? 'إضافة فيديو' : 'Add Video')
+                            : (language === 'ar' ? 'إضافة مقال' : 'Add Article')}
+                    </span>
+                    <span className="text-slate-300 mx-2">|</span>
+                    <button onClick={onCancel} className="text-slate-400 hover:text-[#35788D] transition-colors flex items-center gap-1">
+                        <ArrowLeft size={14} className={direction === 'rtl' ? '' : 'rotate-180'} />
+                        {language === 'ar' ? 'العودة لإدارة المحتوى' : 'Back to Content'}
+                    </button>
+                </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+
+                {/* Main Content Area (8 cols) - In RTL this will be on the RIGHT */}
+                <div className="lg:col-span-8 space-y-6">
+                    {formData.type === 'video' ? (
+                        <>
+                            {/* Video Title */}
+                            <div className="space-y-2">
+                                <label className="text-base font-bold text-slate-800 block text-start">عنوان الفيديو</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.title}
+                                    onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                    placeholder="مثلاً: كيف تحسن جودة نومك في 7 خطوات بسيطة"
+                                />
+                            </div>
+
+                            {/* Link and Duration Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-base font-bold text-slate-800 block text-start">رابط الفيديو</label>
+                                    <input
+                                        type="text"
+                                        value={formData.media_url || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, media_url: e.target.value }))}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        placeholder="مثلاً: https://www.youtube.com/vide-675"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-base font-bold text-slate-800 block text-start">مدة الفيديو</label>
+                                    <input
+                                        type="text"
+                                        value={formData.duration || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        placeholder="مثلاً: 12:45 دقيقة"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Category for Video */}
+                            <div className="space-y-2">
+                                <label className="text-base font-bold text-slate-800 block text-start">
+                                    {language === 'ar' ? 'التصنيف' : 'Category'}
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={formData.topic_id || ''}
+                                        onChange={e => {
+                                            const topicId = e.target.value
+                                            const selectedTopic = topics.find(t => t.id === topicId)
+                                            const localizedName = language === 'ar' ? selectedTopic?.name_ar : selectedTopic?.name_en
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                topic_id: topicId,
+                                                topic: localizedName || ''
+                                            }))
+                                        }}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                    >
+                                        <option value="">{isLoadingTopics ? (language === 'ar' ? 'جاري التحميل...' : 'Loading...') : (language === 'ar' ? 'اختر تصنيفاً...' : 'Select a category...')}</option>
+                                        {topics.map(t => (
+                                            <option key={t.id} value={t.id}>
+                                                {language === 'ar' ? t.name_ar : t.name_en}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className={`absolute ${direction === 'rtl' ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 pointer-events-none text-slate-400`}>
+                                        <ArrowLeft size={16} className="-rotate-90" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description Editor / Area */}
+                            <div className="space-y-2">
+                                <label className="text-base font-bold text-slate-800 block text-start">وصف الفيديو</label>
+                                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm min-h-[350px]">
+                                    <RichTextEditor
+                                        value={formData.description || ''}
+                                        onChange={content => setFormData(prev => ({ ...prev, description: content }))}
+                                        placeholder="اكتب وصفاً مفصلاً لمحتوى الفيديو والفوائد المتوقعة للمشاهد..."
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Article Title */}
+                            <div className="space-y-2">
+                                <label className="text-base font-bold text-slate-800 block text-start">
+                                    {language === 'ar' ? 'عنوان المقال' : 'Article Title'}
+                                </label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.title}
+                                    onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                    placeholder={language === 'ar' ? 'مثلاً: كيف تحسن جودة نومك في 7 خطوات بسيطة' : 'e.g. How to improve sleep quality'}
+                                />
+                            </div>
+
+                            {/* Author and Category Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-base font-bold text-slate-800 block text-start">
+                                        {language === 'ar' ? 'اسم الكاتب' : 'Author Name'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.author || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        placeholder={language === 'ar' ? 'مثلاً: محمد أمين' : 'e.g. John Doe'}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-base font-bold text-slate-800 block text-start">
+                                        {language === 'ar' ? 'التصنيف' : 'Category'}
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={formData.topic_id || ''}
+                                            onChange={e => {
+                                                const topicId = e.target.value
+                                                const selectedTopic = topics.find(t => t.id === topicId)
+                                                const localizedName = language === 'ar' ? selectedTopic?.name_ar : selectedTopic?.name_en
+                                                setFormData(prev => ({
+                                                    ...prev,
+                                                    topic_id: topicId,
+                                                    topic: localizedName || ''
+                                                }))
+                                            }}
+                                            className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        >
+                                            <option value="">{isLoadingTopics ? (language === 'ar' ? 'جاري التحميل...' : 'Loading...') : (language === 'ar' ? 'اختر تصنيفاً...' : 'Select a category...')}</option>
+                                            {topics.map(t => (
+                                                <option key={t.id} value={t.id}>
+                                                    {language === 'ar' ? t.name_ar : t.name_en}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className={`absolute ${direction === 'rtl' ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 pointer-events-none text-slate-400`}>
+                                            <ArrowLeft size={16} className="-rotate-90" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Content Editor */}
+                            <div className="space-y-2">
+                                <label className="text-base font-bold text-slate-800 block text-start">
+                                    {language === 'ar' ? 'محتوى المقال' : 'Article Content'}
+                                </label>
+                                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm min-h-[400px]">
+                                    <RichTextEditor
+                                        value={formData.description || ''}
+                                        onChange={content => setFormData(prev => ({ ...prev, description: content }))}
+                                        placeholder={language === 'ar' ? 'ابدأ الكتابة هنا باللغة العربية ...' : 'Start typing here...'}
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+
+                {/* Sidebar (4 cols) - In RTL this will be on the LEFT */}
+                <div className="lg:col-span-4 flex flex-col gap-6">
+                    {/* Cover / Thumbnail Image */}
+                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 flex flex-col items-center">
+                        <h3 className="text-xs font-bold text-slate-400 block mb-4 uppercase tracking-wider text-center">
+                            {formData.type === 'video' ? 'الصورة المصغرة (Thumbnail)' : (language === 'ar' ? 'صورة الغلاف' : 'Cover Image')}
+                        </h3>
+                        <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-sky-100 bg-[#F4F9FB]/50 flex flex-col items-center justify-center cursor-pointer hover:bg-[#F4F9FB] hover:border-[#35788D]/30 transition-all overflow-hidden group relative"
+                        >
+                            {previewUrl ? (
+                                <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center space-y-2">
+                                    <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-[#35788D] mx-auto group-hover:scale-110 transition-transform">
+                                        <ImageIcon size={20} />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-xs font-black text-slate-800">{language === 'ar' ? 'انقر لرفع الصورة' : 'Click to Upload'}</p>
+                                        <p className="text-[9px] font-bold text-slate-400">JPG, PNG {language === 'ar' ? 'حتى 5 ميجابايت' : 'up to 5MB'}</p>
+                                    </div>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="hidden"
+                                accept="image/*"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Presenter / Staff Dropdown (For Video) */}
+                    {formData.type === 'video' && (
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 space-y-4">
+                            <label className="text-xs font-bold text-slate-500 flex items-center gap-2 justify-end">
+                                مقدم المحتوى
+                                <UserRound size={14} />
+                            </label>
+                            <div className="relative">
+                                <select
+                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold text-end appearance-none cursor-pointer pr-10"
+                                    value={formData.author || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                                >
+                                    <option value="فاطمة محمد">فاطمة محمد</option>
+                                    <option value="أحمد علي">أحمد علي</option>
+                                </select>
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                    <ArrowLeft size={16} className="-rotate-90" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Settings Card (Only for Article) */}
+                    {formData.type === 'article' && (
+                        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 space-y-6">
+                            {/* Language */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'اللغة' : 'Language'}</label>
+                                <div className="flex bg-[#F4F9FB] p-1.5 rounded-2xl">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, language: 'en' }))}
+                                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${formData.language === 'en' ? 'bg-white text-[#35788D] shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {language === 'ar' ? 'الإنجليزية' : 'English'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, language: 'ar' }))}
+                                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${formData.language === 'ar' ? 'bg-white text-[#35788D] shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {language === 'ar' ? 'العربية' : 'Arabic'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Reading Time */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'وقت القراءة' : 'Reading Time'}</label>
+                                <input
+                                    type="text"
+                                    value={formData.duration || ''}
+                                    onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-3 text-sm font-bold text-start placeholder:text-slate-300"
+                                    placeholder={language === 'ar' ? 'مثلاً: 5 دقائق' : 'e.g. 5 mins'}
+                                />
+                            </div>
+
+                            {/* Status */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'الحالة' : 'Status'}</label>
+                                <div className="relative">
+                                    <select
+                                        value={formData.status}
+                                        onChange={e => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-3 text-sm font-bold text-start appearance-none cursor-pointer"
+                                    >
+                                        <option value="draft">{language === 'ar' ? 'مسودة' : 'Draft'}</option>
+                                        <option value="published">{language === 'ar' ? 'منشور' : 'Published'}</option>
+                                    </select>
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <ArrowLeft size={16} className="-rotate-90" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Action Buttons Spacer */}
+                    <div className="mt-auto space-y-3">
+                        <button
+                            type="submit"
+                            disabled={isPending}
+                            className="w-full py-4 bg-[#0095D9] text-white rounded-2xl font-black text-sm shadow-lg shadow-[#0095D9]/20 hover:shadow-[#0095D9]/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                        >
+                            <Save size={18} />
+                            {formData.type === 'video'
+                                ? 'حفظ ورفع الفيديو'
+                                : (isPending ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ ورفع المقال' : 'Save & Publish'))}
+                        </button>
+                        <button
+                            type="button"
+                            className="w-full py-4 border-2 border-[#0095D9] text-[#0095D9] rounded-2xl font-black text-sm hover:bg-sky-50 transition-all flex items-center justify-center gap-3"
+                        >
+                            <Eye size={18} />
+                            {formData.type === 'video' ? 'معاينة الفيديو قبل الرفع' : (language === 'ar' ? 'معاينة المقال قبل الرفع' : 'Preview Article')}
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    )
+}
