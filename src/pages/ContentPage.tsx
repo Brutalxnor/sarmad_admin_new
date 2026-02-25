@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { ContentList } from '@/features/content/components/ContentList'
 import { CreateContentForm } from '@/features/content/components/CreateContentForm'
 import { CreateCourseForm } from '@/features/courses/components/CreateCourseForm'
+import { CreateFaqForm } from '@/features/faqs/components/CreateFaqForm'
+import { CreateWebinarForm } from '@/features/webinars/components/CreateWebinarForm'
 import { useContent } from '@/features/content/hooks/use-content'
 import { useCourses } from '@/features/courses/hooks/use-courses'
 import { useLanguage } from '@/shared/context/LanguageContext'
@@ -29,6 +31,8 @@ export default function ContentPage() {
 
     if (view === 'create') {
         const isCourse = selectedType === 'course';
+        const isFaq = selectedType === 'faq';
+        const isWebinar = selectedType === 'webinar';
 
         return (
             <div className="bg-[#F9FBFC] min-h-screen">
@@ -41,12 +45,25 @@ export default function ContentPage() {
                         <span className="font-bold">{t('content.back_to_list')}</span>
                     </button>
                     <h1 className="text-4xl font-black text-slate-800 mb-8 px-4">
-                        {isCourse ? 'إضافة دورة تدريبية جديدة' : t('content.add_new_title')}
+                        {isCourse ? 'إضافة دورة تدريبية جديدة' :
+                            isFaq ? 'إضافة سؤال وجواب جديد' :
+                                isWebinar ? 'إضافة ندوة مباشرة جديدة' :
+                                    t('content.add_new_title')}
                     </h1>
                 </div>
 
                 {isCourse ? (
                     <CreateCourseForm
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                ) : isFaq ? (
+                    <CreateFaqForm
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                ) : isWebinar ? (
+                    <CreateWebinarForm
                         onSuccess={handleBackToList}
                         onCancel={handleBackToList}
                     />

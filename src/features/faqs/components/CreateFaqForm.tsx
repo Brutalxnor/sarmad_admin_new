@@ -51,7 +51,7 @@ export function CreateFaqForm({ onSuccess, onCancel, initialData }: CreateFaqFor
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
                 {/* Main content — question & answer (first in DOM = RIGHT in RTL) */}
-                <div className="lg:col-span-8 space-y-6">
+                <div className="lg:col-span-8 bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 space-y-6">
 
                     {/* Arabic Question */}
                     <div className="space-y-2">
@@ -64,7 +64,7 @@ export function CreateFaqForm({ onSuccess, onCancel, initialData }: CreateFaqFor
                             value={formData.question_ar || ''}
                             onChange={e => setFormData(prev => ({ ...prev, question_ar: e.target.value }))}
                             placeholder={isRTL ? 'اكتب السؤال باللغة العربية...' : 'Write the question in Arabic...'}
-                            className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start shadow-sm outline-none"
+                            className="w-full bg-[#F4F9FB]/50 border-none rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start outline-none"
                         />
                     </div>
 
@@ -75,11 +75,11 @@ export function CreateFaqForm({ onSuccess, onCancel, initialData }: CreateFaqFor
                         </label>
                         <input
                             type="text"
-                            dir="ltr"
                             value={formData.question_en || ''}
                             onChange={e => setFormData(prev => ({ ...prev, question_en: e.target.value }))}
-                            placeholder="Write the question in English..."
-                            className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start shadow-sm outline-none"
+                            placeholder={isRTL ? 'اكتب السؤال باللغة الإنجليزية...' : 'Write the question in English...'}
+                            className={`w-full bg-[#F4F9FB]/50 border-none rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all outline-none ${isRTL ? 'text-start' : 'text-left'}`}
+                            dir={isRTL && !formData.question_en ? 'rtl' : 'ltr'}
                         />
                     </div>
 
@@ -95,7 +95,7 @@ export function CreateFaqForm({ onSuccess, onCancel, initialData }: CreateFaqFor
                             value={formData.answer_ar || ''}
                             onChange={e => setFormData(prev => ({ ...prev, answer_ar: e.target.value }))}
                             placeholder={isRTL ? 'اكتب الإجابة باللغة العربية...' : 'Write the answer in Arabic...'}
-                            className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start shadow-sm outline-none resize-none"
+                            className={`w-full bg-[#F4F9FB]/50 border-none rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all outline-none resize-none ${isRTL ? 'text-start' : 'text-left'}`}
                         />
                     </div>
 
@@ -105,12 +105,12 @@ export function CreateFaqForm({ onSuccess, onCancel, initialData }: CreateFaqFor
                             {isRTL ? 'الإجابة (باللغة الإنجليزية)' : 'Answer (English)'}
                         </label>
                         <textarea
-                            dir="ltr"
                             rows={6}
                             value={formData.answer_en || ''}
                             onChange={e => setFormData(prev => ({ ...prev, answer_en: e.target.value }))}
-                            placeholder="Write the answer in English..."
-                            className="w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start shadow-sm outline-none resize-none"
+                            placeholder={isRTL ? 'اكتب الإجابة باللغة الإنجليزية...' : 'Write the answer in English...'}
+                            className={`w-full bg-[#F4F9FB]/50 border-none rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all outline-none resize-none ${isRTL ? 'text-start' : 'text-left'}`}
+                            dir={isRTL && !formData.answer_en ? 'rtl' : 'ltr'}
                         />
                     </div>
                 </div>
