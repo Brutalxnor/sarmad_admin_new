@@ -5,17 +5,15 @@ import { useAuth } from '@/features/staff/context/AuthContext'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { CreateContentForm } from './CreateContentForm'
 import { CreateCourseForm } from '@/features/courses/components/CreateCourseForm'
-import type { ContentItem } from '../types'
+import type { ContentItem, ContentType } from '../types'
 import type { Course } from '@/features/courses/types'
 
 import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
 import {
     BookOpen,
-    CheckCircle,
     Clock,
     Edit3,
-    MessageCircle,
     PlayCircle,
     Users,
     FileText,
@@ -24,7 +22,6 @@ import {
     Star,
     HelpCircle,
     Plus,
-    ChevronLeft,
     ChevronRight,
     ArrowLeft,
     Video,
@@ -46,7 +43,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
     const { mutate: deleteContent } = useDeleteArticle()
     const { t, direction } = useLanguage()
     const [view, setView] = useState<ViewState>('list')
-    const [selectedType, setSelectedType] = useState<ContentType | 'course' | null>(null)
+    const [selectedType, setSelectedType] = useState<ContentType | 'course' | 'webinar' | 'faq' | 'success_story' | null>(null)
     const [activeTab, setActiveTab] = useState<'all' | 'video' | 'article' | 'course'>(typeFilter || 'all')
     const [editingContent, setEditingContent] = useState<ContentItem | null>(null)
     const [deletingContentId, setDeletingContentId] = useState<string | null>(null)
@@ -110,7 +107,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
     }
 
     if (view === 'create' || view === 'edit') {
-        const isCourse = selectedType === 'course' || editingContent?.type === 'course';
+        const isCourse = selectedType === 'course' || (editingContent as any)?.type === 'course';
 
         return (
             <div className="space-y-8">
@@ -301,9 +298,9 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                             {/* Type Badge */}
                                             <div className="absolute top-4 left-4">
                                                 <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase backdrop-blur-md bg-slate-900/40 text-white border border-white/20 shadow-lg">
-                                                    {item.type === 'video' ? 'فيديو' :
-                                                        item.type === 'course' ? 'دورة' :
-                                                            item.type === 'webinar' ? 'ندوة' :
+                                                    {(item as any).type === 'video' ? 'فيديو' :
+                                                        (item as any).type === 'course' ? 'دورة' :
+                                                            (item as any).type === 'webinar' ? 'ندوة' :
                                                                 t('content.add.type.article')}
                                                 </span>
                                             </div>

@@ -1,13 +1,404 @@
-import { OrderList } from '@/features/orders/components/OrderList'
-import { useLanguage } from '@/shared/context/LanguageContext'
+import { useState, useMemo } from 'react'
+import { useOrders } from '@/features/orders/hooks/use-orders'
+import {
+    Search,
+    Video,
+    TrendingUp,
+    Package,
+    Users,
+    Eye,
+    Edit2,
+    XCircle,
+    Clock,
+    CheckCircle2,
+    Filter,
+    Box,
+    AlertCircle
+} from 'lucide-react'
+
+// Mock Data for Consultations (used when activeTab === 'consultations')
+const CONSULTATIONS_DATA = [
+    {
+        id: 'P-0938',
+        patient: 'علي محمد',
+        patientId: '#P-0938',
+        patientImg: 'https://i.pravatar.cc/150?u=ali',
+        doctor: 'د. سارة المنصور',
+        doctorSpec: 'أخصائي طب النوم',
+        doctorImg: 'https://i.pravatar.cc/150?u=sara',
+        dateTime: '24 أكتوبر 2024',
+        time: '9:30 ص',
+        type: 'استشارة أونلاين',
+        typeSub: 'النوم المتقطع',
+        status: 'pending',
+        statusLabel: 'قيد الانتظار'
+    },
+    // ... other consultations
+]
+
+const STATS = [
+    {
+        count: 128,
+        label: 'الاستشارات اليوم',
+        icon: <Video size={20} />,
+        bg: 'bg-blue-50',
+        textColor: 'text-blue-500',
+        gradient: 'from-blue-500/10 to-transparent'
+    },
+    {
+        count: 123,
+        label: 'البرامج النشطة',
+        icon: <TrendingUp size={20} />,
+        bg: 'bg-emerald-50',
+        textColor: 'text-emerald-500',
+        gradient: 'from-emerald-500/10 to-transparent'
+    },
+    {
+        count: 12,
+        label: 'إجمالي الخدمات',
+        icon: <Package size={20} />,
+        bg: 'bg-[#E0F7F9]',
+        textColor: 'text-[#00BCD4]',
+        gradient: 'from-[#00BCD4]/10 to-transparent'
+    },
+    {
+        count: 123,
+        label: 'المستخدمين النشطين',
+        icon: <Users size={20} />,
+        bg: 'bg-orange-50',
+        textColor: 'text-orange-500',
+        gradient: 'from-orange-500/10 to-transparent'
+    }
+]
+
+const TABS = [
+    { id: 'all', label: 'جميع الطلبات' },
+    { id: 'consultations', label: 'الاستشارات' },
+    { id: 'programs', label: 'البرامج' },
+    { id: 'sla', label: 'SLA' }
+]
+
+const ORDER_STATUS_FILTERS = [
+    { id: 'all', label: 'الكل' },
+    { id: 'pending', label: 'قيد الانتظار' },
+    { id: 'in_progress', label: 'قيد التنفيذ' },
+    { id: 'completed', label: 'مكتمل' }
+]
 
 export default function OrdersPage() {
-    const { t } = useLanguage()
+    const { data: realOrders, isLoading: ordersLoading } = useOrders()
+    const [activeTab, setActiveTab] = useState('all')
+    const [orderStatusFilter, setOrderStatusFilter] = useState('all')
+    const [searchQuery, setSearchQuery] = useState('')
+
+    // Map backend orders to UI structure
+    const mappedOrders = useMemo(() => {
+        if (!realOrders) return []
+
+        return realOrders.map((order: any) => {
+            const status = order.operational_status?.toLowerCase();
+            let uiStatus = 'pending';
+            let uiLabel = 'قيد الانتظار';
+
+            if (status === 'completed' || status === 'delivered') {
+                uiStatus = 'completed';
+                uiLabel = 'مكتملة';
+            } else if (status === 'confirmed' || status === 'shipped' || status === 'in use') {
+                uiStatus = 'in_progress';
+                uiLabel = 'قيد التنفيذ';
+            }
+
+            return {
+                id: rowId(order.id),
+                rawId: order.id,
+                type: order.id.startsWith('HST') ? 'دراسة نوم منزلية' : 'طلب خدمة',
+                user: order.users?.name || 'مستخدم غير معروف',
+                userId: order.users?.id,
+                status: uiStatus,
+                statusLabel: uiLabel,
+                assignee: 'غير محدد',
+                sla: '36 ساعة متبقية',
+                slaStatus: 'normal'
+            }
+        })
+    }, [realOrders])
+
+    function rowId(id: string) {
+        if (id.length > 8 && !id.includes('-')) return `HST-${id.substring(0, 4)}`
+        return id
+    }
+
+    const filteredData = useMemo(() => {
+        if (activeTab === 'all') {
+            let data = mappedOrders;
+            if (orderStatusFilter !== 'all') {
+                data = data.filter((o: any) => o.status === orderStatusFilter)
+            }
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                data = data.filter((o: any) =>
+                    o.id.toLowerCase().includes(q) ||
+                    o.user.toLowerCase().includes(q)
+                )
+            }
+            return data;
+        } else if (activeTab === 'consultations') {
+            return CONSULTATIONS_DATA;
+        }
+        return [];
+    }, [activeTab, mappedOrders, orderStatusFilter, searchQuery])
+
+    const getStatusStyles = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return 'bg-[#E8F5E9] text-[#2E7D32] border-[#C8E6C9]'
+            case 'pending':
+                return 'bg-[#FFF3E0] text-[#E65100] border-[#FFE0B2]'
+            case 'in_progress':
+                return 'bg-[#E3F2FD] text-[#1565C0] border-[#BBDEFB]'
+            case 'canceled':
+                return 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'
+            default:
+                return 'bg-gray-50 text-gray-600 border-gray-100'
+        }
+    }
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'completed':
+                return <CheckCircle2 size={14} className="ml-2" />
+            case 'pending':
+                return <Clock size={14} className="ml-2" />
+            case 'in_progress':
+                return <TrendingUp size={14} className="ml-2" />
+            case 'canceled':
+                return <XCircle size={14} className="ml-2" />
+            default:
+                return null
+        }
+    }
 
     return (
-        <div className="space-y-6 animate-slide-up">
-            <h1 className="text-3xl font-extrabold text-slate-800">{t('nav.orders')}</h1>
-            <OrderList />
+        <div className="space-y-8 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex justify-between items-end mb-4">
+                <div className="space-y-2">
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">إدارة الخدمات</h1>
+                    <p className="text-slate-400 font-bold text-base">الطلبات، الاستشارات، البرامج، و SLA</p>
+                </div>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {STATS.map((stat, idx) => (
+                    <div key={idx} className="bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 cursor-default">
+                        <div className={`absolute -right-4 -top-4 w-32 h-32 bg-linear-to-br ${stat.gradient} opacity-20 rounded-full blur-3xl transition-opacity duration-500 group-hover:opacity-40`} />
+                        <div className={`w-14 h-14 rounded-[1.25rem] ${stat.bg} ${stat.textColor} flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-sm`}>
+                            {stat.icon}
+                        </div>
+                        <div className="text-center relative z-10">
+                            <h3 className="text-5xl font-black text-slate-800 mb-2 tabular-nums">{stat.count}</h3>
+                            <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">{stat.label}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Tabs Strip */}
+            <div className="bg-white rounded-[2rem] p-2 shadow-sm border border-gray-50 overflow-x-auto no-scrollbar">
+                <div className="flex items-center min-w-max">
+                    {TABS.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            className={`relative px-8 py-4 text-sm font-black transition-all duration-300 ${activeTab === tab.id
+                                ? 'text-[#35788D]'
+                                : 'text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            <span className="flex items-center gap-2">
+                                {tab.id === 'all' && <Box size={18} />}
+                                {tab.id === 'consultations' && <Video size={18} />}
+                                {tab.id === 'programs' && <TrendingUp size={18} />}
+                                {tab.id === 'sla' && <Clock size={18} />}
+                                {tab.label}
+                            </span>
+                            {activeTab === tab.id && (
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#35788D] rounded-full shadow-[0_-2px_10px_rgba(53,120,141,0.5)]" />
+                            )}
+                        </button>
+                    ))}
+                    <div className="flex-1" />
+                </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-gray-50 flex flex-col md:flex-row items-center gap-6">
+                <div className="relative flex-1 group w-full">
+                    <input
+                        type="text"
+                        placeholder="ابحث عن مريض، دكتور، رقم الموعد"
+                        className="w-full bg-[#F3F7F9] border-none rounded-2xl py-4 px-12 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-[#35788D]/10 outline-none transition-all"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#35788D] transition-colors" size={20} />
+                </div>
+
+                {activeTab === 'all' && (
+                    <div className="flex bg-[#F3F7F9] p-1.5 rounded-2xl gap-2 w-full md:w-auto">
+                        {ORDER_STATUS_FILTERS.map(filter => (
+                            <button
+                                key={filter.id}
+                                onClick={() => setOrderStatusFilter(filter.id)}
+                                className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-black transition-all ${orderStatusFilter === filter.id
+                                    ? 'bg-[#1D353E] text-white shadow-lg'
+                                    : 'text-slate-500 hover:bg-white'
+                                    }`}
+                            >
+                                {filter.label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            {/* Table Section */}
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-50 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-right border-collapse">
+                        <thead>
+                            <tr className="bg-[#F8FAFB] border-b border-gray-50">
+                                {activeTab === 'all' ? (
+                                    <>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">رقم الطلب</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">النوع</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">المستخدم</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">الحالة</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">المسؤول</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">SLA</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500 text-center">إجراءات</th>
+                                    </>
+                                ) : (
+                                    <>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">اسم المريض</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">الطبيب المختص</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">التاريخ والوقت</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">النوع</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500">الحالة</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500 text-center">إجراءات</th>
+                                    </>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {ordersLoading ? (
+                                <tr>
+                                    <td colSpan={activeTab === 'all' ? 7 : 6} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <div className="w-10 h-10 border-4 border-[#35788D]/20 border-t-[#35788D] rounded-full animate-spin" />
+                                            <p className="text-slate-400 font-bold">جاري تحميل البيانات...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredData.length === 0 ? (
+                                <tr>
+                                    <td colSpan={activeTab === 'all' ? 7 : 6} className="px-8 py-20 text-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <AlertCircle size={40} className="text-slate-200" />
+                                            <p className="text-slate-400 font-bold text-lg">لا توجد بيانات متاحة حالياً</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredData.map((row: any) => (
+                                <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
+                                    {activeTab === 'all' ? (
+                                        <>
+                                            <td className="px-8 py-6 font-black text-slate-700">{row.id}</td>
+                                            <td className="px-8 py-6">
+                                                <span className="px-4 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-black">
+                                                    {row.type}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 font-bold text-slate-600">{row.user}</td>
+                                            <td className="px-8 py-6">
+                                                <span className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 ${getStatusStyles(row.status)}`}>
+                                                    {getStatusIcon(row.status)}
+                                                    {row.statusLabel}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6 text-slate-400 font-bold">{row.assignee}</td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-2 text-emerald-500 font-black text-sm">
+                                                    <Clock size={16} />
+                                                    {row.sla}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center justify-center">
+                                                    <button className="p-2.5 text-[#35788D] hover:bg-blue-50 rounded-xl transition-all shadow-sm hover:shadow-md">
+                                                        <Eye size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <img src={row.patientImg} alt={row.patient} className="w-12 h-12 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-100" />
+                                                    <div>
+                                                        <p className="font-black text-slate-800">{row.patient}</p>
+                                                        <p className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-wider">{row.patientId}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-slate-600 font-bold">{row.doctor}</td>
+                                            <td className="px-8 py-6 text-slate-400 font-bold">{row.dateTime}</td>
+                                            <td className="px-8 py-6 text-slate-500 font-bold">{row.type}</td>
+                                            <td className="px-8 py-6">
+                                                <span className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 ${getStatusStyles(row.status)}`}>
+                                                    {getStatusIcon(row.status)}
+                                                    {row.statusLabel}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button className="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-all">
+                                                        <Edit2 size={18} />
+                                                    </button>
+                                                    <button className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                                                        <XCircle size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="px-8 py-6 bg-[#F8FAFB] flex items-center justify-between border-t border-gray-50">
+                    <p className="text-gray-400 font-bold text-sm">عرض {filteredData.length} من أصل 48 سجلات</p>
+                    <div className="flex items-center gap-2">
+                        {[1, 2, '...', 8, 9, 10].map((page, i) => (
+                            <button
+                                key={i}
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black transition-all ${page === 1
+                                    ? 'bg-slate-800 text-white shadow-lg'
+                                    : page === '...'
+                                        ? 'text-gray-400 pointer-events-none'
+                                        : 'text-gray-500 hover:bg-white hover:shadow-md'
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
