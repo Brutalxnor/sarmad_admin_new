@@ -23,6 +23,13 @@ export function useAllMetadata() {
     })
 }
 
+export function useAssessmentsWithQuestions() {
+    return useQuery({
+        queryKey: ['assessment-metadata', 'with-questions'],
+        queryFn: () => metadataApi.getWithQuestions()
+    })
+}
+
 export function useUpdateMetadata() {
     const queryClient = useQueryClient()
     return useMutation({
@@ -30,6 +37,28 @@ export function useUpdateMetadata() {
             metadataApi.update(id, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
+        }
+    })
+}
+
+export function useActivateAssessment() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => metadataApi.activate(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
+            toast.success('Assessment activated successfully')
+        }
+    })
+}
+
+export function useDeactivateAssessment() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => metadataApi.deactivate(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
+            toast.success('Assessment deactivated successfully')
         }
     })
 }

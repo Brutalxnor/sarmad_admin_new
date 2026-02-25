@@ -25,7 +25,7 @@ export default function AssessmentQuestionsPage() {
     const { data: versionResponse, isLoading, refetch } = useAssessmentByVersion(version || '')
     const toggleStatus = useToggleAssessmentStatus()
 
-    const [activeCategory, setActiveCategory] = useState<'all' | 'intro' | 'physical' | 'habits'>('all')
+
 
     const isRTL = direction === 'rtl'
     const questions = useMemo(() => versionResponse?.data || [], [versionResponse])
@@ -45,10 +45,7 @@ export default function AssessmentQuestionsPage() {
 
     const decodedVersion = version ? decodeURIComponent(version).trim() : ''
 
-    const filteredQuestions = useMemo(() => {
-        if (activeCategory === 'all') return questions
-        return questions.filter(q => q.category?.toLowerCase() === activeCategory.toLowerCase())
-    }, [questions, activeCategory])
+
 
     const stats = [
         {
@@ -77,12 +74,7 @@ export default function AssessmentQuestionsPage() {
         },
     ]
 
-    const categories = [
-        { id: 'all', label: isRTL ? 'كل الأسئلة' : 'All Questions' },
-        { id: 'intro', label: isRTL ? 'أسئلة تمهيدية' : 'Intro Questions' },
-        { id: 'physical', label: isRTL ? 'الأعراض الجسدية' : 'Physical Symptoms' },
-        { id: 'habits', label: isRTL ? 'العادات اليومية' : 'Daily Habits' },
-    ]
+
 
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen">
@@ -139,51 +131,15 @@ export default function AssessmentQuestionsPage() {
                 ))}
             </div>
 
-            {/* Categories Table/Tabs */}
+            {/* Questions Bank List */}
             <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className={`flex border-b border-gray-100 px-8 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                    {categories.map((cat) => (
-                        <button
-                            key={cat.id}
-                            onClick={() => setActiveCategory(cat.id as any)}
-                            className={`px-6 py-5 text-sm font-black transition-all relative ${activeCategory === cat.id ? 'text-[#35788D]' : 'text-slate-300 hover:text-slate-400'
-                                }`}
-                        >
-                            {cat.label}
-                            {activeCategory === cat.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#35788D] rounded-full" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-
                 <div className="p-8 space-y-6 bg-[#F9FBFC]/50">
                     {questions.length === 0 ? (
-                        <div className="py-20 text-center">
-                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-                                <EyeOff size={40} />
-                            </div>
-                            <h3 className="text-xl font-black text-slate-400 mb-2">
-                                {isRTL ? 'لم يتم العثور على النسخة' : 'Version Not Found'}
-                            </h3>
-                            <p className="text-slate-300 font-bold max-w-xs mx-auto">
-                                {isRTL
-                                    ? `لم نتمكن من العثور على أي أسئلة للنسخة "${decodedVersion}". يرجى التحقق من رقم الإصدار.`
-                                    : `We couldn't find any questions for version "${decodedVersion}". Please verify the version number.`}
-                            </p>
-                            <button
-                                onClick={() => navigate('/assessments')}
-                                className="mt-8 text-[#35788D] font-black text-sm hover:underline"
-                            >
-                                {isRTL ? 'العودة للقائمة الرئيسية' : 'Back to main list'}
-                            </button>
-                        </div>
-                    ) : filteredQuestions.length === 0 ? (
                         <div className="py-20 text-center text-slate-300 font-bold italic">
-                            {isRTL ? 'لا توجد أسئلة في هذا التصنيف' : 'No questions in this category'}
+                            {isRTL ? 'لا توجد أسئلة لهذه النسخة' : 'No questions for this version'}
                         </div>
                     ) : (
-                        filteredQuestions.map((q, idx) => (
+                        questions.map((q: any, idx: number) => (
                             <div key={q.id} className="bg-white rounded-[2rem] p-10 border border-gray-100 shadow-sm hover:shadow-md transition-all relative text-right">
                                 {/* Top Header: Toggle (Left) | Badge & Number (Right) */}
                                 <div className={`flex justify-between items-center mb-10 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>

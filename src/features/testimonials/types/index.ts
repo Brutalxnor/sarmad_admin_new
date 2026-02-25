@@ -10,6 +10,7 @@ export interface Testimonial {
     image_url?: string;
     category?: string;
     display_order?: number;
+    video?: string;
     is_active: boolean;
     created_at: string;
     updated_at: string;

@@ -1,6 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAssessmentVersions } from '@/features/assessments/hooks/use-assessments'
+import { toast } from 'react-hot-toast'
+import {
+    useAssessmentsWithQuestions,
+    useActivateAssessment,
+    useDeactivateAssessment
+} from '@/features/assessments/hooks/use-assessment-metadata'
 import { ViewQuestionModal } from '@/features/questions/components/ViewQuestionModal'
 import { EditQuestionModal } from '@/features/questions/components/EditQuestionModal'
 import type { Question } from '@/features/questions/types/question.types'
@@ -24,7 +29,9 @@ type TabType = 'overview' | 'questions' | 'scoring' | 'guidance'
 export default function AssessmentsPage() {
     const navigate = useNavigate()
     const { t, direction, language } = useLanguage()
-    const { data: versionsResponse, isLoading } = useAssessmentVersions()
+    const { data: assessmentsResponse, isLoading } = useAssessmentsWithQuestions()
+    const activateAssessment = useActivateAssessment()
+    const deactivateAssessment = useDeactivateAssessment()
     const [activeTab, setActiveTab] = useState<TabType>('overview')
     const [selectedVersion, setSelectedVersion] = useState<string>('all')
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
@@ -41,34 +48,51 @@ export default function AssessmentsPage() {
         setIsEditModalOpen(true)
     }
 
+    const handleToggleStatus = (id: string, currentStatus: string) => {
+        if (currentStatus === 'active') {
+            deactivateAssessment.mutate(id)
+        } else {
+            // Check if there's already an active assessment
+            const hasActive = groupedData.some((a: any) => a.is_active)
+            if (hasActive) {
+                toast.error(isRTL
+                    ? 'يوجد تقييم نشط بالفعل. يرجى إلغاء تفعيل التقييم الحالي أولاً.'
+                    : 'There is already an active assessment. Please deactivate the current one first.'
+                )
+                return
+            }
+            activateAssessment.mutate(id)
+        }
+    }
+
     const isRTL = direction === 'rtl'
-    const groupedData = versionsResponse?.data || []
+    const groupedData = assessmentsResponse?.data || []
 
     // Derived Data
     const assessments = useMemo(() => {
-        return groupedData.map((group, index) => ({
-            id: index.toString(),
-            title: language === 'ar' ? 'تقييم النوم الشامل' : 'Comprehensive Sleep Assessment',
-            version: group.version,
-            status: 'active',
-            questions: group.questionCount,
+        return groupedData.map((assessment: any, index: number) => ({
+            id: assessment.id,
+            title: assessment.name || (language === 'ar' ? 'تقييم النوم الشامل' : 'Comprehensive Sleep Assessment'),
+            version: assessment.version?.toString(),
+            status: assessment.is_active ? 'active' : 'inactive',
+            questions: assessment.questions?.length || 0,
             // Realistic mock data until backend provides these metrics
-            submissions: index === 0 ? '12,456' : '8,234',
-            completionRate: index === 0 ? '94%' : '88%',
-            lastUpdate: index === 0 ? '2024-02-15' : '2024-01-20',
-            questionsList: group.questions
+            submissions: '0',
+            completionRate: '0%',
+            lastUpdate: assessment.updated_at ? new Date(assessment.updated_at).toLocaleDateString() : (assessment.created_at ? new Date(assessment.created_at).toLocaleDateString() : ''),
+            questionsList: assessment.questions || []
         }))
     }, [groupedData, language])
 
     const totalQuestionsCount = useMemo(() => {
-        return groupedData.reduce((sum, g) => sum + g.questionCount, 0)
+        return groupedData.reduce((sum: number, g: any) => sum + (g.questions?.length || 0), 0)
     }, [groupedData])
 
     const displayQuestions = useMemo(() => {
         if (selectedVersion === 'all') {
-            return groupedData.flatMap(g => g.questions)
+            return groupedData.flatMap((g: any) => g.questions || [])
         }
-        return groupedData.find(g => String(g.version) === String(selectedVersion))?.questions || []
+        return groupedData.find((g: any) => String(g.version) === String(selectedVersion))?.questions || []
     }, [groupedData, selectedVersion])
 
     const stats = [
@@ -171,7 +195,7 @@ export default function AssessmentsPage() {
                             <div className="flex justify-center items-center py-20">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#35788D]"></div>
                             </div>
-                        ) : assessments.map((assessment) => (
+                        ) : assessments.map((assessment: any) => (
                             <div
                                 key={assessment.id}
                                 onClick={() => navigate(`/assessments/${assessment.version}/questions`)}
@@ -187,9 +211,17 @@ export default function AssessmentsPage() {
                                                 </span>
                                             </div>
                                             <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-xs font-black">
-                                                    <CheckCircle2 size={12} />
-                                                    {t('common.active') || 'نشط'}
+                                                <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleStatus(assessment.id, assessment.status);
+                                                        }}
+                                                        className={`flex items-center gap-1.5 px-3 py-1 ${assessment.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} rounded-full text-xs font-black hover:opacity-80 transition-opacity`}
+                                                    >
+                                                        <CheckCircle2 size={12} />
+                                                        {assessment.status === 'active' ? (t('common.active') || 'نشط') : (t('common.inactive') || 'غير نشط')}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -247,7 +279,7 @@ export default function AssessmentsPage() {
                                     className="bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-black text-[#35788D] outline-none cursor-pointer"
                                 >
                                     <option value="all">{language === 'ar' ? 'جميع الإصدارات' : 'All Versions'}</option>
-                                    {groupedData.map(g => (
+                                    {groupedData.map((g: any) => (
                                         <option key={g.version} value={g.version}>{g.version}</option>
                                     ))}
                                 </select>
@@ -264,7 +296,7 @@ export default function AssessmentsPage() {
                                     {t('questions.empty')}
                                 </div>
                             ) : (
-                                displayQuestions.map((q, idx) => (
+                                displayQuestions.map((q: any, idx: number) => (
                                     <div key={q.id} className="border border-gray-50 rounded-2xl p-6 flex items-center justify-between hover:bg-[#F4F9FB]/30 transition-all group">
                                         <div className={`flex items-center gap-6 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                             <div className={`text-slate-800 font-black flex items-center gap-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>

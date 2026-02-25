@@ -21,6 +21,10 @@ export const metadataApi = {
         const response = await apiClient.get('/assessment-metadata')
         return response.data
     },
+    getWithQuestions: async () => {
+        const response = await apiClient.get('/assessment-metadata/with-questions')
+        return response.data
+    },
     getById: async (id: string) => {
         const response = await apiClient.get(`/assessment-metadata/${id}`)
         return response.data
@@ -35,6 +39,14 @@ export const metadataApi = {
     },
     toggleStatus: async (id: string, is_active: boolean) => {
         const response = await apiClient.patch(`/assessment-metadata/${id}/status`, { is_active })
+        return response.data
+    },
+    activate: async (id: string) => {
+        const response = await apiClient.patch(`/assessment-metadata/${id}/activate`)
+        return response.data
+    },
+    deactivate: async (id: string) => {
+        const response = await apiClient.patch(`/assessment-metadata/${id}/deactivate`)
         return response.data
     }
 }
