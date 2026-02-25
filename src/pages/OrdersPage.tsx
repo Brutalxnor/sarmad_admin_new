@@ -14,7 +14,6 @@ import {
     Edit2,
     XCircle,
     Clock,
-    CheckCircle2,
     Box,
     AlertCircle,
     ChevronDown
