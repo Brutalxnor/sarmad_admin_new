@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { useCreateArticle, useUpdateArticle, useTopics } from '../hooks/use-content'
+import { useSegments } from '@/features/filters/hooks/use-filters'
 import type { ContentItem } from '../types'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
 import { useLanguage } from '@/shared/context/LanguageContext'
-import { ArrowLeft, Image as ImageIcon, Eye, Save, UserRound } from 'lucide-react'
+import { ArrowLeft, Image as ImageIcon, Eye, Save, UserRound, Tag, Check, X } from 'lucide-react'
 
 interface CreateContentFormProps {
     initialData?: Partial<ContentItem>
@@ -17,7 +18,9 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
     const { direction, language } = useLanguage()
 
     const { data: topics = [], isLoading: isLoadingTopics } = useTopics()
-    const isPending = isCreating || isUpdating || isLoadingTopics
+    const { data: segments = [], isLoading: isLoadingSegments } = useSegments()
+
+    const isPending = isCreating || isUpdating || isLoadingTopics || isLoadingSegments
     const isEditMode = !!initialData?.id
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -52,6 +55,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
         media_url: '',
         author: '',
         access_type: 'public',
+        segments: initialData?.segments || [],
         ...initialData,
         topic: initialTopicName,
         topic_id: initialTopicId
@@ -75,6 +79,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
             setFormData(prev => ({
                 ...prev,
                 ...initialData,
+                segments: initialData.segments || [],
                 topic: topicName,
                 topic_id: resolvedTopicId || topicId
             }))
@@ -100,6 +105,17 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
             setFormData(prev => ({ ...prev, thumbnail_image: file }))
             setPreviewUrl(URL.createObjectURL(file))
         }
+    }
+
+    const toggleSegment = (segmentName: string) => {
+        setFormData(prev => {
+            const currentSegments = prev.segments || []
+            if (currentSegments.includes(segmentName)) {
+                return { ...prev, segments: currentSegments.filter(s => s !== segmentName) }
+            } else {
+                return { ...prev, segments: [...currentSegments, segmentName] }
+            }
+        })
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -350,6 +366,78 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                             />
                         </div>
                     )}
+
+                    {/* Segments Selection Card */}
+                    <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 space-y-4">
+                        <div className={`flex items-center justify-between ${direction === 'rtl' ? 'flex-row-reverse' : 'flex-row'}`}>
+                            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">
+                                {language === 'ar' ? 'الشرائح المستهدفة' : 'Target Segments'}
+                            </h3>
+                            <Tag size={14} className="text-slate-400" />
+                        </div>
+
+                        {isLoadingSegments ? (
+                            <div className="py-4 flex justify-center">
+                                <div className="w-5 h-5 border-2 border-[#35788D] border-t-transparent rounded-full animate-spin" />
+                            </div>
+                        ) : (
+                            <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                                {segments.length > 0 ? (
+                                    segments.map(seg => {
+                                        const segIdentifier = seg.name_en || seg.name
+                                        const isSelected = formData.segments?.includes(segIdentifier)
+                                        return (
+                                            <div
+                                                key={seg.id}
+                                                onClick={() => toggleSegment(segIdentifier)}
+                                                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${isSelected
+                                                    ? 'bg-[#F4F9FB] border-[#35788D]/20 text-[#35788D]'
+                                                    : 'bg-white border-transparent text-slate-500 hover:bg-slate-50'
+                                                    }`}
+                                            >
+                                                <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected
+                                                    ? 'bg-[#35788D] border-[#35788D]'
+                                                    : 'border-slate-200 bg-white'
+                                                    }`}>
+                                                    {isSelected && <Check size={12} className="text-white" />}
+                                                </div>
+                                                <span className="text-xs font-black">
+                                                    {language === 'ar' ? (seg.name || seg.name_en) : (seg.name_en || seg.name)}
+                                                </span>
+                                            </div>
+                                        )
+                                    })
+                                ) : (
+                                    <p className="text-[10px] text-slate-400 font-bold text-center py-4 italic">
+                                        {language === 'ar' ? 'لا يوجد شرائح متاحة حالياً' : 'No segments available'}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {formData.segments && formData.segments.length > 0 && (
+                            <div className="pt-2 border-t border-slate-50 flex flex-wrap gap-1.5">
+                                <span className="text-[9px] font-black text-slate-400 w-full mb-1">
+                                    {language === 'ar' ? 'المختار:' : 'Selected:'}
+                                </span>
+                                {formData.segments.map(segName => {
+                                    const seg = segments.find(s => (s.name_en || s.name) === segName)
+                                    if (!seg) return (
+                                        <div key={segName} className="flex items-center gap-1 bg-[#35788D]/10 text-[#35788D] px-2.5 py-1 rounded-full text-[10px] font-black">
+                                            {segName}
+                                            <X size={10} className="cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleSegment(segName); }} />
+                                        </div>
+                                    )
+                                    return (
+                                        <div key={segName} className="flex items-center gap-1 bg-[#35788D]/10 text-[#35788D] px-2.5 py-1 rounded-full text-[10px] font-black">
+                                            {language === 'ar' ? (seg.name || seg.name_en) : (seg.name_en || seg.name)}
+                                            <X size={10} className="cursor-pointer" onClick={(e) => { e.stopPropagation(); toggleSegment(segName); }} />
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
 
                     {/* Settings Card */}
                     {(formData.type === 'article' || formData.type === 'video') && (

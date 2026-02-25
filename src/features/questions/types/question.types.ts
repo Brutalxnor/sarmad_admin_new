@@ -5,7 +5,7 @@ export type Question = DbQuestion
 export interface CreateQuestionDTO {
     question: string
     category?: string
-    assess_version?: number
+    assess_version?: string | number
     in_assessment?: boolean
     actual_assess?: boolean
     answers?: {
