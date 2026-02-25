@@ -218,21 +218,6 @@ export default function OrdersPage() {
         }
     }
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'completed':
-                return <CheckCircle2 size={14} className="ml-2" />
-            case 'pending':
-                return <Clock size={14} className="ml-2" />
-            case 'in_progress':
-                return <TrendingUp size={14} className="ml-2" />
-            case 'canceled':
-            case 'cancelled':
-                return <XCircle size={14} className="ml-2" />
-            default:
-                return null
-        }
-    }
 
     const isLoading = activeTab === 'all' ? ordersLoading : consultationsLoading
 

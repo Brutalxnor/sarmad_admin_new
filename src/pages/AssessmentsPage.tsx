@@ -70,7 +70,7 @@ export default function AssessmentsPage() {
 
     // Derived Data
     const assessments = useMemo(() => {
-        return groupedData.map((assessment: any, index: number) => ({
+        return groupedData.map((assessment: any) => ({
             id: assessment.id,
             title: assessment.name || (language === 'ar' ? 'تقييم النوم الشامل' : 'Comprehensive Sleep Assessment'),
             version: assessment.version?.toString(),
