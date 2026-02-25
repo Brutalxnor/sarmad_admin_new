@@ -346,7 +346,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                             </h4>
 
                                             {/* Progress Bar Placeholder for Courses */}
-                                            {item.type === 'course' && (
+                                            {(item as any).type === 'course' && (
                                                 <div className="space-y-2 pt-2">
                                                     <div className="flex justify-between text-[10px] font-black">
                                                         <span className="text-gray-400">75% مكتمل</span>
@@ -372,14 +372,14 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full border border-gray-100 p-0.5 shadow-sm">
                                                     <img
-                                                        src={item.author_avatar || `https://ui-avatars.com/api/?name=${item.author || 'A'}&background=35788D&color=fff`}
+                                                        src={(item as any).author_avatar || `https://ui-avatars.com/api/?name=${item.author || 'A'}&background=35788D&color=fff`}
                                                         className="w-full h-full rounded-full object-cover"
                                                         alt="Author"
                                                     />
                                                 </div>
                                                 <div className="text-start">
                                                     <p className="text-sm font-black text-slate-800 leading-none mb-1">{item.author || 'أحمد عبدالله'}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold">{item.author_role || 'مختص طب النوم'}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold">{(item as any).author_role || 'مختص طب النوم'}</p>
                                                 </div>
                                             </div>
                                             <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 hover:text-[#35788D] hover:bg-slate-50 transition-all cursor-pointer">

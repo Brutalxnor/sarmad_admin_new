@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Image as ImageIcon, CheckCircle, Save, X, Play, Star, Trash2 } from 'lucide-react'
+import { ArrowLeft, Image as ImageIcon, CheckCircle, Save, Star, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { useTestimonials } from '../../testimonials/hooks/use-testimonials'
 import { toast } from 'react-hot-toast'

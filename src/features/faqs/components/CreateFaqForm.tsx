@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useFaqs } from '../hooks/use-faqs'
 import { useTopics } from '../../content/hooks/use-content'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import type { FAQ } from '../types'
-import { Save, FileText, X } from 'lucide-react'
+import { Save, FileText } from 'lucide-react'
 
 interface CreateFaqFormProps {
     onSuccess?: () => void

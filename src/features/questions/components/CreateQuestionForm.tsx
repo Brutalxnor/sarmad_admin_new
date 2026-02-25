@@ -3,7 +3,7 @@ import { useCreateQuestion, useUpdateQuestion, useUpdateAnswer } from '../hooks/
 import type { Question } from '../types/question.types'
 import { useLanguage } from '@/shared/context/LanguageContext'
 
-import { HelpCircle, Hash, Info, Plus, Trash2 } from 'lucide-react'
+import { HelpCircle, Hash, Plus, Trash2 } from 'lucide-react'
 
 interface QuestionFormProps {
     onSuccess?: () => void

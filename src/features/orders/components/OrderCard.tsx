@@ -102,7 +102,7 @@ export function OrderCard({ order }: OrderCardProps) {
                     <div className="p-3 bg-brand-50/30 rounded-2xl border border-brand-100/30 flex justify-between items-center group/price">
                         <div>
                             <span className="text-[10px] text-slate-400 block mb-0.5">{t('orders.card.amount')}</span>
-                            <span className="text-sm font-black text-brand-700 tracking-tight">{order.amount || '---'} {order.currency || t('common.currency')}</span>
+                            <span className="text-sm font-black text-brand-700 tracking-tight">{order.total_amount || '---'} {order.currency || t('common.currency')}</span>
                         </div>
                         {order.tracking_ref ? (
                             <div className={`${direction === 'rtl' ? 'text-left' : 'text-right'}`}>

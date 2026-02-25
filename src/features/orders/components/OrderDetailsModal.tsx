@@ -88,7 +88,7 @@ export function OrderDetailsModal({ order, onClose }: OrderDetailsModalProps) {
                             <h4 className="font-bold">معلومات المنتج والتتبع</h4>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                            <DetailItem label="قيمة الطلب" value={`${order.amount} ${order.currency}`} />
+                            <DetailItem label="قيمة الطلب" value={`${order.total_amount} ${order.currency}`} />
                             <DetailItem label="رقم التتبع" value={order.tracking_ref || 'لم يتم الشحن بعد'} isLtr={!!order.tracking_ref} />
                             <DetailItem label="تاريخ الطلب" value={formatDate(order.created_at)} />
                             <DetailItem label="آخر تحديث" value={formatDate(order.updated_at)} />
