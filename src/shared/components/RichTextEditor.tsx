@@ -5,6 +5,7 @@ interface RichTextEditorProps {
     value: string;
     onChange: (content: string) => void;
     placeholder?: string;
+    minHeight?: string;
 }
 
 const modules = {
@@ -27,9 +28,9 @@ const formats = [
     'link', 'image',
 ];
 
-export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, minHeight = '300px' }: RichTextEditorProps) {
     return (
-        <div className="rich-text-editor bg-white rounded-xl overflow-hidden border border-gray-200 focus-within:border-brand-500 transition-all">
+        <div className="rich-text-editor h-full flex flex-col bg-white">
             <ReactQuill
                 theme="snow"
                 value={value}
@@ -37,11 +38,12 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
                 modules={modules}
                 formats={formats}
                 placeholder={placeholder}
-                className="min-h-[200px]"
+                className="flex-1 flex flex-col"
             />
             <style>{`
                 .ql-editor {
-                    min-height: 200px;
+                    min-height: ${minHeight};
+                    flex: 1;
                     font-family: inherit;
                     font-size: 1rem;
                     text-align: right;
@@ -49,6 +51,9 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
                 }
                 .ql-container.ql-snow {
                     border: none;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
                 }
                 .ql-toolbar.ql-snow {
                     border: none;

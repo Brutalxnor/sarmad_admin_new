@@ -51,6 +51,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
         duration: '',
         media_url: '',
         author: '',
+        access_type: 'public',
         ...initialData,
         topic: initialTopicName,
         topic_id: initialTopicId
@@ -131,7 +132,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
                 {/* Main Content Area (8 cols) - In RTL this will be on the RIGHT */}
-                <div className="lg:col-span-8 space-y-6">
+                <div className="lg:col-span-8 bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 space-y-8">
                     {formData.type === 'video' ? (
                         <>
                             {/* Video Title */}
@@ -142,7 +143,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                     required
                                     value={formData.title}
                                     onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                    className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-black placeholder:text-slate-300 focus:ring-4 focus:ring-[#35788D]/10 focus:border-[#35788D] transition-all text-start"
                                     placeholder="مثلاً: كيف تحسن جودة نومك في 7 خطوات بسيطة"
                                 />
                             </div>
@@ -155,7 +156,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                         type="text"
                                         value={formData.media_url || ''}
                                         onChange={e => setFormData(prev => ({ ...prev, media_url: e.target.value }))}
-                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-black placeholder:text-slate-300 focus:ring-4 focus:ring-[#35788D]/10 focus:border-[#35788D] transition-all text-start"
                                         placeholder="مثلاً: https://www.youtube.com/vide-675"
                                     />
                                 </div>
@@ -165,7 +166,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                         type="text"
                                         value={formData.duration || ''}
                                         onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
-                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-black placeholder:text-slate-300 focus:ring-4 focus:ring-[#35788D]/10 focus:border-[#35788D] transition-all text-start"
                                         placeholder="مثلاً: 12:45 دقيقة"
                                     />
                                 </div>
@@ -189,7 +190,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                                 topic: localizedName || ''
                                             }))
                                         }}
-                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-black appearance-none cursor-pointer focus:ring-4 focus:ring-[#35788D]/10 focus:border-[#35788D] transition-all text-start"
                                     >
                                         <option value="">{isLoadingTopics ? (language === 'ar' ? 'جاري التحميل...' : 'Loading...') : (language === 'ar' ? 'اختر تصنيفاً...' : 'Select a category...')}</option>
                                         {topics.map(t => (
@@ -207,11 +208,12 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                             {/* Description Editor / Area */}
                             <div className="space-y-2">
                                 <label className="text-base font-bold text-slate-800 block text-start">وصف الفيديو</label>
-                                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm min-h-[350px]">
+                                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                                     <RichTextEditor
                                         value={formData.description || ''}
                                         onChange={content => setFormData(prev => ({ ...prev, description: content }))}
                                         placeholder="اكتب وصفاً مفصلاً لمحتوى الفيديو والفوائد المتوقعة للمشاهد..."
+                                        minHeight="250px"
                                     />
                                 </div>
                             </div>
@@ -228,7 +230,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                     required
                                     value={formData.title}
                                     onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                    className="w-full bg-white border-2 border-slate-200 rounded-2xl p-5 text-sm font-black placeholder:text-slate-300 focus:border-slate-900 focus:ring-0 transition-all text-start"
                                     placeholder={language === 'ar' ? 'مثلاً: كيف تحسن جودة نومك في 7 خطوات بسيطة' : 'e.g. How to improve sleep quality'}
                                 />
                             </div>
@@ -243,7 +245,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                         type="text"
                                         value={formData.author || ''}
                                         onChange={e => setFormData(prev => ({ ...prev, author: e.target.value }))}
-                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                        className="w-full bg-[#F4F9FB]/50 border-none rounded-2xl p-4 text-sm font-black placeholder:text-slate-300 focus:ring-4 focus:ring-[#35788D]/10 transition-all text-start"
                                         placeholder={language === 'ar' ? 'مثلاً: محمد أمين' : 'e.g. John Doe'}
                                     />
                                 </div>
@@ -264,7 +266,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                                     topic: localizedName || ''
                                                 }))
                                             }}
-                                            className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold appearance-none cursor-pointer focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
+                                            className="w-full bg-[#F4F9FB]/50 border-none rounded-2xl p-4 text-sm font-black appearance-none cursor-pointer focus:ring-4 focus:ring-[#35788D]/10 transition-all text-start"
                                         >
                                             <option value="">{isLoadingTopics ? (language === 'ar' ? 'جاري التحميل...' : 'Loading...') : (language === 'ar' ? 'اختر تصنيفاً...' : 'Select a category...')}</option>
                                             {topics.map(t => (
@@ -285,11 +287,12 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                 <label className="text-base font-bold text-slate-800 block text-start">
                                     {language === 'ar' ? 'محتوى المقال' : 'Article Content'}
                                 </label>
-                                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm min-h-[400px]">
+                                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
                                     <RichTextEditor
                                         value={formData.description || ''}
                                         onChange={content => setFormData(prev => ({ ...prev, description: content }))}
                                         placeholder={language === 'ar' ? 'ابدأ الكتابة هنا باللغة العربية ...' : 'Start typing here...'}
+                                        minHeight="400px"
                                     />
                                 </div>
                             </div>
@@ -331,31 +334,25 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                         </div>
                     </div>
 
-                    {/* Presenter / Staff Dropdown (For Video) */}
+                    {/* Presenter / Staff Input (For Video) */}
                     {formData.type === 'video' && (
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 space-y-4">
                             <label className="text-xs font-bold text-slate-500 flex items-center gap-2 justify-end">
                                 مقدم المحتوى
                                 <UserRound size={14} />
                             </label>
-                            <div className="relative">
-                                <select
-                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-bold text-end appearance-none cursor-pointer pr-10"
-                                    value={formData.author || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, author: e.target.value }))}
-                                >
-                                    <option value="فاطمة محمد">فاطمة محمد</option>
-                                    <option value="أحمد علي">أحمد علي</option>
-                                </select>
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <ArrowLeft size={16} className="-rotate-90" />
-                                </div>
-                            </div>
+                            <input
+                                type="text"
+                                className="w-full bg-[#F4F9FB] border-none rounded-xl p-4 text-sm font-black text-end focus:ring-2 focus:ring-[#35788D]/20 transition-all placeholder:text-slate-300"
+                                placeholder="مثلاً: فاطمة محمد"
+                                value={formData.author || ''}
+                                onChange={e => setFormData(prev => ({ ...prev, author: e.target.value }))}
+                            />
                         </div>
                     )}
 
-                    {/* Settings Card (Only for Article) */}
-                    {formData.type === 'article' && (
+                    {/* Settings Card */}
+                    {(formData.type === 'article' || formData.type === 'video') && (
                         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-50 space-y-6">
                             {/* Language */}
                             <div className="space-y-3">
@@ -378,17 +375,19 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                 </div>
                             </div>
 
-                            {/* Reading Time */}
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'وقت القراءة' : 'Reading Time'}</label>
-                                <input
-                                    type="text"
-                                    value={formData.duration || ''}
-                                    onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
-                                    className="w-full bg-[#F4F9FB] border-none rounded-xl p-3 text-sm font-bold text-start placeholder:text-slate-300"
-                                    placeholder={language === 'ar' ? 'مثلاً: 5 دقائق' : 'e.g. 5 mins'}
-                                />
-                            </div>
+                            {/* Reading Time (Only for Articles, Video has it in main area) */}
+                            {formData.type === 'article' && (
+                                <div className="space-y-3">
+                                    <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'وقت القراءة' : 'Reading Time'}</label>
+                                    <input
+                                        type="text"
+                                        value={formData.duration || ''}
+                                        onChange={e => setFormData(prev => ({ ...prev, duration: e.target.value }))}
+                                        className="w-full bg-[#F4F9FB] border-none rounded-xl p-3 text-sm font-bold text-start placeholder:text-slate-300"
+                                        placeholder={language === 'ar' ? 'مثلاً: 5 دقائق' : 'e.g. 5 mins'}
+                                    />
+                                </div>
+                            )}
 
                             {/* Status */}
                             <div className="space-y-3">
@@ -405,6 +404,27 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                     <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                         <ArrowLeft size={16} className="-rotate-90" />
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* Access Type */}
+                            <div className="space-y-3">
+                                <label className="text-xs font-black text-slate-400 block text-start uppercase tracking-wider">{language === 'ar' ? 'نوع الوصول' : 'Access Type'}</label>
+                                <div className="flex bg-[#F4F9FB] p-1.5 rounded-2xl">
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, access_type: 'members_only' }))}
+                                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${formData.access_type === 'members_only' ? 'bg-white text-[#35788D] shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {language === 'ar' ? 'للمشتركين' : 'Members'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, access_type: 'public' }))}
+                                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${formData.access_type === 'public' ? 'bg-white text-[#35788D] shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {language === 'ar' ? 'عام' : 'Public'}
+                                    </button>
                                 </div>
                             </div>
                         </div>

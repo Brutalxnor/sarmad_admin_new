@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { useWebinars } from '../hooks/use-webinars'
+import { useWebinars, useDeleteWebinar } from '../hooks/use-webinars'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import type { Webinar } from '../types'
 import { CreateWebinarForm } from './CreateWebinarForm'
 import { WebinarAttendees } from './WebinarAttendees'
 import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
-import { Plus, Video, Eye, Clock, PlayCircle, Users, ArrowLeft, ChevronDown } from 'lucide-react'
+import { Plus, Video, Eye, Clock, PlayCircle, Users, ArrowLeft, ChevronDown, Trash2, Calendar } from 'lucide-react'
 
 export function WebinarList() {
     const { data: webinars, isLoading } = useWebinars()
+    const deleteWebinar = useDeleteWebinar()
     const { direction } = useLanguage()
     const isRTL = direction === 'rtl'
 
@@ -18,6 +19,17 @@ export function WebinarList() {
     const [selectedWebinar, setSelectedWebinar] = useState<Webinar | null>(null)
     const [activeFilter, setActiveFilter] = useState('all')
     const [sortBy, setSortBy] = useState('newest')
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm(isRTL ? 'هل أنت متأكد من حذف هذه الندوة؟' : 'Are you sure you want to delete this webinar?')) {
+            try {
+                await deleteWebinar.mutateAsync(id)
+            } catch (error) {
+                console.error('Failed to delete webinar:', error)
+                alert(isRTL ? 'فشل حذف الندوة' : 'Failed to delete webinar')
+            }
+        }
+    }
 
     // Extract unique segments for filter tabs
     const allSegments: string[] = Array.from(
@@ -187,6 +199,7 @@ export function WebinarList() {
                                 isRTL={isRTL}
                                 onEdit={() => setEditingWebinar(webinar)}
                                 onViewAttendees={() => setSelectedWebinar(webinar)}
+                                onDelete={() => handleDelete(webinar.id)}
                             />
                         ))}
                     </div>
@@ -222,20 +235,22 @@ function WebinarGridCard({
     isRTL,
     onEdit,
     onViewAttendees,
+    onDelete,
 }: {
     webinar: Webinar
     isRTL: boolean
     onEdit: () => void
     onViewAttendees: () => void
+    onDelete: () => void
 }) {
     const thumbnailUrl = typeof webinar.thumbnail_image === 'string' ? webinar.thumbnail_image : ''
     const date = new Date(webinar.date_time).toLocaleDateString('ar-SA', { day: '2-digit', month: 'long', year: 'numeric' })
     const segments = Array.isArray(webinar.segment) ? webinar.segment : [webinar.segment]
 
     return (
-        <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-lg transition-all hover:-translate-y-1 flex flex-col">
-            {/* Thumbnail */}
-            <div className="relative aspect-video overflow-hidden bg-slate-100">
+        <div className="bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full font-font-secondary">
+            {/* Thumbnail Area */}
+            <div className="relative aspect-[16/10] overflow-hidden">
                 {thumbnailUrl ? (
                     <img
                         src={thumbnailUrl}
@@ -244,79 +259,109 @@ function WebinarGridCard({
                     />
                 ) : (
                     <div className="w-full h-full bg-gradient-to-br from-[#35788D] to-[#0095D9] flex items-center justify-center">
-                        <Video size={40} className="text-white/40" />
+                        <Video size={48} className="text-white/30" />
                     </div>
                 )}
 
-                {/* Play button overlay */}
-                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-14 h-14 bg-white/90 rounded-full flex items-center justify-center shadow-xl">
-                        <PlayCircle size={28} className="text-[#35788D]" />
+                {/* Overlays */}
+                <div className="absolute inset-0 bg-black/5" />
+
+                {/* Play Button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl transform transition-transform group-hover:scale-110">
+                        <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-[#35788D] border-b-[8px] border-b-transparent ml-1" />
                     </div>
                 </div>
 
-                {/* Duration badge */}
-                <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-black px-2.5 py-1 rounded-lg`}>
-                    <Clock size={11} />
-                    <span>9 {isRTL ? 'دقائق' : 'min'}</span>
-                </div>
-
-                {/* Views badge */}
-                <div className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} flex items-center gap-1.5 bg-[#0095D9]/80 backdrop-blur-sm text-white text-[10px] font-black px-2.5 py-1 rounded-lg`}>
-                    <Eye size={11} />
-                    <span>{webinar.registration_count}</span>
+                {/* Top Badges */}
+                <div className="absolute top-4 inset-x-4 flex justify-end gap-2">
+                    <span className="bg-[#E2E8F0]/90 backdrop-blur-sm text-slate-600 text-[11px] font-black px-3 py-1.5 rounded-lg">
+                        {isRTL ? 'فيديو' : 'Video'}
+                    </span>
                 </div>
             </div>
 
-            {/* Content */}
-            <div className={`p-5 flex-1 flex flex-col ${isRTL ? 'text-start' : 'text-end'}`}>
-                {/* Title */}
-                <h3 className="text-sm font-black text-slate-800 line-clamp-1 mb-2 group-hover:text-[#35788D] transition-colors">
-                    {webinar.title}
-                </h3>
+            {/* Content Area */}
+            <div className="p-6 flex-1 flex flex-col">
+                {/* Actions & Title Row */}
+                <div className={`flex items-start justify-between gap-4 mb-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                    {/* Right Title (In RTL, this comes first in DOM but appears right due to flex-row and container direction) */}
+                    <h3 className={`text-xl font-black text-slate-900 line-clamp-2 leading-snug flex-1 ${isRTL ? 'text-right order-1' : 'text-left'}`}>
+                        {webinar.title}
+                    </h3>
 
-                {/* Description */}
-                {webinar.description && (
-                    <p className="text-[11px] text-slate-400 font-medium line-clamp-2 mb-3 leading-relaxed">
-                        {webinar.description.replace(/<[^>]*>/g, '').substring(0, 80)}...
-                    </p>
-                )}
+                    {/* Left Actions (In RTL, these appear next to the title on its left) */}
+                    <div className={`flex items-center gap-1.5 pt-1 ${isRTL ? 'order-2' : ''}`}>
+                        <button
+                            onClick={onEdit}
+                            className="p-2 text-[#0095D9] hover:bg-sky-50 rounded-xl transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={onDelete}
+                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                        >
+                            <Trash2 size={20} strokeWidth={2} />
+                        </button>
+                    </div>
+                </div>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
+                {/* Duration & Lang Row */}
+                <div className={`flex items-center gap-4 mb-4 ${isRTL ? 'justify-start' : 'justify-start'}`}>
+                    <div className="flex items-center gap-1.5 text-slate-400 font-bold text-sm">
+                        <span className="tabular-nums">43:34</span>
+                        <Clock size={16} />
+                    </div>
+                    <span className="bg-[#F8FAFC] border border-slate-100 text-[#35788D] text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                        {webinar.lang || 'AR'}
+                    </span>
+                </div>
+
+                {/* Stats & Date Row */}
+                <div className={`flex items-center gap-4 mb-6 text-slate-400 font-bold text-[13px] ${isRTL ? 'justify-start' : 'justify-start'}`}>
+                    <div className="flex items-center gap-1.5">
+                        <span>{webinar.registration_count || '0'} {isRTL ? 'مشاهدة' : 'Views'}</span>
+                        <Eye size={15} />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span>{date}</span>
+                        <Calendar size={15} />
+                    </div>
+                </div>
+
+                {/* Dynamic Tags Row */}
+                <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'justify-start' : 'justify-start'}`}>
                     {segments.map((seg, i) => (
-                        <span key={i} className="bg-[#F4F9FB] text-[#35788D] text-[10px] font-black px-2.5 py-1 rounded-full">
+                        <span key={i} className="bg-[#F1F5F9] text-[#35788D] text-xs font-black px-4 py-2 rounded-full border border-slate-100/50">
                             {seg}
                         </span>
                     ))}
                 </div>
 
-                {/* Author */}
-                <div className="mt-auto flex items-center gap-3 pt-3 border-t border-gray-50">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#35788D] to-[#0095D9] flex items-center justify-center text-white text-[10px] font-black shrink-0">
-                        {webinar.speaker?.charAt(0)}
-                    </div>
+                {/* Divider */}
+                <div className="h-px bg-slate-100 w-full mb-6" />
+
+                {/* Speaker Section */}
+                <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse text-right' : 'text-left'}`}>
                     <div className="flex-1 min-w-0">
-                        <p className="text-xs font-black text-slate-700 truncate">{webinar.speaker}</p>
-                        <p className="text-[10px] text-slate-400 font-bold">{date}</p>
+                        <h4 className="text-lg font-black text-slate-800 truncate">{webinar.speaker}</h4>
+                        <p className="text-sm font-bold text-slate-400">{isRTL ? 'مختص طب النوم' : 'Sleep Specialist'}</p>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={onViewAttendees}
-                            className="p-1.5 rounded-lg text-slate-300 hover:text-[#35788D] hover:bg-sky-50 transition-all"
-                            title={isRTL ? 'الحضور' : 'Attendees'}
-                        >
-                            <Users size={14} />
-                        </button>
-                        <button
-                            onClick={onEdit}
-                            className="p-1.5 rounded-lg text-slate-300 hover:text-[#35788D] hover:bg-sky-50 transition-all"
-                            title={isRTL ? 'تعديل' : 'Edit'}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                        </button>
+                    <div className="relative group/avatar">
+                        <div className="w-16 h-16 rounded-full border-[3px] border-[#38A169]/30 p-1 group-hover:border-[#38A169]/50 transition-colors">
+                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
+                                {webinar.thumbnail_image ? ( // Fallback to thumbnail if no speaker image
+                                    <img src={thumbnailUrl} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-black">
+                                        {webinar.speaker?.charAt(0)}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

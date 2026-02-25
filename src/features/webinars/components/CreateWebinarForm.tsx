@@ -37,6 +37,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
         recording_url: '',
         description: '',
         price: 0,
+        access_type: 'public',
         lang: 'ar',
         ...initialData
     })
@@ -283,10 +284,66 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                         </div>
                     </div>
 
+                    {/* Access Type & Price */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                                {isRTL ? 'نوع الوصول' : 'Access Type'}
+                            </label>
+                            <div className="flex gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, access_type: 'public' }))}
+                                    className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${formData.access_type === 'public'
+                                        ? 'border-[#35788D] bg-sky-50 text-[#35788D]'
+                                        : 'border-gray-100 bg-white text-slate-400 hover:border-gray-200'
+                                        }`}
+                                >
+                                    {isRTL ? 'عام' : 'Public'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, access_type: 'members_only' }))}
+                                    className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${formData.access_type === 'members_only'
+                                        ? 'border-[#35788D] bg-sky-50 text-[#35788D]'
+                                        : 'border-gray-100 bg-white text-slate-400 hover:border-gray-200'
+                                        }`}
+                                >
+                                    {isRTL ? 'للمشتركين فقط' : 'Members Only'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                                {isRTL ? 'السعر (EGP)' : 'Price (EGP)'}
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={formData.price || ''}
+                                    onChange={e => {
+                                        const val = parseFloat(e.target.value)
+                                        setFormData(prev => ({ ...prev, price: isNaN(val) ? 0 : val }))
+                                    }}
+                                    placeholder="0.00"
+                                    className={inputClasses}
+                                />
+                                <div className="absolute top-1/2 -translate-y-1/2 end-5 text-xs font-black text-slate-400 pointer-events-none">
+                                    EGP
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-bold px-1">
+                                {isRTL ? 'ادخل 0 إذا كانت الندوة مجانية' : 'Enter 0 if the webinar is free'}
+                            </p>
+                        </div>
+                    </div>
+
                     {/* Capacity */}
                     <div className="space-y-2">
                         <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
-                            {isRTL ? 'تحديدي سعة الحضور' : 'Set Attendance Capacity'}
+                            {isRTL ? 'سعة الحضور' : 'Attendance Capacity'}
                         </label>
                         <p className="text-xs text-slate-400 font-bold">
                             {isRTL ? 'اتركها فارغه إذا كان العدد غير محدد' : 'Leave empty if unlimited'}

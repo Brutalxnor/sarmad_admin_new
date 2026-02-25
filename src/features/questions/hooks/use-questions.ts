@@ -27,8 +27,9 @@ export function useCreateQuestion() {
 
     return useMutation({
         mutationFn: questionApi.create,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+            await queryClient.invalidateQueries({ queryKey: ['assessments'] })
         },
     })
 }
@@ -37,9 +38,28 @@ export function useUpdateQuestion() {
     const queryClient = useQueryClient()
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: import('../types/question.types').CreateQuestionDTO }) => questionApi.update(id, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+        mutationFn: ({ id, data }: { id: string; data: import('../types/question.types').CreateQuestionDTO }) => {
+            // Check if data has answers and if we should exclude them for the main question update
+            // Also remove any system-controlled columns that might not exist or shouldn't be patched
+            const { answers: _, id: __, created_at: ___, updated_at: ____, ...questionData } = data as any;
+            return questionApi.update(id, questionData);
+        },
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+            await queryClient.invalidateQueries({ queryKey: ['assessments'] })
+        },
+    })
+}
+
+export function useUpdateAnswer() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: string; data: { answer: string; percentage: number; question_id?: string } }) =>
+            questionApi.updateAnswer(id, data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+            await queryClient.invalidateQueries({ queryKey: ['assessments'] })
         },
     })
 }
@@ -122,8 +142,9 @@ export function useDeleteQuestion() {
 
     return useMutation({
         mutationFn: questionApi.delete,
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: QUESTION_QUERY_KEYS.all })
+            await queryClient.invalidateQueries({ queryKey: ['assessments'] })
         },
     })
 }

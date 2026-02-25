@@ -49,6 +49,7 @@ export function AdminLayout() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
     const { direction, t, language, toggleLanguage } = useLanguage()
     const { user, isLoading, logout, isAuthenticated } = useAuth()
     const location = useLocation()
@@ -80,6 +81,15 @@ export function AdminLayout() {
         const allowedPaths = ROLE_PERMISSIONS[user.role] || []
         return navItems.filter(item => allowedPaths.includes(item.path))
     }, [user, navItems])
+
+    const searchResults = useMemo(() => {
+        if (!searchQuery.trim()) return []
+        const query = searchQuery.toLowerCase()
+        return filteredNavItems.filter(item =>
+            item.label.toLowerCase().includes(query) ||
+            item.path.toLowerCase().includes(query)
+        )
+    }, [searchQuery, filteredNavItems])
 
     // Auth Guard
     if (isLoading) {
@@ -220,17 +230,51 @@ export function AdminLayout() {
                         </h2>
                     </div>
 
-                    <div className="flex-1 flex justify-center max-w-2xl px-8">
+                    <div className="flex-1 flex justify-center max-w-2xl px-8 relative">
                         {/* Search Bar */}
                         <div className="relative w-full group">
                             <input
                                 type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search.placeholder_platform') || 'بحث في المنصة...'}
                                 className="w-full bg-[#F3F7F9] border-none rounded-2xl py-3 px-6 pr-12 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all"
                             />
                             <div className={`absolute ${direction === 'rtl' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors`}>
                                 <Search size={20} />
                             </div>
+
+                            {/* Search Results Dropdown */}
+                            {searchResults.length > 0 && (
+                                <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-slide-up overflow-hidden">
+                                    <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('search.results') || 'نتائج البحث'}</p>
+                                    </div>
+                                    <div className="max-h-[300px] overflow-y-auto no-scrollbar px-2">
+                                        {searchResults.map(result => (
+                                            <button
+                                                key={result.path}
+                                                onClick={() => {
+                                                    navigate(result.path)
+                                                    setSearchQuery('')
+                                                }}
+                                                className="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group text-start"
+                                            >
+                                                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                    {result.icon}
+                                                </div>
+                                                <span className="font-bold text-sm text-slate-700">{result.label}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {searchQuery.trim() !== '' && searchResults.length === 0 && (
+                                <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-slide-up text-center">
+                                    <p className="text-sm font-bold text-slate-400">{t('search.no_results') || 'لا توجد نتائج تطابق بحثك'}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 

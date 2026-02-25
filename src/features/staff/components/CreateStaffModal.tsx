@@ -142,6 +142,7 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                             <option value="Coach">{t('staff.role.Coach')}</option>
                             <option value="AdminOperations">{t('staff.role.AdminOperations')}</option>
                             <option value="AdminClinical">{t('staff.role.AdminClinical')}</option>
+                            <option value="SuperAdmin">{t('role.superadmin')}</option>
                         </select>
                     </div>
 

@@ -21,12 +21,13 @@ export default function StaffPage() {
     const { t, direction, language } = useLanguage()
 
     const { data: staffListResponse, isLoading } = useStaffList()
+    const [searchTerm, setSearchTerm] = useState('')
+    const [roleFilter, setRoleFilter] = useState<string>('all')
+    const [statusFilter, setStatusFilter] = useState<string>('all')
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const isRTL = direction === 'rtl'
-
     const staff = staffListResponse?.data || []
 
-    // Mocking stats for UI (as they aren't fully available in current API)
     const stats = [
         {
             label: language === 'ar' ? 'إجمالي المستخدمين' : 'Total Users',
@@ -37,26 +38,34 @@ export default function StaffPage() {
         },
         {
             label: language === 'ar' ? 'المستخدمين النشطين' : 'Active Staff',
-            value: staff.filter(s => !s.must_change_password).length.toString(), // Mock logic
+            value: staff.filter(s => !s.must_change_password).length.toString(),
             icon: <UserCheck className="text-emerald-500" />,
             iconBg: 'bg-emerald-50',
             suffix: ''
         },
         {
             label: language === 'ar' ? 'حسابات معطلة' : 'Disabled Accounts',
-            value: '0', // Mock
+            value: '0',
             icon: <UserMinus className="text-rose-500" />,
             iconBg: 'bg-rose-50',
             suffix: ''
         },
         {
             label: language === 'ar' ? 'تسجيلات دخول اليوم' : 'Daily Sign-ins',
-            value: '34', // Mock
+            value: '34',
             icon: <TrendingUp className="text-orange-600" />,
             iconBg: 'bg-orange-50',
             suffix: ''
         }
     ]
+
+    if (isLoading) {
+        return (
+            <div className="max-w-[1600px] mx-auto py-20 flex justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#0095D9]"></div>
+            </div>
+        )
+    }
 
     return (
         <div className="max-w-[1600px] mx-auto space-y-10 animate-fade-in" dir={direction}>
@@ -99,8 +108,10 @@ export default function StaffPage() {
                 <div className="flex-1 w-full relative group">
                     <input
                         type="text"
-                        placeholder={language === 'ar' ? 'بحث عن مستخدم...' : 'Search for a user...'}
-                        className="w-full bg-[#F3F7F9] border-none rounded-2xl py-4 px-6 pr-12 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder={language === 'ar' ? 'بحث عن مستخدم بالاسم أو البريد...' : 'Search by name or email...'}
+                        className={`w-full bg-[#F3F7F9] border-none rounded-2xl py-4 px-6 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
                     <div className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors`}>
                         <Search size={20} />
@@ -110,25 +121,55 @@ export default function StaffPage() {
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-3">
                         <span className="text-sm font-black text-slate-400">{language === 'ar' ? 'تصفية حسب :' : 'Filter by :'}</span>
-                        <button className="bg-[#F4F9FB] px-6 py-3 rounded-2xl text-slate-600 font-black text-sm flex items-center gap-2 hover:bg-slate-100 transition-all">
-                            {language === 'ar' ? 'كل الأدوار' : 'All Roles'}
-                            <ChevronDown size={16} className="text-slate-400" />
-                        </button>
+                        <div className="relative">
+                            <select
+                                value={roleFilter}
+                                onChange={(e) => setRoleFilter(e.target.value)}
+                                className="appearance-none bg-[#F4F9FB] px-6 py-3 pr-10 rounded-2xl text-slate-600 font-black text-sm hover:bg-slate-100 transition-all cursor-pointer outline-none border-none"
+                            >
+                                <option value="all">{language === 'ar' ? 'كل الأدوار' : 'All Roles'}</option>
+                                <option value="Coach">{t('staff.role.Coach')}</option>
+                                <option value="AdminOperations">{t('staff.role.AdminOperations')}</option>
+                                <option value="AdminClinical">{t('staff.role.AdminClinical')}</option>
+                                <option value="SuperAdmin">{t('role.superadmin')}</option>
+                            </select>
+                            <ChevronDown size={16} className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
+                        </div>
                     </div>
 
-                    <button className="bg-[#F4F9FB] px-6 py-3 rounded-2xl text-slate-600 font-black text-sm flex items-center gap-2 hover:bg-slate-100 transition-all">
-                        {language === 'ar' ? 'الحالة' : 'Status'}
-                        <ChevronDown size={16} className="text-slate-400" />
-                    </button>
+                    <div className="relative">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="appearance-none bg-[#F4F9FB] px-6 py-3 pr-10 rounded-2xl text-slate-600 font-black text-sm hover:bg-slate-100 transition-all cursor-pointer outline-none border-none"
+                        >
+                            <option value="all">{language === 'ar' ? 'كل الحالات' : 'All Statuses'}</option>
+                            <option value="active">{language === 'ar' ? 'نشط' : 'Active'}</option>
+                            <option value="inactive">{language === 'ar' ? 'غير نشط' : 'Inactive'}</option>
+                        </select>
+                        <ChevronDown size={16} className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none`} />
+                    </div>
 
-                    <button className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-brand-50 hover:text-brand-500 transition-all">
+                    <button
+                        onClick={() => {
+                            setSearchTerm('')
+                            setRoleFilter('all')
+                            setStatusFilter('all')
+                        }}
+                        className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-rose-50 hover:text-rose-500 transition-all"
+                        title={language === 'ar' ? 'إعادة تعيين' : 'Reset Filters'}
+                    >
                         <Filter size={20} />
                     </button>
                 </div>
             </div>
 
             {/* Staff List Table */}
-            <StaffList />
+            <StaffList
+                searchTerm={searchTerm}
+                roleFilter={roleFilter}
+                statusFilter={statusFilter}
+            />
 
             {/* Modals */}
             <CreateStaffModal

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ContentList } from '@/features/content/components/ContentList'
 import { CreateContentForm } from '@/features/content/components/CreateContentForm'
+import { CreateCourseForm } from '@/features/courses/components/CreateCourseForm'
 import { useContent } from '@/features/content/hooks/use-content'
 import { useCourses } from '@/features/courses/hooks/use-courses'
 import { useLanguage } from '@/shared/context/LanguageContext'
@@ -27,13 +28,35 @@ export default function ContentPage() {
     }
 
     if (view === 'create') {
+        const isCourse = selectedType === 'course';
+
         return (
             <div className="bg-[#F9FBFC] min-h-screen">
-                <CreateContentForm
-                    initialData={{ type: selectedType }}
-                    onSuccess={handleBackToList}
-                    onCancel={handleBackToList}
-                />
+                <div className="max-w-[1400px] mx-auto px-6 pt-10">
+                    <button
+                        onClick={handleBackToList}
+                        className="p-3 hover:bg-slate-100 rounded-2xl transition-all text-slate-400 flex items-center gap-2 mb-6"
+                    >
+                        <ArrowLeft size={24} className={direction === 'rtl' ? 'rotate-180' : ''} />
+                        <span className="font-bold">{t('content.back_to_list')}</span>
+                    </button>
+                    <h1 className="text-4xl font-black text-slate-800 mb-8 px-4">
+                        {isCourse ? 'إضافة دورة تدريبية جديدة' : t('content.add_new_title')}
+                    </h1>
+                </div>
+
+                {isCourse ? (
+                    <CreateCourseForm
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                ) : (
+                    <CreateContentForm
+                        initialData={{ type: selectedType }}
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                )}
             </div>
         )
     }

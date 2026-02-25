@@ -253,7 +253,9 @@ const translations = {
         'questions.form.category_label': 'الفئة (اختياري)',
         'questions.form.category_placeholder': 'مثال: نفسي، اجتماعي...',
         'questions.form.submit': 'إضافة السؤال',
+        'questions.form.update': 'تحديث السؤال',
         'questions.form.submitting': 'جاري الإضافة...',
+        'questions.form.updating': 'جاري التحديث...',
         'questions.category_default': 'عام',
         'questions.error': 'خطأ: ',
 
@@ -605,7 +607,9 @@ const translations = {
         'questions.form.category_label': 'Category (Optional)',
         'questions.form.category_placeholder': 'E.g. Psychological, Social...',
         'questions.form.submit': 'Add Question',
+        'questions.form.update': 'Update Question',
         'questions.form.submitting': 'Adding...',
+        'questions.form.updating': 'Updating...',
         'questions.category_default': 'General',
         'questions.error': 'Error: ',
 

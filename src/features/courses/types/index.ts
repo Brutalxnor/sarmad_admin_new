@@ -2,11 +2,11 @@ export interface Lesson {
     id?: string;
     section_id: string;
     title: string;
-    content_type: 'video' | 'article' | 'pdf';
-    content_url?: string;
-    body?: string;
+    type: 'video' | 'article' | 'pdf';
+    media_url?: string;
+    description?: string;
     is_preview: boolean;
-    duration_minutes?: number;
+    duration?: number;
     order_index: number;
     created_at?: string;
 }

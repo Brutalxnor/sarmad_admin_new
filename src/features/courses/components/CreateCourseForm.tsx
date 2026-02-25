@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCreateCourse, useUpdateCourse } from '../hooks/use-courses'
 import type { Course } from '../types'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
 import { CourseCurriculum } from './CourseCurriculum'
 import { useTopics } from '@/features/content/hooks/use-content'
 import { useLanguage } from '@/shared/context/LanguageContext'
+import { FileText, GraduationCap, Globe, Lock, ImageIcon, ArrowRight, CheckCircle } from 'lucide-react'
 
 interface CreateCourseFormProps {
     initialData?: Partial<Course>
@@ -20,6 +21,8 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
 
     const isPending = isCreating || isUpdating
     const isEditMode = !!initialData?.id
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || null)
 
     // Helper to get topic string and ID safely
     const getInitialTopicData = (data: Partial<Course> | undefined) => {
@@ -32,18 +35,24 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         return { topicName, topicId }
     }
 
-    const { topicName: initialTopicName, topicId: initialTopicId } = getInitialTopicData(initialData)
 
     const [formData, setFormData] = useState<Partial<Course>>({
         title: '',
         description: '',
         price: 0,
         access_type: 'public',
-        thumbnail_url: '',
-        ...initialData,
-        category: initialTopicName,
-        topic_id: initialTopicId
+        category: '',
+        topic_id: '',
+        ...initialData
     })
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setFormData(prev => ({ ...prev, thumbnail_url: file as any })) // In a real app, you'd handle File vs string in the mutation
+            setPreviewUrl(URL.createObjectURL(file))
+        }
+    }
 
     const [activeTab, setActiveTab] = useState<'info' | 'curriculum'>('info')
     const [savedCourseId, setSavedCourseId] = useState<string | null>(initialData?.id || null)
@@ -99,12 +108,13 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                     <button
                         type="button"
                         onClick={() => setActiveTab('info')}
-                        className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 ${activeTab === 'info'
+                        className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 flex items-center gap-2 ${activeTab === 'info'
                             ? 'bg-white text-brand-600 shadow-xl shadow-slate-200/50 translate-z-0 scale-105'
                             : 'text-slate-400 hover:text-slate-600'
                             }`}
                     >
-                        📝 المعلومات الأساسية
+                        <FileText size={18} />
+                        المعلومات الأساسية
                     </button>
                     <button
                         type="button"
@@ -116,12 +126,13 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                 alert('يرجى حفظ المعلومات الأساسية أولاً لتتمكن من إضافة المنهج')
                             }
                         }}
-                        className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 relative ${activeTab === 'curriculum'
+                        className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 relative flex items-center gap-2 ${activeTab === 'curriculum'
                             ? 'bg-white text-brand-600 shadow-xl shadow-slate-200/50 translate-z-0 scale-105'
                             : 'text-slate-400 hover:text-slate-600'
                             }`}
                     >
-                        📚 منهج الدورة
+                        <GraduationCap size={18} />
+                        منهج الدورة
                         {!savedCourseId && (
                             <span className="absolute -top-1 -right-1 flex h-3 w-3">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
@@ -193,8 +204,8 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                     <label className="text-sm font-black text-slate-700 block uppercase tracking-wider">نوع الوصول</label>
                                     <div className="grid grid-cols-1 gap-2">
                                         {[
-                                            { id: 'public', label: 'عام (Public)', icon: '🌍' },
-                                            { id: 'members_only', label: 'للمشتركين فقط', icon: '👑' }
+                                            { id: 'public', label: 'عام (Public)', icon: <Globe size={20} /> },
+                                            { id: 'members_only', label: 'للمشتركين فقط', icon: <Lock size={20} /> }
                                         ].map(opt => (
                                             <button
                                                 key={opt.id}
@@ -205,7 +216,9 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                                     : 'bg-white border-slate-50 text-slate-400 hover:border-slate-200'
                                                     }`}
                                             >
-                                                <span className="text-xl">{opt.icon}</span>
+                                                <span className={formData.access_type === opt.id ? 'text-brand-600' : 'text-slate-300'}>
+                                                    {opt.icon}
+                                                </span>
                                                 <span className="font-bold text-sm">{opt.label}</span>
                                             </button>
                                         ))}
@@ -230,28 +243,34 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
 
                                 <div className="space-y-3">
                                     <label className="text-sm font-black text-slate-700 block uppercase tracking-wider">الصورة التعريفية (Thumbnail)</label>
-                                    <div className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 hover:border-brand-200 transition-all">
-                                        {formData.thumbnail_url ? (
-                                            <img src={formData.thumbnail_url} className="w-full h-full object-cover" alt="Preview" />
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 hover:border-brand-200 transition-all cursor-pointer"
+                                    >
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            accept="image/*"
+                                        />
+                                        {previewUrl ? (
+                                            <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
                                         ) : (
                                             <div className="w-full h-full relative flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
                                                 <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '15px 15px' }} />
                                                 <div className="flex flex-col items-center gap-2">
-                                                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-2xl">
-                                                        🖼️
+                                                    <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-brand-600">
+                                                        <ImageIcon size={24} />
                                                     </div>
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Image Preview</span>
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center px-4">انقر لرفع صورة الغلاف</span>
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                                            <input
-                                                type="text"
-                                                value={formData.thumbnail_url}
-                                                onChange={e => setFormData(prev => ({ ...prev, thumbnail_url: e.target.value }))}
-                                                className="w-full bg-white border-none rounded-xl py-2 px-3 text-xs font-bold text-slate-700 shadow-2xl"
-                                                placeholder="ضع رابط الصورة هنا..."
-                                            />
+                                        <div className="absolute inset-0 bg-brand-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <div className="bg-white/90 px-4 py-2 rounded-xl text-xs font-black text-brand-600 shadow-xl">
+                                                تغيير الصورة
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -281,7 +300,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                             ) : (
                                 <>
                                     <span>{isEditMode ? 'تحديث وحفظ' : 'إنشاء الدورة والمتابعة'}</span>
-                                    {!isEditMode && <span>➡️</span>}
+                                    {!isEditMode && <ArrowRight size={20} className="rotate-180" />}
                                 </>
                             )}
                         </button>
@@ -295,9 +314,10 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                         <button
                             type="button"
                             onClick={onSuccess}
-                            className="px-12 py-4 bg-emerald-600 text-white rounded-[2rem] font-black shadow-2xl shadow-emerald-100 hover:bg-emerald-700 transition-all hover:-translate-y-1"
+                            className="px-12 py-4 bg-emerald-600 text-white rounded-[2rem] font-black shadow-2xl shadow-emerald-100 hover:bg-emerald-700 transition-all hover:-translate-y-1 flex items-center gap-3"
                         >
-                            تم الانتهاء من بناء الدورة 🎉
+                            <CheckCircle size={20} />
+                            تم الانتهاء من بناء الدورة
                         </button>
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { webinarsApi } from '../api'
 
 const WEBINARS_QUERY_KEYS = {
@@ -19,5 +19,16 @@ export function useWebinarAttendees(webinarId: string) {
         queryKey: WEBINARS_QUERY_KEYS.attendees(webinarId),
         queryFn: () => webinarsApi.getAttendees(webinarId),
         enabled: !!webinarId,
+    })
+}
+
+export function useDeleteWebinar() {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => webinarsApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: WEBINARS_QUERY_KEYS.all })
+        },
     })
 }

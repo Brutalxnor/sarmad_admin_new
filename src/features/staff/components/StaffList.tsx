@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStaffList, useDeleteStaff } from '../hooks/useStaff'
+import { useStaffList, useDeleteStaff, useUpdateStaff } from '../hooks/useStaff'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import type { StaffUser } from '../api/staffService'
 import { CreateStaffModal } from './CreateStaffModal'
@@ -7,23 +7,48 @@ import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
 import {
     Edit2,
-    Eye,
     CheckCircle2,
     AlertCircle,
-    UserCircle2
+    ChevronDown,
+    Trash2
 } from 'lucide-react'
 
-export function StaffList() {
+interface StaffListProps {
+    searchTerm?: string
+    roleFilter?: string
+    statusFilter?: string
+}
+
+export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 'all' }: StaffListProps) {
     const { data: staffListResponse, isLoading } = useStaffList()
     const deleteStaffMutation = useDeleteStaff()
+    const updateStaffMutation = useUpdateStaff()
     const { t, direction, language } = useLanguage()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [editingStaff, setEditingStaff] = useState<StaffUser | null>(null)
     const isRTL = direction === 'rtl'
 
+    // Filtering logic
+    const filteredStaff = (staffListResponse?.data || []).filter(staff => {
+        // Search filter
+        const matchesSearch = searchTerm === '' ||
+            staff.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            staff.email.toLowerCase().includes(searchTerm.toLowerCase())
+
+        // Role filter
+        const matchesRole = roleFilter === 'all' || staff.role === roleFilter
+
+        // Status filter
+        const matchesStatus = statusFilter === 'all' ||
+            (statusFilter === 'active' && !staff.must_change_password) ||
+            (statusFilter === 'inactive' && staff.must_change_password)
+
+        return matchesSearch && matchesRole && matchesStatus
+    })
+
     // Pagination
     const { currentData: paginatedStaff, currentPage, totalPages, goToPage } = usePagination<StaffUser>({
-        data: staffListResponse?.data || [],
+        data: filteredStaff,
         itemsPerPage: 10
     })
 
@@ -36,6 +61,17 @@ export function StaffList() {
     const handleEdit = (staff: StaffUser) => {
         setEditingStaff(staff)
         setIsCreateModalOpen(true)
+    }
+
+    const handleRoleChange = async (staffId: string, newRole: string) => {
+        try {
+            await updateStaffMutation.mutateAsync({
+                id: staffId,
+                data: { role: newRole as any }
+            })
+        } catch (error) {
+            console.error('Failed to update role:', error)
+        }
     }
 
     const closeCreateModal = () => {
@@ -53,11 +89,6 @@ export function StaffList() {
         )
     }
 
-    const getRoleLabel = (role: string) => {
-        if (role === 'AdminOperations') return language === 'ar' ? 'Admin (Ops)' : 'Admin (Ops)'
-        if (role === 'AdminClinical') return language === 'ar' ? 'Admin (Content)' : 'Admin (Content)'
-        return role
-    }
 
     const getPermissionLabel = (role: string) => {
         if (role === 'AdminOperations') return language === 'ar' ? 'تحكم عمليات' : 'Operations Control'
@@ -108,19 +139,31 @@ export function StaffList() {
                                             </div>
                                         </td>
 
-                                        {/* Role */}
-                                        <td className="px-6 py-6 font-black text-slate-600 text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <UserCircle2 size={16} className="text-slate-300" />
-                                                {getRoleLabel(staff.role)}
+                                        {/* Role Select */}
+                                        <td className="px-6 py-6">
+                                            <div className="relative group/select">
+                                                <select
+                                                    value={staff.role}
+                                                    onChange={(e) => handleRoleChange(staff.id, e.target.value)}
+                                                    disabled={updateStaffMutation.isPending && updateStaffMutation.variables?.id === staff.id}
+                                                    className={`appearance-none bg-[#F4F9FB] border-none rounded-xl py-2.5 px-4 pr-10 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#0095D9]/20 outline-none transition-all cursor-pointer hover:bg-slate-100 ${isRTL ? 'text-right' : 'text-left'}`}
+                                                >
+                                                    <option value="Coach">{t('staff.role.Coach')}</option>
+                                                    <option value="AdminOperations">{t('staff.role.AdminOperations')}</option>
+                                                    <option value="AdminClinical">{t('staff.role.AdminClinical')}</option>
+                                                    <option value="SuperAdmin">{t('role.superadmin')}</option>
+                                                </select>
+                                                <div className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 pointer-events-none text-slate-400`}>
+                                                    <ChevronDown size={14} />
+                                                </div>
                                             </div>
                                         </td>
 
                                         {/* Status */}
                                         <td className="px-6 py-6">
                                             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-black ${!staff.must_change_password
-                                                    ? 'bg-emerald-50 text-emerald-600'
-                                                    : 'bg-orange-50 text-orange-600'
+                                                ? 'bg-emerald-50 text-emerald-600'
+                                                : 'bg-orange-50 text-orange-600'
                                                 }`}>
                                                 {!staff.must_change_password ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                                                 {!staff.must_change_password ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'غير نشط' : 'Inactive')}
@@ -152,10 +195,11 @@ export function StaffList() {
                                                     <Edit2 size={18} />
                                                 </button>
                                                 <button
-                                                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-sky-500 hover:bg-sky-500 hover:text-white transition-all shadow-sm"
-                                                    title={t('content.view')}
+                                                    onClick={() => handleDelete(staff.id)}
+                                                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                                    title={t('common.delete')}
                                                 >
-                                                    <Eye size={18} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </td>
@@ -170,8 +214,8 @@ export function StaffList() {
             <div className={`flex flex-col md:flex-row justify-between items-center gap-6 pt-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                 <p className="text-sm font-black text-slate-400 order-2 md:order-1">
                     {language === 'ar'
-                        ? `عرض ${paginatedStaff.length} من أصل ${staffListResponse?.data?.length || 0} موظف`
-                        : `Showing ${paginatedStaff.length} of ${staffListResponse?.data?.length || 0} employees`}
+                        ? `عرض ${paginatedStaff.length} من أصل ${filteredStaff.length} موظف (الإجمالي: ${staffListResponse?.data?.length || 0})`
+                        : `Showing ${paginatedStaff.length} of ${filteredStaff.length} employees (Total: ${staffListResponse?.data?.length || 0})`}
                 </p>
                 <div className="order-1 md:order-2">
                     <Pagination

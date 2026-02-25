@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCreateSection, useCreateLesson, useCourse } from '../hooks/use-courses'
+import { Lock, Video, FileText, Book, Clock, Settings, GraduationCap } from 'lucide-react'
 
 interface CourseCurriculumProps {
     courseId: string | null
@@ -24,8 +25,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
     if (!courseId) {
         return (
             <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-4 border-dashed border-slate-100">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-slate-50">
-                    <span className="text-4xl text-slate-200">🔒</span>
+                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-slate-50 text-slate-200">
+                    <Lock size={40} />
                 </div>
                 <h3 className="text-xl font-black text-slate-400 mb-2">المنهج غير متاح حالياً</h3>
                 <p className="text-sm text-slate-400 font-medium max-w-xs mx-auto">
@@ -55,10 +56,10 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
         createLesson({
             section_id: sectionId,
             title: newLessonTitle,
-            content_type: newLessonType,
-            body: newLessonBody,
-            content_url: newLessonUrl,
-            duration_minutes: newLessonDuration,
+            type: newLessonType,
+            description: newLessonBody,
+            media_url: newLessonUrl,
+            duration: newLessonDuration,
             is_preview: newLessonIsPreview,
             order_index: (section?.lessons?.length || 0) + 1
         }, {
@@ -140,9 +141,9 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                             <button
                                 type="button"
                                 onClick={() => setAddingLessonToSection(section.id || null)}
-                                className="text-xs font-black text-brand-600 hover:text-brand-700 bg-white border border-brand-100 px-3 py-1.5 rounded-lg shadow-xs transition-all opacity-0 group-hover/section:opacity-100"
+                                className="text-xs font-black text-brand-600 hover:bg-brand-600 hover:text-white bg-white border border-brand-100 px-4 py-2 rounded-xl shadow-xs transition-all flex items-center gap-2"
                             >
-                                + درس جديد
+                                <span>+ إضافة درس</span>
                             </button>
                         </div>
 
@@ -246,8 +247,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                             <div className="grid grid-cols-1 gap-3">
                                 {section.lessons?.map((lesson) => (
                                     <div key={lesson.id} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-all duration-300 group/lesson border border-transparent hover:border-slate-100 text-start">
-                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-xl shadow-xs group-hover/lesson:scale-110 transition-transform">
-                                            {lesson.content_type === 'video' ? '🎥' : lesson.content_type === 'pdf' ? '📁' : '📖'}
+                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-xs group-hover/lesson:scale-110 transition-transform">
+                                            {lesson.type === 'video' ? <Video size={20} /> : lesson.type === 'pdf' ? <FileText size={20} /> : <Book size={20} />}
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
@@ -257,18 +258,18 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                {lesson.duration_minutes ? (
+                                                {lesson.duration ? (
                                                     <span className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold bg-slate-100/50 px-2 py-0.5 rounded-lg">
-                                                        <span className="text-xs">⏱️</span> {lesson.duration_minutes} دقيقة
+                                                        <Clock size={12} /> {lesson.duration} دقيقة
                                                     </span>
                                                 ) : null}
                                                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-100">
-                                                    {lesson.content_type === 'video' ? 'فيديو' : lesson.content_type === 'pdf' ? 'ملف' : 'مقال'}
+                                                    {lesson.type === 'video' ? 'فيديو' : lesson.type === 'pdf' ? 'ملف' : 'مقال'}
                                                 </span>
                                             </div>
                                         </div>
                                         <button type="button" className="p-2 text-slate-300 hover:text-brand-600 opacity-0 group-hover/lesson:opacity-100 transition-all">
-                                            ⚙️
+                                            <Settings size={18} />
                                         </button>
                                     </div>
                                 ))}
@@ -292,8 +293,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
 
                 {(!course?.sections || course?.sections.length === 0) && !addingSection && (
                     <div className="text-center py-20 bg-slate-50 rounded-[3rem] border-4 border-dashed border-slate-100 animate-pulse">
-                        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-slate-50">
-                            <span className="text-4xl text-slate-200">📚</span>
+                        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl border border-slate-50 text-slate-200">
+                            <GraduationCap size={40} />
                         </div>
                         <h3 className="text-xl font-black text-slate-400 mb-2">منهج الدورة فارغ</h3>
                         <p className="text-sm text-slate-400 font-medium max-w-xs mx-auto mb-8">

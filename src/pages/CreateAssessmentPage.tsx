@@ -4,15 +4,12 @@ import { toast } from 'react-hot-toast'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { useCreateQuestion } from '@/features/questions/hooks/use-questions'
 import {
-    ChevronRight,
-    ChevronLeft,
     Save,
     Plus,
     Trash2,
     HelpCircle,
     CheckCircle2,
     LayoutList,
-    Tag,
     FileText,
     AlertCircle
 } from 'lucide-react'
@@ -26,7 +23,7 @@ interface LocalQuestion {
 
 export default function CreateAssessmentPage() {
     const navigate = useNavigate()
-    const { direction, language } = useLanguage()
+    const { direction } = useLanguage()
     const createQuestion = useCreateQuestion()
     const isRTL = direction === 'rtl'
 
@@ -209,19 +206,23 @@ export default function CreateAssessmentPage() {
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-4">
-                                    <label className="block text-slate-400 font-bold text-sm">{isRTL ? 'التصنيف' : 'Category'}</label>
-                                    <div className="space-y-3">
+                                    <label className="block text-slate-400 font-bold text-sm tracking-wide">{isRTL ? 'التصنيف' : 'Category'}</label>
+                                    <div className="grid grid-cols-1 gap-3">
                                         {categories.map((cat) => (
                                             <button
                                                 key={cat.id}
+                                                type="button"
                                                 onClick={() => setCurrentQuestion(prev => ({ ...prev, category: cat.id }))}
-                                                className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between font-black ${currentQuestion.category === cat.id
-                                                    ? 'border-[#35788D] bg-[#35788D]/5 text-[#35788D]'
-                                                    : 'border-slate-50 bg-[#F9FBFC] text-slate-400 hover:border-slate-100'
+                                                className={`group p-4 rounded-2xl border-2 transition-all duration-300 flex items-center justify-between font-black ${currentQuestion.category === cat.id
+                                                    ? 'border-[#0095D9] bg-[#0095D9]/5 text-[#0095D9] shadow-sm'
+                                                    : 'border-slate-50 bg-[#F9FBFC] text-slate-400 hover:border-slate-200 hover:bg-slate-100/50'
                                                     }`}
                                             >
-                                                <span>{cat.label}</span>
-                                                {currentQuestion.category === cat.id && <CheckCircle2 size={18} />}
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-2 h-2 rounded-full transition-all duration-300 ${currentQuestion.category === cat.id ? 'bg-[#0095D9] scale-125' : 'bg-slate-200'}`} />
+                                                    <span>{cat.label}</span>
+                                                </div>
+                                                {currentQuestion.category === cat.id && <CheckCircle2 size={18} className="animate-in zoom-in duration-300" />}
                                             </button>
                                         ))}
                                     </div>
@@ -290,32 +291,58 @@ export default function CreateAssessmentPage() {
 
                 {/* Right Side: Questions Queue */}
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="bg-slate-800 p-8 rounded-[2.5rem] text-white shadow-xl space-y-6 sticky top-10">
-                        <div className={`flex items-center gap-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                            <LayoutList size={24} className="text-[#0095D9]" />
-                            <h2 className="text-xl font-black">{isRTL ? 'قائمة الأسئلة' : 'Questions Queue'}</h2>
+                    <div className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-2xl shadow-slate-200/50 space-y-6 sticky top-10 overflow-hidden">
+                        {/* Decorative background element */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#0095D9]/5 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none" />
+
+                        <div className={`flex items-center gap-4 relative z-10 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                            <div className="w-12 h-12 rounded-2xl bg-sky-50 flex items-center justify-center text-[#0095D9] shadow-sm">
+                                <LayoutList size={22} />
+                            </div>
+                            <div className={isRTL ? 'text-right' : 'text-left'}>
+                                <h2 className="text-xl font-black text-slate-800">{isRTL ? 'قائمة الأسئلة' : 'Questions Queue'}</h2>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
+                                    {isRTL ? `${questions.length} أسئلة مضافة` : `${questions.length} Questions Added`}
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 max-h-[550px] overflow-y-auto pr-2 custom-scrollbar relative z-10 py-2">
                             {questions.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-10 text-center opacity-40">
-                                    <AlertCircle size={48} className="mb-4" />
-                                    <p className="font-bold">{isRTL ? 'القائمة فارغة حالياً' : 'Queue is empty'}</p>
-                                    <p className="text-xs">{isRTL ? 'يجب إضافة سؤال واحد على الأقل' : 'At least 1 question is required'}</p>
+                                <div className="flex flex-col items-center justify-center py-20 text-center">
+                                    <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-200 animate-pulse">
+                                        <AlertCircle size={40} />
+                                    </div>
+                                    <p className="font-black text-slate-400 text-lg mb-1">{isRTL ? 'المسودة فارغة' : 'Draft is empty'}</p>
+                                    <p className="text-xs font-bold text-slate-300 max-w-[200px] leading-relaxed">
+                                        {isRTL ? 'ابدأ بإضافة أول سؤال لنماذج هذا التقييم' : 'Start by adding your first question to this assessment draft'}
+                                    </p>
                                 </div>
                             ) : (
                                 questions.map((q, idx) => (
-                                    <div key={q.id} className="bg-white/5 border border-white/10 p-5 rounded-2xl group hover:bg-white/10 transition-all">
-                                        <div className={`flex justify-between items-start mb-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                            <span className="text-[10px] font-black px-2 py-0.5 bg-[#0095D9]/20 text-[#0095D9] rounded-md uppercase">{q.category}</span>
-                                            <button onClick={() => handleRemoveQuestion(q.id)} className="opacity-0 group-hover:opacity-100 transition-opacity text-rose-400">
-                                                <Trash2 size={16} />
+                                    <div key={q.id} className="group bg-[#F4F9FB]/60 border border-[#E0F2F7] p-5 rounded-3xl hover:bg-white hover:border-[#0095D9]/30 hover:shadow-lg hover:shadow-sky-50 transition-all duration-300 relative">
+                                        <div className={`flex justify-between items-start mb-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                                            <div className="flex items-center gap-2">
+                                                <span className="w-7 h-7 rounded-lg bg-white border border-slate-100 flex items-center justify-center font-black text-xs text-[#0095D9] shadow-sm">
+                                                    {idx + 1}
+                                                </span>
+                                                <span className="text-[9px] font-black px-2.5 py-1 bg-white text-slate-500 rounded-full border border-slate-100 uppercase tracking-tighter">
+                                                    {q.category}
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveQuestion(q.id)}
+                                                className="w-8 h-8 rounded-full bg-white text-rose-400 hover:text-white hover:bg-rose-500 flex items-center justify-center transition-all shadow-sm opacity-0 group-hover:opacity-100"
+                                            >
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
-                                        <p className={`font-bold text-sm line-clamp-2 mb-2 ${isRTL ? 'text-right' : 'text-left'}`}>{q.question}</p>
-                                        <div className={`flex items-center gap-2 text-[10px] text-white/40 font-black ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                            <span>{idx + 1}.</span>
-                                            <span>{q.answers.length} {isRTL ? 'إجابة' : 'Answers'}</span>
+                                        <p className={`font-bold text-sm text-slate-700 leading-relaxed mb-3 line-clamp-2 ${isRTL ? 'text-right' : 'text-left'}`}>
+                                            {q.question}
+                                        </p>
+                                        <div className={`flex items-center gap-2 text-[10px] text-slate-400 font-black ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                            <span>{q.answers.length} {isRTL ? 'خيارات متاحة' : 'Options defined'}</span>
                                         </div>
                                     </div>
                                 ))
@@ -323,15 +350,17 @@ export default function CreateAssessmentPage() {
                         </div>
 
                         {questions.length > 0 && (
-                            <div className="pt-6 border-t border-white/10 flex flex-col items-center gap-4">
-                                <p className="text-sm font-bold text-white/60">
-                                    {isRTL ? `المجموع: ${questions.length} سؤال` : `Summary: ${questions.length} Questions`}
-                                </p>
+                            <div className="pt-6 border-t border-slate-100 flex flex-col items-center gap-6 relative z-10">
+                                <div className="flex justify-between w-full items-center">
+                                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{isRTL ? 'إجمالي الأسئلة' : 'Total Questions'}</span>
+                                    <span className="text-lg font-black text-slate-800">{questions.length}</span>
+                                </div>
                                 <button
                                     onClick={handleFinalSave}
-                                    className="w-full py-4 rounded-2xl bg-[#0095D9] text-white font-black hover:bg-[#0084c2] transition-all shadow-lg shadow-[#0095D9]/20"
+                                    className="w-full py-5 rounded-[1.5rem] bg-linear-to-r from-[#0095D9] to-sky-400 text-white font-black hover:shadow-xl hover:shadow-[#0095D9]/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-3"
                                 >
-                                    {isRTL ? 'إصدار التقييم الآن' : 'Publish Assessment Now'}
+                                    <Save size={20} />
+                                    {isRTL ? 'إصدار التقييم الآن' : 'Publish Assessment'}
                                 </button>
                             </div>
                         )}

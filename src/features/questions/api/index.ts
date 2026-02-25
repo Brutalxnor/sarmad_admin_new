@@ -51,4 +51,10 @@ export const questionApi = {
         const response = await apiClient.delete(`/questions/${id}`)
         return response.data
     },
+
+    // PATCH /api/v1/answer/:id
+    updateAnswer: async (id: string, data: { answer: string; percentage: number; question_id?: string }) => {
+        const response = await apiClient.patch(`/answer/${id}`, data)
+        return response.data
+    },
 }

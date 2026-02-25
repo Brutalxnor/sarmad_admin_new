@@ -3,6 +3,7 @@ export interface Webinar {
     title: string
     segment: string[]
     speaker: string
+    speaker_id?: string
     date_time: string
     capacity: number
     registration_count: number
@@ -11,6 +12,7 @@ export interface Webinar {
     video_url?: string | File
     description?: string
     price?: number
+    access_type: 'public' | 'members_only'
     lang: 'ar' | 'en'
 }
 

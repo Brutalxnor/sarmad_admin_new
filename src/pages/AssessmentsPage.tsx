@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAssessmentVersions } from '@/features/assessments/hooks/use-assessments'
 import { ViewQuestionModal } from '@/features/questions/components/ViewQuestionModal'
+import { EditQuestionModal } from '@/features/questions/components/EditQuestionModal'
 import type { Question } from '@/features/questions/types/question.types'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import {
@@ -27,11 +28,17 @@ export default function AssessmentsPage() {
     const [activeTab, setActiveTab] = useState<TabType>('overview')
     const [selectedVersion, setSelectedVersion] = useState<string>('all')
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
 
     const handleViewQuestion = (question: Question) => {
         setSelectedQuestion(question)
         setIsViewModalOpen(true)
+    }
+
+    const handleEditQuestion = (question: Question) => {
+        setSelectedQuestion(question)
+        setIsEditModalOpen(true)
     }
 
     const isRTL = direction === 'rtl'
@@ -274,7 +281,10 @@ export default function AssessmentsPage() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                            <button className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors">
+                                            <button
+                                                onClick={() => handleEditQuestion(q)}
+                                                className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+                                            >
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
@@ -306,6 +316,11 @@ export default function AssessmentsPage() {
             <ViewQuestionModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
+                question={selectedQuestion}
+            />
+            <EditQuestionModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
                 question={selectedQuestion}
             />
         </div>

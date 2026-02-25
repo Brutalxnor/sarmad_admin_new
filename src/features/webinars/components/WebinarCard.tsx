@@ -4,9 +4,10 @@ interface WebinarCardProps {
     webinar: Webinar
     onViewAttendees: () => void
     onEdit: () => void
+    onDelete: () => void
 }
 
-export function WebinarCard({ webinar, onViewAttendees, onEdit }: WebinarCardProps) {
+export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: WebinarCardProps) {
     // Format date
     const date = new Date(webinar.date_time).toLocaleDateString('ar-EG', {
         year: 'numeric',
@@ -74,6 +75,15 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit }: WebinarCardPro
                                 </svg>
                             </a>
                         )}
+                        <button
+                            onClick={onDelete}
+                            className="p-2 bg-red-500/20 hover:bg-red-500/40 backdrop-blur-md rounded-xl text-red-500 transition-all shadow-lg border border-white/30"
+                            title="حذف الندوة"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>

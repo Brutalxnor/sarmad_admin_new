@@ -75,16 +75,16 @@ export default function Dashboard() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-end group hover:shadow-md transition-shadow">
+                    <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start group hover:shadow-md transition-shadow">
                         <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} flex items-center justify-center mb-6`}>
                             {stat.icon}
                         </div>
-                        <div className="text-center lg:text-end">
+                        <div className="text-center lg:text-start">
                             <p className="text-gray-400 font-bold text-xs mb-2">{stat.title}</p>
                             <h3 className="text-4xl font-black text-slate-800 mb-2">
                                 {stat.value}
                             </h3>
-                            <div className="flex items-center justify-center lg:justify-end gap-1">
+                            <div className="flex items-center justify-center lg:justify-start gap-1">
                                 {stat.trend === 'up' && <span className="text-emerald-500 text-xs">↑</span>}
                                 <span className={`${stat.trend === 'up' ? 'text-emerald-500' : 'text-gray-400'} text-[11px] font-bold`}>
                                     {stat.change}
@@ -101,8 +101,8 @@ export default function Dashboard() {
                 {/* Recent Activities - Right Side (Larger) */}
                 <div className="lg:col-span-8 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
                     <div className="flex justify-between items-center mb-10">
-                        <button className="text-gray-400 font-bold text-sm hover:text-[#35788D] transition-colors">{t('dashboard.view_all') || 'عرض الكل'}</button>
                         <h3 className="text-2xl font-black text-slate-800">{t('dashboard.recent_activity')}</h3>
+                        <button className="text-gray-400 font-bold text-sm hover:text-[#35788D] transition-colors">{t('dashboard.view_all') || 'عرض الكل'}</button>
                     </div>
 
                     <div className="space-y-8">
@@ -127,13 +127,13 @@ export default function Dashboard() {
                 {/* System Alerts - Left Side (Smaller) */}
                 <div className="lg:col-span-4 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50 relative">
                     <div className="flex items-center justify-between mb-10">
-                        <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200">1</div>
                         <h3 className="text-2xl font-black text-slate-800">{t('dashboard.system_alerts') || 'تنبيهات النظام'}</h3>
+                        <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200">1</div>
                     </div>
 
                     <div className="space-y-4 mb-10">
                         {alerts.map((alert) => (
-                            <div key={alert.id} className={`${alert.color} p-6 rounded-2xl border-l-4 transition-transform hover:scale-[1.02] cursor-default`}>
+                            <div key={alert.id} className={`${alert.color} p-6 rounded-2xl border-s-4 transition-transform hover:scale-[1.02] cursor-default text-start`}>
                                 <h4 className="font-bold text-sm mb-2">{alert.text}</h4>
                                 <span className="opacity-60 text-xs font-bold">{alert.time}</span>
                             </div>

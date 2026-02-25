@@ -4,6 +4,7 @@ import { useCourses } from '@/features/courses/hooks/use-courses'
 import { useAuth } from '@/features/staff/context/AuthContext'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { CreateContentForm } from './CreateContentForm'
+import { CreateCourseForm } from '@/features/courses/components/CreateCourseForm'
 import type { ContentItem } from '../types'
 import type { Course } from '@/features/courses/types'
 
@@ -27,7 +28,7 @@ import {
     ChevronRight,
     ArrowLeft,
     Video,
-    MoreHorizontal,
+    Trash2,
     LayoutGrid
 } from 'lucide-react'
 
@@ -105,9 +106,12 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
     const handleBackToList = () => {
         setView('list')
         setEditingContent(null)
+        setSelectedType(null)
     }
 
     if (view === 'create' || view === 'edit') {
+        const isCourse = selectedType === 'course' || editingContent?.type === 'course';
+
         return (
             <div className="space-y-8">
                 <div className="flex items-center gap-4">
@@ -118,14 +122,25 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                         <ArrowLeft size={24} className={direction === 'rtl' ? 'rotate-180' : ''} />
                     </button>
                     <h1 className="text-3xl font-black text-slate-800">
-                        {view === 'edit' ? t('content.edit_title') : t('content.add_new_title')}
+                        {view === 'edit'
+                            ? (isCourse ? 'تعديل الدورة' : t('content.edit_title'))
+                            : (isCourse ? 'إضافة دورة جديدة' : t('content.add_new_title'))}
                     </h1>
                 </div>
-                <CreateContentForm
-                    initialData={editingContent || (selectedType ? { type: selectedType as any } : (typeFilter ? { type: typeFilter } : undefined))}
-                    onSuccess={handleBackToList}
-                    onCancel={handleBackToList}
-                />
+
+                {isCourse ? (
+                    <CreateCourseForm
+                        initialData={editingContent as any}
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                ) : (
+                    <CreateContentForm
+                        initialData={editingContent || (selectedType ? { type: selectedType as any } : (typeFilter ? { type: typeFilter } : undefined))}
+                        onSuccess={handleBackToList}
+                        onCancel={handleBackToList}
+                    />
+                )}
             </div>
         )
     }
@@ -156,17 +171,21 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
                     {types.map((type) => (
-                        <div key={type.id} className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-50 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer">
+                        <div
+                            key={type.id}
+                            onClick={() => {
+                                setEditingContent(null)
+                                setSelectedType(type.id as any)
+                                setView('create')
+                            }}
+                            className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-50 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+                        >
                             <div className={`w-24 h-24 rounded-full ${type.color} flex items-center justify-center mb-8 transition-transform duration-500 group-hover:scale-110`}>
                                 {type.icon}
                             </div>
                             <h3 className="text-2xl font-black text-slate-800 mb-4">{type.title}</h3>
                             <p className="text-gray-400 text-sm font-bold leading-relaxed mb-8 flex-1">{type.desc}</p>
                             <button
-                                onClick={() => {
-                                    setSelectedType(type.id as any)
-                                    setView('create')
-                                }}
                                 className="text-[#35788D] font-black text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
                             >
                                 {type.action}
@@ -282,7 +301,10 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                             {/* Type Badge */}
                                             <div className="absolute top-4 left-4">
                                                 <span className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase backdrop-blur-md bg-slate-900/40 text-white border border-white/20 shadow-lg">
-                                                    {item.type === 'video' ? 'فيديو' : t('content.add.type.article')}
+                                                    {item.type === 'video' ? 'فيديو' :
+                                                        item.type === 'course' ? 'دورة' :
+                                                            item.type === 'webinar' ? 'ندوة' :
+                                                                t('content.add.type.article')}
                                                 </span>
                                             </div>
                                         </div>
@@ -304,20 +326,20 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     {canCreate && (
-                                                        <>
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); setDeletingContentId(item.id || null); }}
-                                                                className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors"
-                                                            >
-                                                                <MoreHorizontal size={14} />
-                                                            </button>
+                                                        <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : 'flex-row'}`}>
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); setEditingContent(item); setView('edit'); }}
                                                                 className="w-8 h-8 rounded-lg bg-sky-50 text-sky-500 flex items-center justify-center hover:bg-sky-100 transition-colors"
                                                             >
                                                                 <Edit3 size={14} />
                                                             </button>
-                                                        </>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); setDeletingContentId(item.id || null); }}
+                                                                className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>

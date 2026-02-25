@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-export const API_BASE_URL = 'http://localhost:4000/api/v1'
-//export const API_BASE_URL = 'https://sarmad-be.vercel.app/api/v1'
+//export const API_BASE_URL = 'http://localhost:4000/api/v1'
+export const API_BASE_URL = 'https://sarmad-be.vercel.app/api/v1'
 
 
 // Axios automatically detects the content type:
