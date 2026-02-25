@@ -10,7 +10,7 @@ interface CreateTestimonialFormProps {
 }
 
 export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonialFormProps) {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const { createTestimonial, isCreating } = useTestimonials()
     const [isUploading, setIsUploading] = useState(false)
 
@@ -25,6 +25,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
         category: 'General',
         image_url: '',
         display_order: 0,
+        video: '',
         is_active: true
     })
 
@@ -234,6 +235,21 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                                 placeholder="https://..."
                                 value={formData.image_url}
                                 onChange={e => setFormData({ ...formData, image_url: e.target.value })}
+                            />
+                        </div>
+
+                        {/* Video Link */}
+                        <div className="space-y-4 pt-4 border-t border-slate-50 mt-4">
+                            <label className={labelClasses}>
+                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />
+                                {language === 'ar' ? 'رابط الفيديو (اختياري)' : 'Video Link (Optional)'}
+                            </label>
+                            <input
+                                type="url"
+                                className={inputClasses}
+                                placeholder="https://youtube.com/..."
+                                value={formData.video}
+                                onChange={e => setFormData({ ...formData, video: e.target.value })}
                             />
                         </div>
                     </div>

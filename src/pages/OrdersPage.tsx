@@ -1,5 +1,9 @@
 import { useState, useMemo } from 'react'
-import { useOrders } from '@/features/orders/hooks/use-orders'
+import { useOrders, useUpdateOrderStatus } from '@/features/orders/hooks/use-orders'
+import { useConsultations } from '@/features/consultations/hooks/use-consultations'
+import { usePagination } from '@/shared/hooks/use-pagination'
+import { Pagination } from '@/shared/components/Pagination'
+import { toast } from 'react-hot-toast'
 import {
     Search,
     Video,
@@ -12,28 +16,9 @@ import {
     Clock,
     CheckCircle2,
     Box,
-    AlertCircle
+    AlertCircle,
+    ChevronDown
 } from 'lucide-react'
-
-// Mock Data for Consultations (used when activeTab === 'consultations')
-const CONSULTATIONS_DATA = [
-    {
-        id: 'P-0938',
-        patient: 'علي محمد',
-        patientId: '#P-0938',
-        patientImg: 'https://i.pravatar.cc/150?u=ali',
-        doctor: 'د. سارة المنصور',
-        doctorSpec: 'أخصائي طب النوم',
-        doctorImg: 'https://i.pravatar.cc/150?u=sara',
-        dateTime: '24 أكتوبر 2024',
-        time: '9:30 ص',
-        type: 'استشارة أونلاين',
-        typeSub: 'النوم المتقطع',
-        status: 'pending',
-        statusLabel: 'قيد الانتظار'
-    },
-    // ... other consultations
-]
 
 const STATS = [
     {
@@ -86,6 +71,9 @@ const ORDER_STATUS_FILTERS = [
 
 export default function OrdersPage() {
     const { data: realOrders, isLoading: ordersLoading } = useOrders()
+    const { data: consultations, isLoading: consultationsLoading, updateStatus: updateConsultationStatus } = useConsultations()
+    const updateOrderMutation = useUpdateOrderStatus()
+
     const [activeTab, setActiveTab] = useState('all')
     const [orderStatusFilter, setOrderStatusFilter] = useState('all')
     const [searchQuery, setSearchQuery] = useState('')
@@ -95,7 +83,7 @@ export default function OrdersPage() {
         if (!realOrders) return []
 
         return realOrders.map((order: any) => {
-            const status = order.operational_status?.toLowerCase();
+            const status = (order.operational_status || '').toLowerCase();
             let uiStatus = 'pending';
             let uiLabel = 'قيد الانتظار';
 
@@ -110,11 +98,12 @@ export default function OrdersPage() {
             return {
                 id: rowId(order.id),
                 rawId: order.id,
-                type: order.id.startsWith('HST') ? 'دراسة نوم منزلية' : 'طلب خدمة',
+                type: (order.id || '').startsWith('HST') ? 'دراسة نوم منزلية' : 'طلب خدمة',
                 user: order.users?.name || 'مستخدم غير معروف',
                 userId: order.users?.id,
                 status: uiStatus,
                 statusLabel: uiLabel,
+                operationalStatus: order.operational_status,
                 assignee: 'غير محدد',
                 sla: '36 ساعة متبقية',
                 slaStatus: 'normal'
@@ -122,7 +111,32 @@ export default function OrdersPage() {
         })
     }, [realOrders])
 
+    const mappedConsultations = useMemo(() => {
+        if (!consultations) return []
+
+        return consultations.map((item: any) => {
+            const status = (item.status || 'pending').toLowerCase()
+            const scheduledDate = item.scheduled_at ? new Date(item.scheduled_at) : null
+
+            return {
+                id: item.id,
+                rawId: item.id,
+                patient: item.users?.name || item.user?.name || 'مستخدم غير معروف',
+                patientId: item.user_id?.substring(0, 8),
+                patientImg: `https://ui-avatars.com/api/?name=${encodeURIComponent(item.users?.name || 'U')}&background=random`,
+                doctor: item.specialist?.name || 'غير محدد',
+                dateTime: scheduledDate ? scheduledDate.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' }) : 'غير محدد',
+                time: scheduledDate ? scheduledDate.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '',
+                type: item.type?.name_ar || 'استشارة',
+                rawStatus: item.status,
+                status: status === 'confirmed' ? 'in_progress' : status === 'completed' ? 'completed' : status === 'cancelled' ? 'canceled' : 'pending',
+                statusLabel: status === 'confirmed' ? 'تم التأكيد' : status === 'completed' ? 'مكتمل' : status === 'cancelled' ? 'ملغي' : 'قيد الانتظار'
+            }
+        })
+    }, [consultations])
+
     function rowId(id: string) {
+        if (!id) return ''
         if (id.length > 8 && !id.includes('-')) return `HST-${id.substring(0, 4)}`
         return id
     }
@@ -142,10 +156,51 @@ export default function OrdersPage() {
             }
             return data;
         } else if (activeTab === 'consultations') {
-            return CONSULTATIONS_DATA;
+            let data = mappedConsultations;
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                data = data.filter((item: any) =>
+                    item.patient.toLowerCase().includes(q) ||
+                    item.doctor.toLowerCase().includes(q)
+                )
+            }
+            return data;
         }
         return [];
-    }, [activeTab, mappedOrders, orderStatusFilter, searchQuery])
+    }, [activeTab, mappedOrders, mappedConsultations, orderStatusFilter, searchQuery])
+
+    const {
+        currentData: paginatedData,
+        currentPage,
+        totalPages,
+        goToPage,
+        startIndex,
+        endIndex,
+        totalItems
+    } = usePagination<any>({
+        data: filteredData,
+        itemsPerPage: 5
+    })
+
+    const handleOrderStatusChange = async (orderId: string, newStatus: string) => {
+        try {
+            await updateOrderMutation.mutateAsync({ id: orderId, status: newStatus })
+            toast.success('تم تحديث حالة الطلب بنجاح')
+        } catch (error) {
+            console.error('Failed to update status:', error)
+            toast.error('فشل في تحديث حالة الطلب')
+        }
+    }
+
+    const handleConsultationStatusChange = async (bookingId: string, newStatus: string) => {
+        try {
+            await updateConsultationStatus({ id: bookingId, status: newStatus })
+            toast.success('تم تحديث حالة الاستشارة بنجاح')
+        } catch (error) {
+            console.error('Failed to update consultation status:', error)
+            toast.error('فشل في تحديث حالة الاستشارة')
+        }
+    }
 
     const getStatusStyles = (status: string) => {
         switch (status) {
@@ -156,26 +211,15 @@ export default function OrdersPage() {
             case 'in_progress':
                 return 'bg-[#E3F2FD] text-[#1565C0] border-[#BBDEFB]'
             case 'canceled':
+            case 'cancelled':
                 return 'bg-[#FFEBEE] text-[#C62828] border-[#FFCDD2]'
             default:
                 return 'bg-gray-50 text-gray-600 border-gray-100'
         }
     }
 
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'completed':
-                return <CheckCircle2 size={14} className="ml-2" />
-            case 'pending':
-                return <Clock size={14} className="ml-2" />
-            case 'in_progress':
-                return <TrendingUp size={14} className="ml-2" />
-            case 'canceled':
-                return <XCircle size={14} className="ml-2" />
-            default:
-                return null
-        }
-    }
+
+    const isLoading = activeTab === 'all' ? ordersLoading : consultationsLoading
 
     return (
         <div className="space-y-8 animate-slide-up pb-10">
@@ -209,7 +253,10 @@ export default function OrdersPage() {
                     {TABS.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
+                            onClick={() => {
+                                setActiveTab(tab.id as any)
+                                goToPage(1)
+                            }}
                             className={`relative px-8 py-4 text-sm font-black transition-all duration-300 ${activeTab === tab.id
                                 ? 'text-[#35788D]'
                                 : 'text-gray-400 hover:text-gray-600'
@@ -249,7 +296,10 @@ export default function OrdersPage() {
                         {ORDER_STATUS_FILTERS.map(filter => (
                             <button
                                 key={filter.id}
-                                onClick={() => setOrderStatusFilter(filter.id)}
+                                onClick={() => {
+                                    setOrderStatusFilter(filter.id)
+                                    goToPage(1)
+                                }}
                                 className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-black transition-all ${orderStatusFilter === filter.id
                                     ? 'bg-[#1D353E] text-white shadow-lg'
                                     : 'text-slate-500 hover:bg-white'
@@ -271,7 +321,7 @@ export default function OrdersPage() {
                                 {activeTab === 'all' ? (
                                     <>
                                         <th className="px-8 py-6 text-sm font-black text-slate-500">رقم الطلب</th>
-                                        <th className="px-8 py-6 text-sm font-black text-slate-500">النوع</th>
+                                        <th className="px-8 py-6 text-sm font-black text-slate-500"> النوع</th>
                                         <th className="px-8 py-6 text-sm font-black text-slate-500">المستخدم</th>
                                         <th className="px-8 py-6 text-sm font-black text-slate-500">الحالة</th>
                                         <th className="px-8 py-6 text-sm font-black text-slate-500">المسؤول</th>
@@ -291,7 +341,7 @@ export default function OrdersPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {ordersLoading ? (
+                            {isLoading ? (
                                 <tr>
                                     <td colSpan={activeTab === 'all' ? 7 : 6} className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-4">
@@ -300,7 +350,7 @@ export default function OrdersPage() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filteredData.length === 0 ? (
+                            ) : paginatedData.length === 0 ? (
                                 <tr>
                                     <td colSpan={activeTab === 'all' ? 7 : 6} className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-3">
@@ -309,7 +359,7 @@ export default function OrdersPage() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : filteredData.map((row: any) => (
+                            ) : paginatedData.map((row: any) => (
                                 <tr key={row.id} className="hover:bg-slate-50/50 transition-colors group">
                                     {activeTab === 'all' ? (
                                         <>
@@ -321,10 +371,26 @@ export default function OrdersPage() {
                                             </td>
                                             <td className="px-8 py-6 font-bold text-slate-600">{row.user}</td>
                                             <td className="px-8 py-6">
-                                                <span className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 ${getStatusStyles(row.status)}`}>
-                                                    {getStatusIcon(row.status)}
-                                                    {row.statusLabel}
-                                                </span>
+                                                <div className="relative group/status inline-block">
+                                                    <select
+                                                        value={row.operationalStatus || 'Requested'}
+                                                        onChange={(e) => handleOrderStatusChange(row.rawId, e.target.value)}
+                                                        className={`appearance-none inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 outline-none cursor-pointer transition-all ${getStatusStyles(row.status)}`}
+                                                    >
+                                                        <option value="Requested">قيد الانتظار (Requested)</option>
+                                                        <option value="Confirmed">تم التأكيد (Confirmed)</option>
+                                                        <option value="Shipped">تم الشحن (Shipped)</option>
+                                                        <option value="Delivered">تم التوصيل (Delivered)</option>
+                                                        <option value="In Use">قيد الاستخدام (In Use)</option>
+                                                        <option value="Returned">تم الارجاع (Returned)</option>
+                                                        <option value="Analysis">قيد التحليل (Analysis)</option>
+                                                        <option value="Report Ready">التقرير جاهز (Report Ready)</option>
+                                                        <option value="Closed">مغلق (Closed)</option>
+                                                    </select>
+                                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 group-hover/status:opacity-100">
+                                                        <ChevronDown size={12} />
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td className="px-8 py-6 text-slate-400 font-bold">{row.assignee}</td>
                                             <td className="px-8 py-6">
@@ -348,25 +414,42 @@ export default function OrdersPage() {
                                                     <img src={row.patientImg} alt={row.patient} className="w-12 h-12 rounded-full border-2 border-white shadow-sm ring-1 ring-slate-100" />
                                                     <div>
                                                         <p className="font-black text-slate-800">{row.patient}</p>
-                                                        <p className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-wider">{row.patientId}</p>
+                                                        <p className="text-[10px] text-gray-400 font-bold mt-0.5 tracking-wider">#{row.patientId}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-slate-600 font-bold">{row.doctor}</td>
-                                            <td className="px-8 py-6 text-slate-400 font-bold">{row.dateTime}</td>
+                                            <td className="px-8 py-6 text-slate-400 font-bold">
+                                                {row.dateTime}
+                                                <p className="text-[10px] text-gray-400 mt-1">{row.time}</p>
+                                            </td>
                                             <td className="px-8 py-6 text-slate-500 font-bold">{row.type}</td>
                                             <td className="px-8 py-6">
-                                                <span className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 ${getStatusStyles(row.status)}`}>
-                                                    {getStatusIcon(row.status)}
-                                                    {row.statusLabel}
-                                                </span>
+                                                <div className="relative group/status inline-block">
+                                                    <select
+                                                        value={row.rawStatus || 'pending'}
+                                                        onChange={(e) => handleConsultationStatusChange(row.rawId, e.target.value)}
+                                                        className={`appearance-none inline-flex items-center px-4 py-2 rounded-xl text-xs font-black border tracking-wide gap-2 outline-none cursor-pointer transition-all ${getStatusStyles(row.status)}`}
+                                                    >
+                                                        <option value="pending">قيد الانتظار (Pending)</option>
+                                                        <option value="confirmed">تم التأكيد (Confirmed)</option>
+                                                        <option value="completed">مكتمل (Completed)</option>
+                                                        <option value="cancelled">ملغي (Cancelled)</option>
+                                                    </select>
+                                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50 group-hover/status:opacity-100">
+                                                        <ChevronDown size={12} />
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center justify-center gap-2">
                                                     <button className="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-all">
                                                         <Edit2 size={18} />
                                                     </button>
-                                                    <button className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all">
+                                                    <button
+                                                        onClick={() => handleConsultationStatusChange(row.rawId, 'cancelled')}
+                                                        className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                                                    >
                                                         <XCircle size={18} />
                                                     </button>
                                                 </div>
@@ -379,23 +462,15 @@ export default function OrdersPage() {
                     </table>
                 </div>
 
-                <div className="px-8 py-6 bg-[#F8FAFB] flex items-center justify-between border-t border-gray-50">
-                    <p className="text-gray-400 font-bold text-sm">عرض {filteredData.length} من أصل 48 سجلات</p>
-                    <div className="flex items-center gap-2">
-                        {[1, 2, '...', 8, 9, 10].map((page, i) => (
-                            <button
-                                key={i}
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black transition-all ${page === 1
-                                    ? 'bg-slate-800 text-white shadow-lg'
-                                    : page === '...'
-                                        ? 'text-gray-400 pointer-events-none'
-                                        : 'text-gray-500 hover:bg-white hover:shadow-md'
-                                    }`}
-                            >
-                                {page}
-                            </button>
-                        ))}
-                    </div>
+                <div className="px-8 py-6 bg-[#F8FAFB] flex flex-col md:flex-row items-center justify-between border-t border-gray-50 gap-4">
+                    <p className="text-gray-400 font-bold text-sm">
+                        عرض {startIndex + 1} - {endIndex} من أصل {totalItems} سجلات
+                    </p>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={goToPage}
+                    />
                 </div>
             </div>
         </div>

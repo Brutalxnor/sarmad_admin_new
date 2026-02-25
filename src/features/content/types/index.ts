@@ -20,7 +20,7 @@ export interface ContentItem {
     language: 'ar' | 'en'
     topic_id?: string // Added to reference topic table
     topic: string | Topic
-    segment: string[]
+    segments: string[]
     tags: string[]
     status: ContentStatus | string
     version: number

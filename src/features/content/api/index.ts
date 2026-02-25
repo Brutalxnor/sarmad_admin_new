@@ -17,7 +17,7 @@ export const contentApi = {
         Object.entries(body).forEach(([key, value]) => {
             if (value === undefined || value === null) return
 
-            if (key === 'tags' || key === 'segment') {
+            if (key === 'tags' || key === 'segments') {
                 formData.append(key, JSON.stringify(value))
             } else if (key === 'thumbnail_image') {
                 if (value instanceof File) {
@@ -37,7 +37,7 @@ export const contentApi = {
         Object.entries(body).forEach(([key, value]) => {
             if (value === undefined || value === null) return
 
-            if (key === 'tags' || key === 'segment') {
+            if (key === 'tags' || key === 'segments') {
                 formData.append(key, JSON.stringify(value))
             } else if (key === 'thumbnail_image') {
                 if (value instanceof File) {

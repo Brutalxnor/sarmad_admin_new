@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { useCreateQuestion } from '@/features/questions/hooks/use-questions'
+import { useCreateMetadata } from '@/features/assessments/hooks/use-assessment-metadata'
 import {
     Save,
     Plus,
@@ -25,10 +26,18 @@ export default function CreateAssessmentPage() {
     const navigate = useNavigate()
     const { direction } = useLanguage()
     const createQuestion = useCreateQuestion()
+    const createMetadata = useCreateMetadata()
     const isRTL = direction === 'rtl'
 
     // Assessment overall state
     const [version, setVersion] = useState('')
+    const [metadata, setMetadata] = useState({
+        name: '',
+        description: '',
+        category: 'Health',
+        estimated_time: '15 mins',
+        is_active: true
+    })
     const [questions, setQuestions] = useState<LocalQuestion[]>([])
 
     // Current question form state
@@ -98,6 +107,10 @@ export default function CreateAssessmentPage() {
             toast.error(isRTL ? 'يرجى إدخال رقم الإصدار' : 'Please enter version number')
             return
         }
+        if (!metadata.name.trim()) {
+            toast.error(isRTL ? 'يرجى إدخال اسم التقييم' : 'Please enter assessment name')
+            return
+        }
         if (questions.length === 0) {
             toast.error(isRTL ? 'يجب إضافة سؤال واحد على الأقل لإنشاء التقييم' : 'Must add at least one question to create assessment')
             return
@@ -105,11 +118,25 @@ export default function CreateAssessmentPage() {
 
         const toastId = toast.loading(isRTL ? 'جاري إنشاء التقييم...' : 'Creating assessment...')
         try {
+            // 1. Create Metadata First
+            // Parse version to number if possible, or use 1.0
+            const versionNum = parseFloat(version.replace(/[^0-9.]/g, '')) || 1.0;
+
+            await createMetadata.mutateAsync({
+                name: metadata.name,
+                version: versionNum,
+                description: metadata.description,
+                category: metadata.category,
+                estimated_time: metadata.estimated_time,
+                is_active: metadata.is_active
+            })
+
+            // 2. Create Questions
             for (const q of questions) {
                 await createQuestion.mutateAsync({
                     question: q.question,
                     category: q.category,
-                    assess_version: version as any,
+                    assess_version: version as any, // Use the string version for questions if that's what's expected
                     answers: q.answers.map(a => ({
                         answer: a.text,
                         percentage: a.points
@@ -117,11 +144,11 @@ export default function CreateAssessmentPage() {
                     in_assessment: true
                 })
             }
-            toast.success(isRTL ? 'تم إنشاء التقييم بنجاح' : 'Assessment created successfully', { id: toastId })
+            toast.success(isRTL ? 'تم إنشاء التقييم والأسئلة بنجاح' : 'Assessment and questions created successfully', { id: toastId })
             navigate('/assessments')
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
-            toast.error(isRTL ? 'فشل في إنشاء التقييم' : 'Failed to create assessment', { id: toastId })
+            toast.error(error.response?.data?.message || (isRTL ? 'فشل في إنشاء التقييم' : 'Failed to create assessment'), { id: toastId })
         }
     }
 
@@ -169,16 +196,90 @@ export default function CreateAssessmentPage() {
                             <FileText size={24} />
                             <h2 className="text-xl font-black">{isRTL ? 'بيانات التقييم' : 'Assessment Info'}</h2>
                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                                <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                                    {isRTL ? 'اسم التقييم' : 'Assessment Name'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={metadata.name}
+                                    onChange={(e) => setMetadata(prev => ({ ...prev, name: e.target.value }))}
+                                    placeholder={isRTL ? 'مثال: تقييم الصحة النفسية' : 'e.g. Mental Health Assessment'}
+                                    className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                                    {isRTL ? 'رقم الإصدار' : 'Version Number'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={version}
+                                    onChange={(e) => setVersion(e.target.value)}
+                                    placeholder={isRTL ? 'مثال: v2.5' : 'e.g. v2.5'}
+                                    className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="space-y-4">
+                                <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                                    {isRTL ? 'التصنيف' : 'Category'}
+                                </label>
+                                <select
+                                    value={metadata.category}
+                                    onChange={(e) => setMetadata(prev => ({ ...prev, category: e.target.value }))}
+                                    className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all font-black text-slate-800 appearance-none"
+                                >
+                                    <option value="Health">{isRTL ? 'صحي' : 'Health'}</option>
+                                    <option value="Psychology">{isRTL ? 'نفسي' : 'Psychology'}</option>
+                                    <option value="Lifestyle">{isRTL ? 'نمط حياة' : 'Lifestyle'}</option>
+                                </select>
+                            </div>
+                            <div className="space-y-4">
+                                <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                                    {isRTL ? 'الوقت المقدر' : 'Estimated Time'}
+                                </label>
+                                <input
+                                    type="text"
+                                    value={metadata.estimated_time}
+                                    onChange={(e) => setMetadata(prev => ({ ...prev, estimated_time: e.target.value }))}
+                                    placeholder={isRTL ? 'مثال: 15 دقيقة' : 'e.g. 15 mins'}
+                                    className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                                    {isRTL ? 'الحالة' : 'Status'}
+                                </label>
+                                <div className="flex bg-[#F9FBFC] p-1.5 rounded-2xl border border-gray-100">
+                                    <button
+                                        onClick={() => setMetadata(prev => ({ ...prev, is_active: true }))}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all ${metadata.is_active ? 'bg-white text-[#0095D9] shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {isRTL ? 'نشط' : 'Active'}
+                                    </button>
+                                    <button
+                                        onClick={() => setMetadata(prev => ({ ...prev, is_active: false }))}
+                                        className={`flex-1 py-3.5 rounded-xl text-xs font-black transition-all ${!metadata.is_active ? 'bg-white text-rose-500 shadow-sm' : 'text-slate-400'}`}
+                                    >
+                                        {isRTL ? 'غير نشط' : 'Inactive'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="space-y-4">
                             <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
-                                {isRTL ? 'رقم الإصدار' : 'Version Number'}
+                                {isRTL ? 'وصف التقييم' : 'Description'}
                             </label>
-                            <input
-                                type="text"
-                                value={version}
-                                onChange={(e) => setVersion(e.target.value)}
-                                placeholder={isRTL ? 'مثال: v2.5' : 'e.g. v2.5'}
-                                className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
+                            <textarea
+                                value={metadata.description}
+                                onChange={(e) => setMetadata(prev => ({ ...prev, description: e.target.value }))}
+                                placeholder={isRTL ? 'اكتب وصفاً للتقييم...' : 'Write assessment description...'}
+                                className="w-full min-h-[100px] p-6 rounded-3xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all resize-none font-bold text-slate-800"
                             />
                         </div>
                     </div>
