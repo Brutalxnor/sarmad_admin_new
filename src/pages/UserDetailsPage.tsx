@@ -10,10 +10,8 @@ import {
     Mail,
     Phone,
     Calendar,
-    ChevronLeft,
     TrendingUp,
     Users,
-    CheckCircle2,
     Clock,
     MoreHorizontal
 } from 'lucide-react'
@@ -22,7 +20,7 @@ export default function UserDetailsPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { user, assessments, orders, bookings, isLoadingAll } = useUserDetails(id || '')
-    const { t, direction, language } = useLanguage()
+    const { direction } = useLanguage()
     const [activeTab, setActiveTab] = useState('personal')
 
     const isRTL = direction === 'rtl'

@@ -238,7 +238,9 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                                 <ImageIcon size={28} />
                             </div>
                             <div className="text-center space-y-1">
-                                <p className="text-base font-black text-slate-800">{language === 'ar' ? 'رفع الصورة الرئيسية' : 'Upload Primary Photo'}</p>
+                                <p className="text-base font-black text-slate-800">
+                                    {isUploading ? (direction === 'rtl' ? 'جاري الرفع...' : 'Uploading...') : (language === 'ar' ? 'رفع الصورة الرئيسية' : 'Upload Primary Photo')}
+                                </p>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">JPG, PNG</p>
                             </div>
                             <input
