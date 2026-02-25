@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import {
     User,
-    Mail,
     Phone,
     Shield,
     ShieldCheck,
-    Users,
-    LayoutDashboard,
-    FileText,
     ChevronRight,
     ChevronLeft,
     Save,
@@ -19,7 +15,7 @@ import { useCreateStaff } from '@/features/staff/hooks/useStaff'
 
 export default function AddStaffPage() {
     const navigate = useNavigate()
-    const { direction, t, language } = useLanguage()
+    const { direction, language } = useLanguage()
     const isRTL = direction === 'rtl'
     const createStaffMutation = useCreateStaff()
 
@@ -212,8 +208,8 @@ export default function AddStaffPage() {
                                     key={role.id}
                                     onClick={() => setFormData(prev => ({ ...prev, role: role.id as any }))}
                                     className={`relative p-8 rounded-3xl border-2 transition-all flex flex-col items-center text-center gap-4 ${formData.role === role.id
-                                            ? 'border-[#0095D9] bg-sky-50/10'
-                                            : 'border-slate-50 hover:border-slate-100'
+                                        ? 'border-[#0095D9] bg-sky-50/10'
+                                        : 'border-slate-50 hover:border-slate-100'
                                         }`}
                                 >
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${formData.role === role.id ? 'bg-[#0095D9] text-white' : 'bg-slate-50 text-slate-400'}`}>

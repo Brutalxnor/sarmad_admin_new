@@ -18,7 +18,7 @@ import {
 
 export default function UsersPage() {
     const navigate = useNavigate()
-    const { t, direction, language } = useLanguage()
+    const { direction } = useLanguage()
     const { data: users, isLoading } = useUsers()
     const [searchQuery, setSearchQuery] = useState('')
     const isRTL = direction === 'rtl'
@@ -37,7 +37,7 @@ export default function UsersPage() {
 
     const filteredUsers = useMemo(() => {
         const query = searchQuery.toLowerCase()
-        return processedUsers.filter(user =>
+        return processedUsers.filter((user: any) =>
             (user.name || '').toLowerCase().includes(query) ||
             (user.email || '').toLowerCase().includes(query)
         )
@@ -165,8 +165,8 @@ export default function UsersPage() {
                                     <td className="px-8 py-6">
                                         <div className="flex justify-center">
                                             <span className={`px-4 py-1.5 rounded-full text-[10px] font-black flex items-center gap-2 ${user.status === 'active'
-                                                    ? 'bg-emerald-50 text-emerald-600'
-                                                    : 'bg-slate-100 text-slate-400 grayscale opacity-70'
+                                                ? 'bg-emerald-50 text-emerald-600'
+                                                : 'bg-slate-100 text-slate-400 grayscale opacity-70'
                                                 }`}>
                                                 {user.status === 'active' ? (
                                                     <>
@@ -222,8 +222,8 @@ export default function UsersPage() {
                                 key={page}
                                 onClick={() => goToPage(page)}
                                 className={`w-10 h-10 rounded-xl font-black text-sm transition-all shadow-sm ${currentPage === page
-                                        ? 'bg-slate-800 text-white'
-                                        : 'bg-white text-slate-400 hover:bg-slate-100 border border-gray-100'
+                                    ? 'bg-slate-800 text-white'
+                                    : 'bg-white text-slate-400 hover:bg-slate-100 border border-gray-100'
                                     }`}
                             >
                                 {page}

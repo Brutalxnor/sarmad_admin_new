@@ -6,7 +6,7 @@ import { CreateWebinarForm } from './CreateWebinarForm'
 import { WebinarAttendees } from './WebinarAttendees'
 import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
-import { Plus, Video, Eye, Clock, PlayCircle, Users, ArrowLeft, ChevronDown, Trash2, Calendar } from 'lucide-react'
+import { Plus, Video, Eye, Clock, Users, ArrowLeft, ChevronDown, Trash2, Calendar } from 'lucide-react'
 
 export function WebinarList() {
     const { data: webinars, isLoading } = useWebinars()
@@ -305,6 +305,13 @@ function WebinarGridCard({
                             className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
                         >
                             <Trash2 size={20} strokeWidth={2} />
+                        </button>
+                        <button
+                            onClick={onViewAttendees}
+                            className="p-2 text-[#35788D] hover:bg-sky-50 rounded-xl transition-colors"
+                            title={isRTL ? 'عرض المسجلين' : 'View Registered'}
+                        >
+                            <Users size={20} />
                         </button>
                     </div>
                 </div>
