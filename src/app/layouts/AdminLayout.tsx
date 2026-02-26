@@ -19,10 +19,11 @@ import {
     BookOpen,
     CheckSquare,
     UserRound,
-    Package,
     DollarSign,
     ChevronsRight,
-    Users
+    Users,
+    Sun,
+    Moon
 } from 'lucide-react'
 
 // Define permissions map
@@ -40,6 +41,8 @@ const ROLE_PERMISSIONS: Record<StaffRole, string[]> = {
     SuperAdmin: ['*']
 }
 
+import { useTheme } from '@/shared/hooks/use-theme'
+
 export function AdminLayout() {
     useRealtimeNotifications()
     const { data: unreadCount } = useUnreadNotificationsCount()
@@ -50,6 +53,7 @@ export function AdminLayout() {
     const [searchQuery, setSearchQuery] = useState('')
     const { direction, t, language, toggleLanguage } = useLanguage()
     const { user, isLoading, logout, isAuthenticated } = useAuth()
+    const { setTheme, isDark } = useTheme()
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -59,7 +63,7 @@ export function AdminLayout() {
         { path: '/assessments', icon: <CheckSquare size={22} />, label: t('nav.questions') },
         { path: '/staff', icon: <UserRound size={22} />, label: t('nav.staff') },
         { path: '/users', icon: <Users size={22} />, label: t('nav.users') },
-        { path: '/pricing', icon: <Package size={22} />, label: t('nav.pricing') },
+        //  { path: '/pricing', icon: <Package size={22} />, label: t('nav.pricing') },
         { path: '/orders', icon: <DollarSign size={22} />, label: t('nav.orders') },
         // { path: '/reports', icon: <BarChart2 size={22} />, label: t('nav.reports') },
         // { path: '/integrations', icon: <Settings size={22} />, label: t('nav.integrations') || 'Integrations' },
@@ -125,7 +129,7 @@ export function AdminLayout() {
     }
 
     return (
-        <div className="h-screen overflow-hidden bg-surface-50 flex text-slate-800 font-sans" dir={direction}>
+        <div className="h-screen overflow-hidden bg-surface-50 dark:bg-slate-900 flex text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300" dir={direction}>
 
             {/* Mobile Backdrop */}
             {isMobileMenuOpen && (
@@ -137,7 +141,7 @@ export function AdminLayout() {
 
             {/* Sidebar Navigation */}
             <aside className={`
-                fixed inset-y-0 ${direction === 'rtl' ? 'right-0 border-l' : 'left-0 border-r'} z-40 bg-white border-gray-100 
+                fixed inset-y-0 ${direction === 'rtl' ? 'right-0 border-l' : 'left-0 border-r'} z-40 bg-white dark:bg-slate-900 border-gray-100 dark:border-slate-800 
                 transition-all duration-300 ease-in-out md:static flex flex-col group
                 ${isMobileMenuOpen ? 'translate-x-0' : (direction === 'rtl' ? 'translate-x-full' : '-translate-x-full')}
                 md:translate-x-0 ${isCollapsed ? 'w-24' : 'w-80'}
@@ -152,7 +156,7 @@ export function AdminLayout() {
                     )}
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className={`p-2 text-gray-300 hover:text-brand-500 hover:bg-gray-50 rounded-xl transition-all hidden md:block ${isCollapsed ? 'mt-4' : ''}`}
+                        className={`p-2 text-gray-300 hover:text-brand-500 hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-all hidden md:block ${isCollapsed ? 'mt-4' : ''}`}
                     >
                         <ChevronsRight size={24} className={`transition-transform duration-500 ${direction === 'rtl'
                             ? (isCollapsed ? 'rotate-180' : '')
@@ -172,7 +176,7 @@ export function AdminLayout() {
                             className={({ isActive }) =>
                                 `flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 group relative ${isActive
                                     ? 'bg-[#35788D] text-white shadow-xl shadow-[#35788D]/30 active-nav-glow'
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                                    : 'text-gray-400 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-200'
                                 } ${isCollapsed ? 'justify-center px-0' : ''}`
                             }
                         >
@@ -194,10 +198,10 @@ export function AdminLayout() {
                 </nav>
 
                 {/* Bottom Section */}
-                <div className="px-4 py-6 space-y-3 border-t border-gray-50">
+                <div className="px-4 py-6 space-y-3 border-t border-gray-50 dark:border-slate-800">
                     <button
                         onClick={() => setIsNotificationsOpen(true)}
-                        className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-all ${isCollapsed ? 'justify-center px-0' : ''}`}
+                        className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-200 transition-all ${isCollapsed ? 'justify-center px-0' : ''}`}
                     >
                         <Bell size={22} className={`flex-shrink-0 ${isCollapsed ? '' : 'ml-3'}`} />
                         {!isCollapsed && <span className="font-bold text-sm flex-1 text-start">{t('nav.notifications') || 'الإشعارات'}</span>}
@@ -205,7 +209,7 @@ export function AdminLayout() {
 
                     <button
                         onClick={logout}
-                        className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-rose-500 hover:bg-rose-50 transition-all ${isCollapsed ? 'justify-center px-0' : ''}`}
+                        className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all ${isCollapsed ? 'justify-center px-0' : ''}`}
                     >
                         <LogOut size={22} className={`flex-shrink-0 ${isCollapsed ? '' : 'ml-3'}`} />
                         {!isCollapsed && <span className="font-bold text-sm flex-1 text-start">{t('auth.logout')}</span>}
@@ -216,17 +220,17 @@ export function AdminLayout() {
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
                 {/* Top Header */}
-                <header className="h-20 bg-white border-b border-gray-100 px-6 md:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm shadow-gray-100/50">
+                <header className="h-20 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 md:px-8 flex items-center justify-between sticky top-0 z-30 shadow-sm shadow-gray-100/50 dark:shadow-none transition-colors duration-300">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setIsMobileMenuOpen(true)}
-                            className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                            className="md:hidden p-2 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg"
                         >
                             <Menu size={24} />
                         </button>
 
                         {/* Page Title */}
-                        <h2 className="text-xl font-black text-slate-800 hidden sm:block">
+                        <h2 className="text-xl font-black text-slate-800 dark:text-white hidden sm:block transition-colors duration-300">
                             {navItems.find(i => i.path === location.pathname)?.label || t('nav.dashboard')}
                         </h2>
                     </div>
@@ -239,7 +243,7 @@ export function AdminLayout() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 placeholder={t('search.placeholder_platform') || 'بحث في المنصة...'}
-                                className="w-full bg-[#F3F7F9] border-none rounded-2xl py-3 px-6 pr-12 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all"
+                                className="w-full bg-[#F3F7F9] dark:bg-slate-800 border-none rounded-2xl py-3 px-6 pr-12 text-sm font-bold text-slate-600 dark:text-slate-200 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
                             />
                             <div className={`absolute ${direction === 'rtl' ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors`}>
                                 <Search size={20} />
@@ -247,8 +251,8 @@ export function AdminLayout() {
 
                             {/* Search Results Dropdown */}
                             {searchResults.length > 0 && (
-                                <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 z-50 animate-slide-up overflow-hidden">
-                                    <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                                <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 py-3 z-50 animate-slide-up overflow-hidden">
+                                    <div className="px-4 py-2 border-b border-gray-50 dark:border-slate-700/50 mb-2">
                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('search.results') || 'نتائج البحث'}</p>
                                     </div>
                                     <div className="max-h-[300px] overflow-y-auto no-scrollbar px-2">
@@ -259,12 +263,12 @@ export function AdminLayout() {
                                                     navigate(result.path)
                                                     setSearchQuery('')
                                                 }}
-                                                className="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group text-start"
+                                                className="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group text-start"
                                             >
-                                                <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-slate-700 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
                                                     {result.icon}
                                                 </div>
-                                                <span className="font-bold text-sm text-slate-700">{result.label}</span>
+                                                <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{result.label}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -272,7 +276,7 @@ export function AdminLayout() {
                             )}
 
                             {searchQuery.trim() !== '' && searchResults.length === 0 && (
-                                <div className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 animate-slide-up text-center">
+                                <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 p-6 z-50 animate-slide-up text-center">
                                     <p className="text-sm font-bold text-slate-400">{t('search.no_results') || 'لا توجد نتائج تطابق بحثك'}</p>
                                 </div>
                             )}
@@ -281,10 +285,18 @@ export function AdminLayout() {
 
                     <div className="flex items-center gap-6">
                         {/* Divider */}
-                        <div className="hidden md:block w-px h-8 bg-gray-100" />
+                        <div className="hidden md:block w-px h-8 bg-gray-100 dark:bg-slate-800" />
 
                         {/* Actions */}
                         <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-brand-500`}
+                                title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                            >
+                                {isDark ? <Sun size={22} className="text-amber-400" /> : <Moon size={22} />}
+                            </button>
+
                             <div className="relative">
                                 <button
                                     onClick={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -296,8 +308,8 @@ export function AdminLayout() {
                                 {isSettingsOpen && (
                                     <>
                                         <div className="fixed inset-0 z-[100]" onClick={() => setIsSettingsOpen(false)} />
-                                        <div className={`absolute top-full mt-2 ${direction === 'rtl' ? 'left-0' : 'right-0'} z-[110] w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 animate-slide-up overflow-hidden`}>
-                                            <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                                        <div className={`absolute top-full mt-2 ${direction === 'rtl' ? 'left-0' : 'right-0'} z-[110] w-64 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 py-3 animate-slide-up overflow-hidden transition-colors duration-300`}>
+                                            <div className="px-4 py-2 border-b border-gray-50 dark:border-slate-700/50 mb-2">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('nav.settings') || (language === 'ar' ? 'الإعدادات' : 'Settings')}</p>
                                             </div>
 
@@ -308,13 +320,13 @@ export function AdminLayout() {
                                                         toggleLanguage()
                                                         setIsSettingsOpen(false)
                                                     }}
-                                                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                                                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                        <div className="w-8 h-8 rounded-lg bg-brand-50 dark:bg-slate-700 text-brand-600 dark:text-brand-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
                                                             <span className="text-xs font-black uppercase">{language === 'ar' ? 'EN' : 'AR'}</span>
                                                         </div>
-                                                        <span className="font-bold text-sm text-slate-700">{language === 'ar' ? 'تغيير للإنجليزية' : 'Switch to Arabic'}</span>
+                                                        <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{language === 'ar' ? 'تغيير للإنجليزية' : 'Switch to Arabic'}</span>
                                                     </div>
                                                 </button>
 
@@ -324,12 +336,12 @@ export function AdminLayout() {
                                                         navigate('/profile')
                                                         setIsSettingsOpen(false)
                                                     }}
-                                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group"
                                                 >
-                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-400 dark:text-slate-300 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
                                                         <UserRound size={18} />
                                                     </div>
-                                                    <span className="font-bold text-sm text-slate-700">{t('profile.title') || (language === 'ar' ? 'الملف الشخصي' : 'Profile')}</span>
+                                                    <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{t('profile.title') || (language === 'ar' ? 'الملف الشخصي' : 'Profile')}</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -360,19 +372,19 @@ export function AdminLayout() {
                         </div>
 
                         {/* User Profile */}
-                        <div className="flex items-center gap-4 border-r border-gray-100 pr-6 mr-2 hidden lg:flex">
+                        <div className="flex items-center gap-4 border-r border-gray-100 dark:border-slate-800 pr-6 mr-2 hidden lg:flex">
                             <div className="text-left hidden xl:block">
-                                <p className="text-sm font-black text-slate-800 leading-none mb-1">{user?.name}</p>
-                                <p className="text-[11px] text-gray-400 font-bold">{t(`role.${user?.role?.toLowerCase()}`) || user?.role}</p>
+                                <p className="text-sm font-black text-slate-800 dark:text-slate-100 leading-none mb-1">{user?.name}</p>
+                                <p className="text-[11px] text-gray-400 dark:text-slate-400 font-bold">{t(`role.${user?.role?.toLowerCase()}`) || user?.role}</p>
                             </div>
                             <div className="relative group cursor-pointer" onClick={() => navigate('/profile')}>
                                 <img
                                     src={user?.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Admin')}&background=0d9488&color=fff`}
                                     alt={user?.name}
-                                    className="w-11 h-11 rounded-full object-cover ring-2 ring-emerald-400 ring-offset-2 transition-transform group-hover:scale-105"
+                                    className="w-11 h-11 rounded-full object-cover ring-2 ring-emerald-400 dark:ring-emerald-500/50 ring-offset-2 dark:ring-offset-slate-900 transition-transform group-hover:scale-105"
                                 />
                             </div>
-                            <button className="text-gray-300 hover:text-brand-500 transition-colors">
+                            <button className="text-gray-300 dark:text-slate-500 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
                                 {direction === 'rtl' ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                             </button>
                         </div>

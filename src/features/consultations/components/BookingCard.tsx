@@ -25,21 +25,21 @@ export function BookingCard({ booking, specialists, onCancel, onAssign, onUpdate
     }
 
     return (
-        <div className={`glass-panel p-6 flex flex-col transition-all duration-300 hover:shadow-xl group relative overflow-hidden ${booking.status === 'cancelled' ? 'opacity-60' : ''}`}>
+        <div className={`glass-panel dark:bg-slate-800/50 p-6 flex flex-col transition-all duration-300 hover:shadow-xl group relative overflow-hidden dark:border dark:border-slate-700 ${booking.status === 'cancelled' ? 'opacity-60' : ''}`}>
             <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center text-brand-600 font-bold text-xl">
+                    <div className="w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400 font-bold text-xl">
                         📅
                     </div>
                     <div>
-                        <h3 className="font-black text-slate-800 tracking-tight">{typeName}</h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <h3 className="font-black text-slate-800 dark:text-slate-100 tracking-tight transition-colors duration-300">{typeName}</h3>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                             {new Date(booking.scheduled_at).toLocaleString(language === 'ar' ? 'ar-EG' : 'en-US')}
                         </p>
                     </div>
                 </div>
                 <select
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none cursor-pointer focus:ring-2 focus:ring-brand-500/20 ${statusColors[booking.status] || 'bg-slate-100 text-slate-600'}`}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none cursor-pointer focus:ring-2 focus:ring-brand-500/20 ${statusColors[booking.status] || 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}
                     value={booking.status}
                     onChange={(e) => onUpdateStatus?.(booking.id, e.target.value)}
                 >
@@ -52,21 +52,21 @@ export function BookingCard({ booking, specialists, onCancel, onAssign, onUpdate
 
             <div className="grid grid-cols-2 gap-4 mb-6 text-right">
                 <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest">
                         {direction === 'rtl' ? 'العميل' : 'Client'}
                     </p>
-                    <p className="text-sm font-bold text-slate-700">{userName}</p>
-                    <p className="text-xs text-slate-400">{userMobile}</p>
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{userName}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">{userMobile}</p>
                 </div>
                 <div className="space-y-1">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest">
                         {direction === 'rtl' ? 'الأخصائي/المدرب الحالي' : 'Current Coach/Specialist'}
                     </p>
-                    <p className="text-sm font-bold text-slate-700">{specialistName}</p>
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{specialistName}</p>
 
                     {['confirmed', 'pending'].includes(booking.status) && specialists && (
                         <select
-                            className="mt-2 w-full text-[10px] bg-slate-50 border-none rounded-lg p-1 font-bold text-brand-600 focus:ring-1 focus:ring-brand-500/20"
+                            className="mt-2 w-full text-[10px] bg-slate-50 dark:bg-slate-700 border-none rounded-lg p-1 font-bold text-brand-600 dark:text-brand-400 focus:ring-1 focus:ring-brand-500/20"
                             value={booking.specialist_id || ''}
                             onChange={(e) => onAssign?.(booking.id, e.target.value)}
                         >
@@ -80,18 +80,18 @@ export function BookingCard({ booking, specialists, onCancel, onAssign, onUpdate
             </div>
 
             {booking.notes && (
-                <div className="mb-6 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-xs text-slate-500 italic">"{booking.notes}"</p>
+                <div className="mb-6 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 italic">"{booking.notes}"</p>
                 </div>
             )}
 
-            <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+            <div className="mt-auto pt-6 border-t border-slate-50 dark:border-slate-700/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <span className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest">
                         {booking.type?.duration} {direction === 'rtl' ? 'دقيقة' : 'min'}
                     </span>
-                    <span className="text-slate-200">|</span>
-                    <span className="text-[10px] font-black text-brand-600 uppercase tracking-widest">
+                    <span className="text-slate-200 dark:text-slate-600">|</span>
+                    <span className="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest">
                         {booking.type?.price} {t('common.currency')}
                     </span>
                 </div>

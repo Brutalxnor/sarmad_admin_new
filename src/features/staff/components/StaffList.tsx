@@ -77,7 +77,7 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
         return (
             <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="h-20 bg-white border border-gray-50 rounded-3xl animate-pulse shadow-sm" />
+                    <div key={i} className="h-20 bg-white dark:bg-slate-800 border border-gray-50 dark:border-slate-700 rounded-3xl animate-pulse shadow-sm transition-colors duration-300" />
                 ))}
             </div>
         )
@@ -92,10 +92,10 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
 
     return (
         <div className="space-y-6">
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors duration-300">
                 <div className="overflow-x-auto">
                     <table className={`w-full ${isRTL ? 'text-right' : 'text-left'}`}>
-                        <thead className="bg-[#F9FBFC] text-slate-400 font-black text-xs uppercase tracking-widest border-b border-gray-100">
+                        <thead className="bg-[#F9FBFC] dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 font-black text-xs uppercase tracking-widest border-b border-gray-100 dark:border-slate-700">
                             <tr>
                                 <th className="px-8 py-6">{language === 'ar' ? 'الاسم والبريد' : 'Name & Email'}</th>
                                 <th className="px-6 py-6">{language === 'ar' ? 'الدور' : 'Role'}</th>
@@ -105,16 +105,16 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                 <th className="px-8 py-6 text-center">{language === 'ar' ? 'الإجراءات' : 'Actions'}</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50">
+                        <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
                             {paginatedStaff.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-20 text-center text-slate-300 font-bold text-lg">
+                                    <td colSpan={6} className="px-6 py-20 text-center text-slate-300 dark:text-slate-500 font-bold text-lg">
                                         {t('staff.list.empty')}
                                     </td>
                                 </tr>
                             ) : (
                                 paginatedStaff.map((staff: StaffUser) => (
-                                    <tr key={staff.id} className="hover:bg-[#F4F9FB]/30 transition-all group">
+                                    <tr key={staff.id} className="hover:bg-[#F4F9FB]/30 dark:hover:bg-slate-700/30 transition-all group">
                                         {/* Name & Email */}
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
@@ -122,13 +122,13 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                                     <img
                                                         src={staff.profile_picture || `https://ui-avatars.com/api/?name=${encodeURIComponent(staff.name || 'User')}&background=0d9488&color=fff`}
                                                         alt={staff.name}
-                                                        className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 ring-offset-1"
+                                                        className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100 dark:ring-slate-700 ring-offset-1 dark:ring-offset-slate-800"
                                                     />
-                                                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-sm" />
+                                                    <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="font-black text-slate-800 text-sm mb-0.5">{staff.name || 'مستخدم سرمد'}</span>
-                                                    <span className="text-xs text-slate-400 font-bold tracking-tight opacity-70">{staff.email}</span>
+                                                    <span className="font-black text-slate-800 dark:text-slate-100 text-sm mb-0.5">{staff.name || 'مستخدم سرمد'}</span>
+                                                    <span className="text-xs text-slate-400 dark:text-slate-500 font-bold tracking-tight opacity-70">{staff.email}</span>
                                                 </div>
                                             </div>
                                         </td>
@@ -136,7 +136,7 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                         {/* Role Display */}
                                         <td className="px-6 py-6">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-black text-slate-700">
+                                                <span className="text-xs font-black text-slate-700 dark:text-slate-200">
                                                     {t(`staff.role.${staff.role}`)}
                                                 </span>
                                             </div>
@@ -144,8 +144,8 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                         {/* Status */}
                                         <td className="px-6 py-6">
                                             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-black ${!staff.must_change_password
-                                                ? 'bg-emerald-50 text-emerald-600'
-                                                : 'bg-orange-50 text-orange-600'
+                                                ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                                : 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400'
                                                 }`}>
                                                 {!staff.must_change_password ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
                                                 {!staff.must_change_password ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'غير نشط' : 'Inactive')}
@@ -154,14 +154,14 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
 
                                         {/* Last Login */}
                                         <td className="px-6 py-6">
-                                            <span className="text-xs font-black text-slate-400 italic">
+                                            <span className="text-xs font-black text-slate-400 dark:text-slate-500 italic">
                                                 {language === 'ar' ? 'منذ 5 دقائق' : '5 mins ago'}
                                             </span>
                                         </td>
 
                                         {/* Permissions */}
                                         <td className="px-6 py-6">
-                                            <span className="text-xs font-black text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                            <span className="text-xs font-black text-slate-500 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 px-3 py-1.5 rounded-lg border border-slate-100 dark:border-slate-600">
                                                 {getPermissionLabel(staff.role)}
                                             </span>
                                         </td>
@@ -171,14 +171,14 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                             <div className="flex items-center justify-center gap-4">
                                                 <button
                                                     onClick={() => handleEdit(staff)}
-                                                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                                                    className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center text-emerald-500 dark:text-emerald-400 hover:bg-emerald-500 dark:hover:bg-emerald-500 hover:text-white dark:hover:text-white transition-all shadow-sm"
                                                     title={t('content.edit')}
                                                 >
                                                     <Edit2 size={18} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(staff.id)}
-                                                    className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                                    className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center text-rose-500 dark:text-rose-400 hover:bg-rose-500 dark:hover:bg-rose-500 hover:text-white dark:hover:text-white transition-all shadow-sm"
                                                     title={t('common.delete')}
                                                 >
                                                     <Trash2 size={16} />
@@ -194,7 +194,7 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
             </div>
 
             <div className={`flex flex-col md:flex-row justify-between items-center gap-6 pt-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                <p className="text-sm font-black text-slate-400 order-2 md:order-1">
+                <p className="text-sm font-black text-slate-400 dark:text-slate-500 order-2 md:order-1">
                     {language === 'ar'
                         ? `عرض ${paginatedStaff.length} من أصل ${filteredStaff.length} موظف (الإجمالي: ${staffListResponse?.data?.length || 0})`
                         : `Showing ${paginatedStaff.length} of ${filteredStaff.length} employees (Total: ${staffListResponse?.data?.length || 0})`}

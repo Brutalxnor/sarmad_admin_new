@@ -123,14 +123,14 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Section 1: Question */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-4 transition-colors duration-300">
                 <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600">
+                    <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400">
                         <HelpCircle size={24} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-800">{language === 'ar' ? 'السؤال' : 'Question'}</h3>
-                        <p className="text-xs font-bold text-slate-400">{language === 'ar' ? 'أدخل نص السؤال بوضوح' : 'Enter the question text clearly'}</p>
+                        <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">{language === 'ar' ? 'السؤال' : 'Question'}</h3>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500">{language === 'ar' ? 'أدخل نص السؤال بوضوح' : 'Enter the question text clearly'}</p>
                     </div>
                 </div>
 
@@ -139,7 +139,7 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
                         type="text"
                         value={question}
                         onChange={(e) => setQuestion(e.target.value)}
-                        className={`w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-brand-500/20 focus:ring-4 focus:ring-brand-500/5 outline-none transition-all duration-300 font-bold text-slate-700 placeholder:text-slate-300`}
+                        className={`w-full px-6 py-4 bg-slate-50 dark:bg-slate-700/50 border-2 border-transparent dark:border-slate-600 rounded-2xl focus:bg-white dark:focus:bg-slate-700 focus:border-brand-500/20 dark:focus:border-brand-500/30 focus:ring-4 focus:ring-brand-500/5 dark:focus:ring-brand-500/10 outline-none transition-all duration-300 font-bold text-slate-700 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-500`}
                         placeholder={t('questions.form.question_placeholder')}
                         required
                         dir={language === 'ar' ? 'rtl' : 'ltr'}
@@ -148,16 +148,16 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
             </div>
 
             {/* Section 2: Answers */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-6 transition-colors duration-300">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600">
+                        <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400">
                             <Plus size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-black text-slate-800">{language === 'ar' ? 'الإجابات' : 'Answers'}</h3>
+                            <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">{language === 'ar' ? 'الإجابات' : 'Answers'}</h3>
                             <div className="flex items-center gap-2">
-                                <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">
+                                <span className="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 px-2 py-0.5 rounded-full font-black uppercase tracking-tighter">
                                     {language === 'ar' ? `إجمالي الإجابات: ${answers.length}` : `Total Answers: ${answers.length}`}
                                 </span>
                             </div>
@@ -166,7 +166,7 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
                     <button
                         type="button"
                         onClick={addAnswer}
-                        className="group flex items-center gap-2 px-6 py-3 text-sm font-black text-white bg-brand-500 hover:bg-brand-600 rounded-2xl transition-all duration-300 shadow-lg shadow-brand-500/20 hover:-translate-y-0.5"
+                        className="group flex items-center gap-2 px-6 py-3 text-sm font-black text-white bg-brand-500 hover:bg-brand-600 dark:hover:bg-brand-400 rounded-2xl transition-all duration-300 shadow-lg shadow-brand-500/20 dark:shadow-brand-500/10 hover:-translate-y-0.5"
                     >
                         <Plus size={18} className="group-hover:rotate-90 transition-transform" />
                         <span>{language === 'ar' ? "إضافة إجابة" : "Add Answer"}</span>
@@ -175,9 +175,9 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
 
                 <div className="grid grid-cols-1 gap-4">
                     {answers.map((ans, index) => (
-                        <div key={index} className="group p-5 bg-slate-50/50 border border-slate-100 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-200 relative">
+                        <div key={index} className="group p-5 bg-slate-50/50 dark:bg-slate-700/30 border border-slate-100 dark:border-slate-600 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-200 relative">
                             <div className="flex justify-between items-center mb-4">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-slate-100">
+                                <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest bg-white dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-100 dark:border-slate-700">
                                     {language === 'ar' ? `الخيار #${index + 1}` : `Option #${index + 1}`}
                                 </span>
                                 <button
@@ -191,21 +191,21 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
 
                             <div className="flex flex-col md:flex-row gap-4">
                                 <div className="flex-1">
-                                    <label className="block text-[10px] font-black text-slate-400 mb-1.5 ml-1 uppercase tracking-tighter">
+                                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 mb-1.5 ml-1 uppercase tracking-tighter">
                                         {language === 'ar' ? 'نص الإجابة' : 'Answer Text'}
                                     </label>
                                     <input
                                         type="text"
                                         value={ans.answer}
                                         onChange={(e) => updateAnswer(index, 'answer', e.target.value)}
-                                        className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-500/5 focus:border-brand-500 outline-none transition-all duration-200 text-right font-black text-slate-700 shadow-xs"
+                                        className="w-full px-5 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-4 focus:ring-brand-500/5 focus:border-brand-500 outline-none transition-all duration-200 text-right font-black text-slate-700 dark:text-slate-200 shadow-xs"
                                         placeholder={t('questions.col.answers')}
                                         dir={language === 'ar' ? 'rtl' : 'ltr'}
                                         required
                                     />
                                 </div>
                                 <div className="md:w-32">
-                                    <label className="block text-[10px] font-black text-slate-400 mb-1.5 ml-1 uppercase tracking-tighter">
+                                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 mb-1.5 ml-1 uppercase tracking-tighter">
                                         {language === 'ar' ? 'النسبة %' : 'Weight %'}
                                     </label>
                                     <div className="relative">
@@ -213,13 +213,13 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
                                             type="number"
                                             value={ans.percentage}
                                             onChange={(e) => updateAnswer(index, 'percentage', e.target.value)}
-                                            className="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-brand-500/5 focus:border-brand-500 outline-none transition-all duration-200 text-center font-black text-slate-700 shadow-xs"
+                                            className="w-full px-5 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-4 focus:ring-brand-500/5 focus:border-brand-500 outline-none transition-all duration-200 text-center font-black text-slate-700 dark:text-slate-200 shadow-xs"
                                             placeholder="0"
                                             min="0"
                                             max="100"
                                             required
                                         />
-                                        <span className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none font-black`}>%</span>
+                                        <span className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-slate-300 dark:text-slate-500 pointer-events-none font-black`}>%</span>
                                     </div>
                                 </div>
                             </div>
@@ -230,14 +230,14 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
 
 
             {/* Section 4: Category */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm space-y-4 transition-colors duration-300">
                 <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-2xl bg-brand-50 flex items-center justify-center text-brand-600">
+                    <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-600 dark:text-brand-400">
                         <Hash size={24} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-800">{language === 'ar' ? 'فئة السؤال' : 'Category'}</h3>
-                        <p className="text-xs font-bold text-slate-400">{language === 'ar' ? 'تصنيف السؤال (أرق، تنفس، إلخ)' : 'Question classification'}</p>
+                        <h3 className="text-lg font-black text-slate-800 dark:text-slate-100">{language === 'ar' ? 'فئة السؤال' : 'Category'}</h3>
+                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500">{language === 'ar' ? 'تصنيف السؤال (أرق، تنفس، إلخ)' : 'Question classification'}</p>
                     </div>
                 </div>
 
@@ -246,7 +246,7 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
                         type="text"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
-                        className={`w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-brand-500/20 focus:ring-4 focus:ring-brand-500/5 outline-none transition-all duration-300 font-bold text-slate-700 placeholder:text-slate-300`}
+                        className={`w-full px-6 py-4 bg-slate-50 dark:bg-slate-700/50 border-2 border-transparent dark:border-slate-600 rounded-2xl focus:bg-white dark:focus:bg-slate-700 focus:border-brand-500/20 dark:focus:border-brand-500/30 focus:ring-4 focus:ring-brand-500/5 outline-none transition-all duration-300 font-bold text-slate-700 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-500`}
                         placeholder={t('questions.form.category_placeholder')}
                         dir={language === 'ar' ? 'rtl' : 'ltr'}
                     />

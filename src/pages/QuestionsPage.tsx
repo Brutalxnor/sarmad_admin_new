@@ -54,10 +54,10 @@ export default function QuestionsPage() {
             {/* Page Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-slate-800">
+                    <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
                         {selectedVersion ? `إدارة الأسئلة - النسخة ${selectedVersion}` : t('questions.title')}
                     </h1>
-                    <p className="text-slate-500 mt-1">
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">
                         {selectedVersion ? `عرض وتعديل أسئلة النسخة ${selectedVersion}` : t('questions.subtitle')}
                     </p>
                 </div>
@@ -79,7 +79,7 @@ export default function QuestionsPage() {
                             </button>
                             <button
                                 onClick={() => setSelectedVersion(null)}
-                                className="px-4 py-2 text-slate-600 hover:text-slate-800 font-bold transition-colors"
+                                className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 font-bold transition-colors"
                             >
                                 عودة للنسخ
                             </button>
@@ -115,26 +115,26 @@ export default function QuestionsPage() {
                                     className="cursor-pointer space-y-4"
                                 >
                                     <div className="flex justify-between items-start">
-                                        <div className="w-12 h-12 bg-brand-50 rounded-2xl flex items-center justify-center text-brand-600">
+                                        <div className="w-12 h-12 bg-brand-50 dark:bg-brand-500/10 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                         </div>
                                         <div className="flex flex-col items-end gap-2">
-                                            <span className="text-xs font-bold text-slate-400 capitalize bg-slate-50 px-2 py-1 rounded-md">
+                                            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 capitalize bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-md">
                                                 نسخة {version}
                                             </span>
                                             {versionQuestions.some(q => q.actual_assess) && (
-                                                <span className="text-[10px] font-black bg-brand-600 text-white px-2 py-0.5 rounded-full animate-pulse">
+                                                <span className="text-[10px] font-black bg-brand-600 dark:bg-brand-500 text-white px-2 py-0.5 rounded-full animate-pulse">
                                                     النسخة الأساسية
                                                 </span>
                                             )}
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-slate-900">النسخة الاختبارية {version}</h3>
+                                        <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">النسخة الاختبارية {version}</h3>
                                         <div className="mt-1">
-                                            <p className="text-sm text-slate-500 font-bold">
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 font-bold">
                                                 {versionQuestions.length} أسئلة متاحة
                                             </p>
                                         </div>
@@ -148,8 +148,8 @@ export default function QuestionsPage() {
                                             setActualVersion.mutate(version)
                                         }}
                                         className={`text-[10px] font-bold px-3 py-2 rounded-lg transition-all shadow-sm border ${versionQuestions.some(q => q.actual_assess)
-                                                ? 'bg-brand-50 text-brand-700 border-brand-200 cursor-default'
-                                                : 'bg-white text-slate-600 hover:bg-brand-600 hover:text-white border-slate-100'
+                                            ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 border-brand-200 dark:border-brand-500/20 cursor-default'
+                                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-brand-600 hover:text-white border-slate-100 dark:border-slate-700'
                                             }`}
                                     >
                                         {versionQuestions.some(q => q.actual_assess) ? 'النسخة الحالية' : 'تفعيل كأساس'}
@@ -159,7 +159,7 @@ export default function QuestionsPage() {
                                             e.stopPropagation()
                                             handleDeleteVersion(version)
                                         }}
-                                        className="p-2 text-slate-300 hover:text-red-600 bg-white rounded-lg transition-all shadow-sm border border-slate-100"
+                                        className="p-2 text-slate-300 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 bg-white dark:bg-slate-800 rounded-lg transition-all shadow-sm border border-slate-100 dark:border-slate-700"
                                         title="حذف النسخة"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,13 +173,13 @@ export default function QuestionsPage() {
 
                     {versions.length === 0 && (
                         <div className="col-span-full py-20 text-center glass-panel">
-                            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
+                            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300 dark:text-slate-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900">لا توجد نسخ متاحة</h3>
-                            <p className="text-slate-500 mt-2">ابدأ بإضافة نسخة جديدة لإدارة الأسئلة</p>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">لا توجد نسخ متاحة</h3>
+                            <p className="text-slate-500 dark:text-slate-400 mt-2">ابدأ بإضافة نسخة جديدة لإدارة الأسئلة</p>
                             <button
                                 onClick={handleAddVersionDirectly}
                                 className="mt-6 text-brand-600 font-black flex items-center gap-2 mx-auto hover:text-brand-700 transition-colors"
@@ -194,10 +194,10 @@ export default function QuestionsPage() {
                 </div>
             ) : (
                 <div className="glass-panel overflow-hidden">
-                    <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
+                    <div className="p-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center bg-gray-50/30 dark:bg-slate-800/30">
                         <div className="flex gap-4">
                             <button className="text-sm font-bold text-brand-600 border-b-2 border-brand-600 pb-6 -mb-6">{t('questions.tab.all')}</button>
-                            <button className="text-sm font-medium text-gray-500 hover:text-gray-700 pb-6 -mb-6 transition-colors">{t('questions.tab.archived')}</button>
+                            <button className="text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 pb-6 -mb-6 transition-colors">{t('questions.tab.archived')}</button>
                         </div>
                     </div>
 
@@ -214,7 +214,7 @@ export default function QuestionsPage() {
                 title={t('questions.form.title')}
             >
                 <div className="mb-6">
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         {t('questions.form.desc')} (نسخة {selectedVersion})
                     </p>
                 </div>

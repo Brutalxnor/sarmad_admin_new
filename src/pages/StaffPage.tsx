@@ -64,10 +64,10 @@ export default function StaffPage() {
             {/* Page Header */}
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 <div className={isRTL ? 'text-start' : 'text-end'}>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-2">
+                    <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 tracking-tight mb-2">
                         {language === 'ar' ? 'إدارة الموظفين' : 'Staff Management'}
                     </h1>
-                    <p className="text-slate-400 font-bold max-w-xl">
+                    <p className="text-slate-400 dark:text-slate-500 font-bold max-w-xl">
                         {language === 'ar'
                             ? 'إدارة صلاحيات الوصول والتحكم في حسابات فريق عمل سرمد'
                             : 'Manage access permissions and control accounts for the Sarmad team'}
@@ -85,39 +85,39 @@ export default function StaffPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative">
-                        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
+                    <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative duration-300">
+                        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg.replace('bg-', 'bg-').replace('50', '50 dark:bg-opacity-10')} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
                             {stat.icon}
                         </div>
-                        <h3 className="text-4xl font-black text-slate-800 mb-2 mt-8">{stat.value}</h3>
-                        <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">{stat.label}</p>
+                        <h3 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 mt-8">{stat.value}</h3>
+                        <p className="text-gray-400 dark:text-slate-500 font-bold text-xs uppercase tracking-widest">{stat.label}</p>
                     </div>
                 ))}
             </div>
 
             {/* Filters Bar */}
-            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col md:flex-row items-center gap-6">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-gray-100 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-center gap-6 transition-colors duration-300">
                 <div className="flex-1 w-full relative group">
                     <input
                         type="text"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder={language === 'ar' ? 'بحث عن مستخدم بالاسم أو البريد...' : 'Search by name or email...'}
-                        className={`w-full bg-[#F3F7F9] border-none rounded-2xl py-4 px-6 text-sm font-bold text-slate-600 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all ${isRTL ? 'pr-12' : 'pl-12'}`}
+                        className={`w-full bg-[#F3F7F9] dark:bg-slate-700/50 border-none rounded-2xl py-4 px-6 text-sm font-bold text-slate-600 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500/10 outline-none transition-all ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
-                    <div className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-500 transition-colors`}>
+                    <div className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 group-focus-within:text-brand-500 transition-colors`}>
                         <Search size={20} />
                     </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-3">
-                        <span className="text-sm font-black text-slate-400">{language === 'ar' ? 'تصفية حسب :' : 'Filter by :'}</span>
+                        <span className="text-sm font-black text-slate-400 dark:text-slate-500">{language === 'ar' ? 'تصفية حسب :' : 'Filter by :'}</span>
                         <div className="relative">
                             <select
                                 value={roleFilter}
                                 onChange={(e) => setRoleFilter(e.target.value)}
-                                className="appearance-none bg-[#F4F9FB] px-6 py-3 pr-10 rounded-2xl text-slate-600 font-black text-sm hover:bg-slate-100 transition-all cursor-pointer outline-none border-none"
+                                className="appearance-none bg-[#F4F9FB] dark:bg-slate-700/50 px-6 py-3 pr-10 rounded-2xl text-slate-600 dark:text-slate-200 font-black text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer outline-none border-none"
                             >
                                 <option value="all">{language === 'ar' ? 'كل الأدوار' : 'All Roles'}</option>
                                 <option value="Coach">{t('staff.role.Coach')}</option>
@@ -133,7 +133,7 @@ export default function StaffPage() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="appearance-none bg-[#F4F9FB] px-6 py-3 pr-10 rounded-2xl text-slate-600 font-black text-sm hover:bg-slate-100 transition-all cursor-pointer outline-none border-none"
+                            className="appearance-none bg-[#F4F9FB] dark:bg-slate-700/50 px-6 py-3 pr-10 rounded-2xl text-slate-600 dark:text-slate-200 font-black text-sm hover:bg-slate-100 dark:hover:bg-slate-700 transition-all cursor-pointer outline-none border-none"
                         >
                             <option value="all">{language === 'ar' ? 'كل الحالات' : 'All Statuses'}</option>
                             <option value="active">{language === 'ar' ? 'نشط' : 'Active'}</option>
@@ -148,7 +148,7 @@ export default function StaffPage() {
                             setRoleFilter('all')
                             setStatusFilter('all')
                         }}
-                        className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-rose-50 hover:text-rose-500 transition-all"
+                        className="p-4 bg-slate-50 dark:bg-slate-700/50 text-slate-400 dark:text-slate-400 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-500 transition-all"
                         title={language === 'ar' ? 'إعادة تعيين' : 'Reset Filters'}
                     >
                         <Filter size={20} />

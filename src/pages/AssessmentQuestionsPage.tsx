@@ -76,7 +76,7 @@ export default function AssessmentQuestionsPage() {
     }
 
     return (
-        <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8 bg-[#F9FBFC] min-h-screen" dir={direction}>
+        <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen transition-colors duration-300" dir={direction}>
             {/* Breadcrumbs */}
             <div className={`flex items-center gap-2 text-sm font-bold text-slate-400 ${isRTL ? 'justify-start' : 'justify-end'}`}>
                 <span>{isRTL ? 'عرض الأسئلة' : 'View Questions'}</span>
@@ -87,14 +87,14 @@ export default function AssessmentQuestionsPage() {
             </div>
 
             {/* Header Row */}
-            <div className={`flex flex-col md:flex-row justify-between items-center gap-6 bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+            <div className={`flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-sm transition-colors duration-300 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 <div className={`flex items-center gap-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                     <div className={isRTL ? 'text-start' : 'text-end'}>
                         <div className={`flex items-center gap-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                            <h1 className="text-3xl font-black text-slate-800">
+                            <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100">
                                 {isRTL ? 'تقييم النوم الشامل' : 'Comprehensive Sleep Assessment'}
                             </h1>
-                            <span className="bg-sky-50 text-sky-500 px-3 py-1 rounded-lg text-xs font-black">
+                            <span className="bg-sky-50 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400 px-3 py-1 rounded-lg text-xs font-black">
                                 {decodedVersion}
                             </span>
                         </div>
@@ -114,32 +114,32 @@ export default function AssessmentQuestionsPage() {
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center relative group hover:shadow-md transition-all">
+                    <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center text-center relative group hover:shadow-md transition-all duration-300">
                         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'}`}>
                             {stat.icon}
                         </div>
-                        <h3 className="text-3xl font-black text-slate-800 mb-1 mt-6">{stat.value}</h3>
+                        <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-1 mt-6">{stat.value}</h3>
                         <p className="text-slate-400 font-bold text-[10px] uppercase tracking-wider">{stat.label}</p>
                     </div>
                 ))}
             </div>
 
             {/* Questions Bank List */}
-            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-8 space-y-6 bg-[#F9FBFC]/50">
+            <div className="bg-white dark:bg-slate-800 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-300">
+                <div className="p-8 space-y-6 bg-[#F9FBFC]/50 dark:bg-slate-800/50">
                     {questions.length === 0 ? (
                         <div className="py-20 text-center text-slate-300 font-bold italic">
                             {isRTL ? 'لا توجد أسئلة لهذه النسخة' : 'No questions for this version'}
                         </div>
                     ) : (
                         questions.map((q: any, idx: number) => (
-                            <div key={q.id} className="bg-white rounded-[2rem] p-10 border border-gray-100 shadow-sm hover:shadow-md transition-all relative text-right">
+                            <div key={q.id} className="bg-white dark:bg-slate-800 rounded-[2rem] p-10 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all relative text-right">
                                 {/* Top Header: Toggle (Left) | Badge & Number (Right) */}
                                 <div className={`flex justify-between items-center mb-10 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                     {/* Toggle Switch */}
                                     <div
                                         onClick={() => handleToggle(q.id, q.in_assessment || false)}
-                                        className={`w-14 h-7 rounded-full transition-all relative cursor-pointer ${toggleStatus.isPending ? 'opacity-50 cursor-wait' : ''} ${q.in_assessment ? 'bg-[#0095D9]' : 'bg-slate-200'}`}
+                                        className={`w-14 h-7 rounded-full transition-all relative cursor-pointer ${toggleStatus.isPending ? 'opacity-50 cursor-wait' : ''} ${q.in_assessment ? 'bg-[#0095D9]' : 'bg-slate-200 dark:bg-slate-700'}`}
                                         title={isRTL ? 'تغيير الحالة' : 'Toggle Status'}
                                     >
                                         <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-sm transition-all ${isRTL ? (q.in_assessment ? 'right-8' : 'right-1') : (q.in_assessment ? 'left-8' : 'left-1')}`} />
@@ -147,7 +147,7 @@ export default function AssessmentQuestionsPage() {
 
                                     {/* Number, Handle & Tag */}
                                     <div className={`flex items-center gap-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                        <div className="bg-[#F4F9FB] text-slate-500 px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 border border-slate-50">
+                                        <div className="bg-[#F4F9FB] dark:bg-slate-700/50 text-slate-500 dark:text-slate-300 px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 border border-slate-50 dark:border-slate-600">
                                             {isRTL ? 'اختيار من متعدد' : 'Multiple Choice'}
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function AssessmentQuestionsPage() {
 
                                 {/* Question Title */}
                                 <div className="text-right mb-10">
-                                    <h3 className="text-[22px] font-black text-[#5C7E95] leading-snug">
+                                    <h3 className="text-[22px] font-black text-[#5C7E95] dark:text-[#78A6C4] leading-snug">
                                         {q.question}
                                     </h3>
                                 </div>
@@ -167,22 +167,22 @@ export default function AssessmentQuestionsPage() {
                                 {/* Metadata Row (4 Pillars) */}
                                 <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 ${isRTL ? 'text-right' : 'text-left'}`}>
                                     <div className="space-y-1">
-                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block">{isRTL ? 'الوزن/النسبة' : 'Weight/Percentage'}</span>
-                                        <span className="text-sm font-black text-slate-700">{isRTL ? '5 %' : '5 %'}</span>
+                                        <span className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest block">{isRTL ? 'الوزن/النسبة' : 'Weight/Percentage'}</span>
+                                        <span className="text-sm font-black text-slate-700 dark:text-slate-200">{isRTL ? '5 %' : '5 %'}</span>
                                     </div>
                                     <div className="space-y-1">
-                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block">{isRTL ? 'عدد الخيارات' : 'Number of Choices'}</span>
-                                        <span className="text-sm font-black text-slate-700">{q.answers?.length || 0} {isRTL ? 'خيارات' : 'Choices'}</span>
+                                        <span className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest block">{isRTL ? 'عدد الخيارات' : 'Number of Choices'}</span>
+                                        <span className="text-sm font-black text-slate-700 dark:text-slate-200">{q.answers?.length || 0} {isRTL ? 'خيارات' : 'Choices'}</span>
                                     </div>
                                     <div className="space-y-1">
-                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block">{isRTL ? 'حالته' : 'Status'}</span>
+                                        <span className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest block">{isRTL ? 'حالته' : 'Status'}</span>
                                         <span className={`text-sm font-black text-emerald-500 flex items-center gap-1.5 ${isRTL ? 'justify-end' : 'justify-start'}`}>
                                             {isRTL ? 'مفعل' : 'Active'} <CheckCircle2 size={12} />
                                         </span>
                                     </div>
                                     <div className="space-y-1">
-                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest block">{isRTL ? 'تاريخ الإضافة' : 'Date Added'}</span>
-                                        <span className="text-sm font-black text-slate-700">{new Date(q.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US')}</span>
+                                        <span className="text-[10px] font-black text-slate-300 dark:text-slate-500 uppercase tracking-widest block">{isRTL ? 'تاريخ الإضافة' : 'Date Added'}</span>
+                                        <span className="text-sm font-black text-slate-700 dark:text-slate-200">{new Date(q.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US')}</span>
                                     </div>
                                 </div>
 
@@ -194,9 +194,9 @@ export default function AssessmentQuestionsPage() {
 
                                     <div className="space-y-3">
                                         {(q.answers || []).map((ans: any, aIdx: number) => (
-                                            <div key={aIdx} className="bg-white border border-gray-100/60 rounded-xl p-4 flex justify-between items-center hover:bg-slate-50 transition-all">
-                                                <span className="text-sm font-bold text-slate-400 uppercase">{ans.answer}</span>
-                                                <div className="p-1 px-2 text-[#35788D] bg-white border border-slate-100 rounded-lg">
+                                            <div key={aIdx} className="bg-white dark:bg-slate-800 border border-gray-100/60 dark:border-slate-700 rounded-xl p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all">
+                                                <span className="text-sm font-bold text-slate-400 dark:text-slate-300 uppercase">{ans.answer}</span>
+                                                <div className="p-1 px-2 text-[#35788D] dark:text-[#4AA0BA] bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-lg">
                                                     <Edit3 size={14} />
                                                 </div>
                                             </div>

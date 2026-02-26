@@ -34,7 +34,7 @@ export default function ContentPage() {
         const isWebinar = selectedType === 'webinar';
 
         return (
-            <div className="bg-[#F9FBFC] min-h-screen">
+            <div className="bg-[#F9FBFC] dark:bg-slate-900 min-h-screen transition-colors duration-300">
                 <div className="max-w-[1400px] mx-auto px-6 pt-10">
                     <button
                         onClick={handleBackToList}
@@ -43,7 +43,7 @@ export default function ContentPage() {
                         <ArrowLeft size={24} className={direction === 'rtl' ? 'rotate-180' : ''} />
                         <span className="font-bold">{t('content.back_to_list')}</span>
                     </button>
-                    <h1 className="text-4xl font-black text-slate-800 mb-8 px-4">
+                    <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-8 px-4 transition-colors duration-300">
                         {isCourse ? 'إضافة دورة تدريبية جديدة' :
                             isFaq ? 'إضافة سؤال وجواب جديد' :
                                 isWebinar ? 'إضافة ندوة مباشرة جديدة' :
@@ -88,7 +88,7 @@ export default function ContentPage() {
         ]
 
         return (
-            <div className="animate-fade-in max-w-[1200px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen">
+            <div className="animate-fade-in max-w-[1200px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen transition-colors duration-300">
                 <div className="flex justify-start">
                     <button
                         onClick={() => setView('list')}
@@ -100,8 +100,8 @@ export default function ContentPage() {
                 </div>
 
                 <div className="flex flex-col items-center text-center space-y-6">
-                    <h1 className="text-5xl font-black text-slate-800">إضافة محتوى جديد</h1>
-                    <p className="text-gray-400 font-bold max-w-lg text-lg">اختر نوع المحتوى الذي ترغب في إنشائه وإضافته للمنصة</p>
+                    <h1 className="text-5xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">إضافة محتوى جديد</h1>
+                    <p className="text-gray-400 dark:text-slate-400 font-bold max-w-lg text-lg">اختر نوع المحتوى الذي ترغب في إنشائه وإضافته للمنصة</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 mt-12 pb-20">
@@ -116,13 +116,13 @@ export default function ContentPage() {
                                     setView('create')
                                 }
                             }}
-                            className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer h-full"
+                            className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-10 shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-slate-900/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer h-full"
                         >
-                            <div className="w-24 h-24 rounded-full bg-sky-50 flex items-center justify-center mb-8 transition-transform duration-500 group-hover:scale-110">
+                            <div className="w-24 h-24 rounded-full bg-sky-50 dark:bg-slate-700/50 flex items-center justify-center mb-8 transition-transform duration-500 group-hover:scale-110">
                                 {type.icon}
                             </div>
-                            <h3 className="text-2xl font-black text-slate-800 mb-4">{type.title}</h3>
-                            <p className="text-gray-400 text-sm font-bold leading-relaxed mb-8 flex-1">{type.desc}</p>
+                            <h3 className="text-2xl font-black text-slate-800 dark:text-slate-200 mb-4 transition-colors duration-300">{type.title}</h3>
+                            <p className="text-gray-400 dark:text-slate-400 text-sm font-bold leading-relaxed mb-8 flex-1">{type.desc}</p>
                             <div
                                 className="text-[#35788D] font-black text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
                             >
@@ -137,12 +137,12 @@ export default function ContentPage() {
     }
 
     return (
-        <div className="space-y-12 animate-fade-in max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen">
+        <div className="space-y-12 animate-fade-in max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen transition-colors duration-300">
             {/* Page Header */}
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${direction === 'rtl' ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 <div className="text-start">
-                    <h1 className="text-4xl font-black text-[#1E293B] tracking-tight mb-2">إدارة المحتوى التعليمي</h1>
-                    <p className="text-slate-400 font-bold">مكتبة المحتوى والمراجعة والموافقة</p>
+                    <h1 className="text-4xl font-black text-[#1E293B] dark:text-slate-100 tracking-tight mb-2 transition-colors duration-300">إدارة المحتوى التعليمي</h1>
+                    <p className="text-slate-400 dark:text-slate-500 font-bold">مكتبة المحتوى والمراجعة والموافقة</p>
                 </div>
                 <div>
                     <button
@@ -158,37 +158,37 @@ export default function ContentPage() {
             {/* Content Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
-                    { title: 'إجمالي المحتوى', value: totalCount.toString(), icon: <BookOpen className="text-[#0095D9]" />, color: 'bg-white', iconBg: 'bg-sky-50' },
-                    { title: 'منشور', value: publishedCount.toString(), icon: <CheckCircle className="text-teal-500" />, color: 'bg-white', iconBg: 'bg-teal-50' },
-                    { title: 'مسودات', value: draftCount.toString(), icon: <Edit3 className="text-blue-500" />, color: 'bg-white', iconBg: 'bg-blue-50' },
+                    { title: 'إجمالي المحتوى', value: totalCount.toString(), icon: <BookOpen className="text-[#0095D9]" />, color: 'bg-white dark:bg-slate-800', iconBg: 'bg-sky-50 dark:bg-slate-700/50' },
+                    { title: 'منشور', value: publishedCount.toString(), icon: <CheckCircle className="text-teal-500" />, color: 'bg-white dark:bg-slate-800', iconBg: 'bg-teal-50 dark:bg-slate-700/50' },
+                    { title: 'مسودات', value: draftCount.toString(), icon: <Edit3 className="text-blue-500" />, color: 'bg-white dark:bg-slate-800', iconBg: 'bg-blue-50 dark:bg-slate-700/50' },
                 ].map((stat, i) => (
-                    <div key={i} className={`${stat.color} p-8 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-shadow relative`}>
-                        <div className={`absolute top-6 right-6 w-12 h-12 rounded-2xl ${stat.iconBg} flex items-center justify-center`}>
+                    <div key={i} className={`${stat.color} p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-slate-700 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative duration-300`}>
+                        <div className={`absolute top-6 right-6 w-12 h-12 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-colors duration-300`}>
                             {stat.icon}
                         </div>
-                        <h3 className="text-4xl font-black text-slate-800 mb-2 mt-8">{stat.value}</h3>
-                        <p className="text-gray-400 font-bold text-xs uppercase tracking-wider">{stat.title}</p>
+                        <h3 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 mt-8 transition-colors duration-300">{stat.value}</h3>
+                        <p className="text-gray-400 dark:text-slate-500 font-bold text-xs uppercase tracking-wider">{stat.title}</p>
                     </div>
                 ))}
             </div>
 
             {/* Explore More Section */}
-            <div className="bg-white rounded-2xl p-10 shadow-sm border border-gray-50 flex flex-col gap-8">
-                <h2 className={`text-xl font-black text-slate-800 ${direction === 'rtl' ? 'text-start' : 'text-end'}`}>تصفح محتوى تعليمي إضافي</h2>
+            <div className="bg-white dark:bg-slate-800 rounded-2xl p-10 shadow-sm border border-gray-50 dark:border-slate-700/50 flex flex-col gap-8 transition-colors duration-300">
+                <h2 className={`text-xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300 ${direction === 'rtl' ? 'text-start' : 'text-end'}`}>تصفح محتوى تعليمي إضافي</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
-                        { title: 'الأسئلة الشائعة', desc: 'تستطيع أن ترى الأسئلة كاملة', link: 'تصفح كل الأسئلة', icon: <HelpCircle className="text-sky-500" />, color: 'bg-[#F4F9FB]', route: '/faqs' },
-                        { title: 'الندوات المسجلة', desc: 'تستطيع أن ترى الندوات السابقة', link: 'تصفح كل الندوات المسجلة', icon: <Video className="text-blue-400" />, color: 'bg-[#F4F9FB]', route: '/webinars' },
-                        { title: 'قصص النجاح', desc: 'تستطيع أن ترى قصص النجاح', link: 'تصفح كل قصص النجاح', icon: <Users className="text-sky-400" />, color: 'bg-[#F4F9FB]', route: '/testimonials' },
+                        { title: 'الأسئلة الشائعة', desc: 'تستطيع أن ترى الأسئلة كاملة', link: 'تصفح كل الأسئلة', icon: <HelpCircle className="text-sky-500" />, color: 'bg-[#F4F9FB] dark:bg-slate-800/80 dark:border dark:border-slate-700/50', route: '/faqs' },
+                        { title: 'الندوات المسجلة', desc: 'تستطيع أن ترى الندوات السابقة', link: 'تصفح كل الندوات المسجلة', icon: <Video className="text-blue-400" />, color: 'bg-[#F4F9FB] dark:bg-slate-800/80 dark:border dark:border-slate-700/50', route: '/webinars' },
+                        { title: 'قصص النجاح', desc: 'تستطيع أن ترى قصص النجاح', link: 'تصفح كل قصص النجاح', icon: <Users className="text-sky-400" />, color: 'bg-[#F4F9FB] dark:bg-slate-800/80 dark:border dark:border-slate-700/50', route: '/testimonials' },
                     ].map((card, i) => (
                         <div key={i} onClick={() => card.route && navigate(card.route)} className={`${card.color} p-8 rounded-xl flex items-center justify-between group hover:shadow-md transition-all ${card.route ? 'cursor-pointer' : ''}`}>
-                            <div className="order-2 w-14 h-14 rounded-full bg-white flex items-center justify-center text-slate-400 shadow-sm">
+                            <div className="order-2 w-14 h-14 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-400 shadow-sm transition-colors duration-300">
                                 {card.icon}
                             </div>
                             <div className="order-1 text-end flex-1 pe-4">
-                                <h3 className="font-black text-slate-800 mb-1">{card.title}</h3>
-                                <p className="text-[10px] text-gray-400 font-bold mb-3">{card.desc}</p>
-                                <button className="text-[#35788D] text-xs font-black flex items-center justify-end gap-2 hover:gap-3 transition-all">
+                                <h3 className="font-black text-slate-800 dark:text-slate-200 mb-1 transition-colors duration-300">{card.title}</h3>
+                                <p className="text-[10px] text-gray-400 dark:text-slate-500 font-bold mb-3">{card.desc}</p>
+                                <button className="text-[#35788D] dark:text-[#4AA0BA] text-xs font-black flex items-center justify-end gap-2 hover:gap-3 transition-all">
                                     {card.link}
                                     <ArrowLeft size={16} className={direction === 'rtl' ? 'rotate-180' : ''} />
                                 </button>

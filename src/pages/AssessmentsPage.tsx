@@ -145,14 +145,14 @@ export default function AssessmentsPage() {
     ]
 
     return (
-        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen space-y-10 animate-fade-in">
+        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen space-y-10 animate-fade-in transition-colors duration-300">
             {/* Header */}
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 <div className={isRTL ? 'text-start' : 'text-end'}>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tight mb-2">
+                    <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 tracking-tight mb-2 transition-colors duration-300">
                         {t('assessments.title')}
                     </h1>
-                    <p className="text-slate-400 font-bold">
+                    <p className="text-slate-400 dark:text-slate-500 font-bold">
                         {t('assessments.subtitle')}
                     </p>
                 </div>
@@ -168,19 +168,19 @@ export default function AssessmentsPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative">
-                        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
+                    <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all duration-300 relative">
+                        <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} dark:bg-opacity-10 flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
                             {stat.icon}
                         </div>
-                        <h3 className="text-4xl font-black text-slate-800 mb-2 mt-8">{stat.value}</h3>
-                        <p className="text-gray-400 font-bold text-xs uppercase tracking-widest">{stat.label}</p>
+                        <h3 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 mt-8 transition-colors duration-300">{stat.value}</h3>
+                        <p className="text-gray-400 dark:text-gray-500 font-bold text-xs uppercase tracking-widest">{stat.label}</p>
                     </div>
                 ))}
             </div>
 
             {/* Tab Navigation */}
-            <div className={`flex border-b border-gray-100 pt-4 px-12 ${isRTL ? 'justify-start' : 'justify-end'}`}>
-                <div className={`flex gap-12 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+            <div className={`flex border-b border-gray-100 dark:border-slate-700/50 pt-4 px-12 ${isRTL ? 'justify-start' : 'justify-end'}`}>
+                <div className={`flex gap-12 ${isRTL ? 'flex-row' : 'flex-row-reverse'} overflow-x-auto no-scrollbar`}>
                     {[
                         { id: 'overview', label: t('assessments.tab.overview'), icon: <LayoutGrid size={20} /> },
                         { id: 'questions', label: t('assessments.tab.questions'), icon: <FileText size={20} /> },
@@ -190,15 +190,15 @@ export default function AssessmentsPage() {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as TabType)}
-                            className={`flex items-center gap-3 pb-4 text-base font-black transition-all relative ${activeTab === tab.id
-                                ? 'text-[#35788D]'
-                                : 'text-slate-300 hover:text-slate-400'
+                            className={`flex items-center gap-3 pb-4 text-base font-black transition-all relative whitespace-nowrap ${activeTab === tab.id
+                                ? 'text-[#35788D] dark:text-[#4AA0BA]'
+                                : 'text-slate-300 dark:text-slate-500 hover:text-slate-400 dark:hover:text-slate-400'
                                 } ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}
                         >
                             {tab.icon}
                             {tab.label}
                             {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#35788D] rounded-full scale-x-110" />
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#35788D] dark:bg-[#4AA0BA] rounded-full scale-x-110" />
                             )}
                         </button>
                     ))}
@@ -217,14 +217,14 @@ export default function AssessmentsPage() {
                             <div
                                 key={assessment.id}
                                 onClick={() => navigate(`/assessments/${assessment.version}/questions`)}
-                                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all relative group cursor-pointer"
+                                className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-gray-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all duration-300 relative group cursor-pointer"
                             >
                                 <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                     <div className={`flex items-center gap-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                         <div className="flex flex-col gap-1">
                                             <div className={`flex items-center gap-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                <h3 className="text-xl font-black text-slate-800">{assessment.title}</h3>
-                                                <span className="text-sky-500 font-black text-xs px-2 py-0.5 bg-sky-50 rounded-md">
+                                                <h3 className="text-xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">{assessment.title}</h3>
+                                                <span className="text-sky-500 font-black text-xs px-2 py-0.5 bg-sky-50 dark:bg-sky-500/10 rounded-md">
                                                     {assessment.version}
                                                 </span>
                                             </div>
@@ -235,7 +235,7 @@ export default function AssessmentsPage() {
                                                             e.stopPropagation();
                                                             handleToggleStatus(assessment.id, assessment.status);
                                                         }}
-                                                        className={`flex items-center gap-1.5 px-3 py-1 ${assessment.status === 'active' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} rounded-full text-xs font-black hover:opacity-80 transition-opacity`}
+                                                        className={`flex items-center gap-1.5 px-3 py-1 ${assessment.status === 'active' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'} rounded-full text-xs font-black hover:opacity-80 transition-opacity`}
                                                     >
                                                         <CheckCircle2 size={12} />
                                                         {assessment.status === 'active' ? (t('common.active') || 'نشط') : (t('common.inactive') || 'غير نشط')}
@@ -247,19 +247,19 @@ export default function AssessmentsPage() {
                                     <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
                                         <button
                                             onClick={() => setAssessmentToDelete(assessment.id)}
-                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                            className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 transition-all shadow-sm"
                                         >
                                             <Trash2 size={18} />
                                         </button>
                                         <button
                                             onClick={() => handleEditAssessment(assessment)}
-                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                                            className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all shadow-sm"
                                         >
                                             <Edit2 size={18} />
                                         </button>
                                         <button
                                             onClick={() => navigate(`/assessments/${assessment.version}/questions`)}
-                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-sky-500 hover:bg-sky-500 hover:text-white transition-all shadow-sm"
+                                            className="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-700/50 flex items-center justify-center text-sky-500 hover:bg-sky-500 hover:text-white dark:hover:bg-sky-500 transition-all shadow-sm"
                                         >
                                             <Eye size={18} />
                                         </button>
@@ -272,9 +272,9 @@ export default function AssessmentsPage() {
                                         { label: t('assessments.list.questions'), value: assessment.questions },
                                         { label: t('assessments.list.last_update'), value: assessment.lastUpdate }
                                     ].map((item, idx) => (
-                                        <div key={idx} className="bg-[#F4F9FB]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-                                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-2">{item.label}</p>
-                                            <p className="text-lg font-black text-slate-700">{item.value}</p>
+                                        <div key={idx} className="bg-[#F4F9FB]/50 dark:bg-slate-700/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+                                            <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-wider mb-2">{item.label}</p>
+                                            <p className="text-lg font-black text-slate-700 dark:text-slate-200">{item.value}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -284,21 +284,21 @@ export default function AssessmentsPage() {
                 )}
 
                 {activeTab === 'questions' && (
-                    <div className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm max-w-6xl mx-auto min-h-[600px]">
+                    <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-10 border border-gray-100 dark:border-slate-700 shadow-sm max-w-6xl mx-auto min-h-[600px] transition-colors duration-300">
                         <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                            <h2 className="text-2xl font-black text-slate-800">
+                            <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100">
                                 {t('assessments.questions.bank_title')}
                             </h2>
 
                             {/* Version Filter */}
                             <div className="flex items-center gap-4">
-                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
+                                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                                     {language === 'ar' ? 'تصفية حسب الفئة:' : 'Filter by Category:'}
                                 </span>
                                 <select
                                     value={selectedCategory}
                                     onChange={(e) => setSelectedCategory(e.target.value)}
-                                    className="bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-black text-[#35788D] outline-none cursor-pointer"
+                                    className="bg-slate-50 dark:bg-slate-700/50 border-none rounded-xl px-4 py-2 text-sm font-black text-[#35788D] dark:text-[#4AA0BA] outline-none cursor-pointer"
                                 >
                                     <option value="all">{language === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
                                     {categories.map((cat) => (
@@ -314,28 +314,28 @@ export default function AssessmentsPage() {
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#35788D]"></div>
                                 </div>
                             ) : displayQuestions.length === 0 ? (
-                                <div className="text-center py-20 text-slate-300 font-bold">
+                                <div className="text-center py-20 text-slate-300 dark:text-slate-600 font-bold">
                                     {t('questions.empty')}
                                 </div>
                             ) : (
                                 displayQuestions.map((q: any, idx: number) => (
-                                    <div key={q.id} className="border border-gray-50 rounded-2xl p-6 flex items-center justify-between hover:bg-[#F4F9FB]/30 transition-all group">
+                                    <div key={q.id} className="border border-gray-50 dark:border-slate-700/50 rounded-2xl p-6 flex items-center justify-between hover:bg-[#F4F9FB]/30 dark:hover:bg-slate-700/30 transition-all group">
                                         <div className={`flex items-center gap-6 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                            <div className={`text-slate-800 font-black flex items-center gap-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                <span className="text-[#35788D] opacity-40">س{idx + 1}.</span>
+                                            <div className={`text-slate-800 dark:text-slate-200 font-black flex items-center gap-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                                                <span className="text-[#35788D] dark:text-[#4AA0BA] opacity-40">س{idx + 1}.</span>
                                                 <span className="line-clamp-1 max-w-md">{q.question}</span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={() => handleEditQuestion(q)}
-                                                className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+                                                className="p-2 text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors"
                                             >
                                                 <Edit2 size={16} />
                                             </button>
                                             <button
                                                 onClick={() => handleViewQuestion(q)}
-                                                className="p-2 text-sky-500 hover:bg-sky-50 rounded-lg transition-colors"
+                                                className="p-2 text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-500/10 rounded-lg transition-colors"
                                             >
                                                 <Eye size={16} />
                                             </button>
@@ -349,10 +349,10 @@ export default function AssessmentsPage() {
 
                 {(activeTab === 'scoring' || activeTab === 'guidance') && (
                     <div className="flex flex-col items-center justify-center py-40 text-center">
-                        <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 text-slate-300">
+                        <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-3xl flex items-center justify-center mb-6 text-slate-300 dark:text-slate-600">
                             {activeTab === 'scoring' ? <BarChart3 size={40} /> : <ArrowUpRight size={40} />}
                         </div>
-                        <h3 className="text-xl font-black text-slate-400">
+                        <h3 className="text-xl font-black text-slate-400 dark:text-slate-500">
                             {t('common.no_data')}
                         </h3>
                     </div>
