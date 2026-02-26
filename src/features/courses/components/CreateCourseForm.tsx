@@ -20,7 +20,8 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
     const { mutate: updateCourse, isPending: isUpdating } = useUpdateCourse()
     const { language } = useLanguage()
 
-    const { data: linkedFilters = [] } = useFiltersByItem('content', initialData?.id || '')
+    const isEditMode = !!initialData?.id
+    const { data: linkedFilters = [] } = useFiltersByItem('course', initialData?.id || '')
     const { mutate: linkFilter } = useLinkFilter()
     const { mutate: unlinkFilter } = useUnlinkFilter()
 
@@ -29,21 +30,24 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
 
     // Initialize selections from linked filters
-    // Initialize selections from linked filters
     useEffect(() => {
         if (linkedFilters.length > 0) {
             const topics = linkedFilters.filter(f => f.type === 'topic').map(f => f.id)
             const segments = linkedFilters.filter(f => f.type === 'segment').map(f => f.id)
             const tags = linkedFilters.filter(f => f.type === 'tag').map(f => f.id)
 
-            setSelectedTopicIds(prev => JSON.stringify(prev) !== JSON.stringify(topics) ? topics : prev)
-            setSelectedSegmentIds(prev => JSON.stringify(prev) !== JSON.stringify(segments) ? segments : prev)
-            setSelectedTagIds(prev => JSON.stringify(prev) !== JSON.stringify(tags) ? tags : prev)
+            setSelectedTopicIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...topics].sort()) ? topics : prev)
+            setSelectedSegmentIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...segments].sort()) ? segments : prev)
+            setSelectedTagIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...tags].sort()) ? tags : prev)
+        } else if (isEditMode) {
+            // If in edit mode and no filters found, clear them
+            setSelectedTopicIds([])
+            setSelectedSegmentIds([])
+            setSelectedTagIds([])
         }
-    }, [linkedFilters])
+    }, [linkedFilters, isEditMode])
 
     const isPending = isCreating || isUpdating
-    const isEditMode = !!initialData?.id
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || (initialData as Record<string, unknown>)?.thumbnail_image as string || null)
 
@@ -132,14 +136,14 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         // Link new filters
         allNewIds.forEach(id => {
             if (!existingIds.includes(id)) {
-                linkFilter({ type: 'content', content_id: itemId, filter_id: id })
+                linkFilter({ type: 'course', course_id: itemId, filter_id: id })
             }
         })
 
         // Unlink removed filters
         existingIds.forEach(id => {
             if (!allNewIds.includes(id)) {
-                unlinkFilter({ type: 'content', content_id: itemId, filter_id: id })
+                unlinkFilter({ type: 'course', course_id: itemId, filter_id: id })
             }
         })
     }
@@ -152,7 +156,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
             ...formData,
         }
         // Remove topic_id if it exists to avoid backend UUID error
-        delete (payload as any).topic_id;
+        delete (payload as Record<string, any>).topic_id;
         // Ensure price is a number
         if (payload.price) payload.price = Number(payload.price)
 

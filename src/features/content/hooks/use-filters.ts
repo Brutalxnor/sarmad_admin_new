@@ -37,7 +37,7 @@ export function useLinkFilter() {
     return useMutation({
         mutationFn: filterApi.linkFilter,
         onSuccess: (_, variables) => {
-            const id = variables.webinar_id || variables.lesson_id || variables.content_id
+            const id = variables.webinar_id || variables.lesson_id || variables.content_id || variables.course_id
             if (id) {
                 queryClient.invalidateQueries({ queryKey: FILTER_QUERY_KEYS.byItem(variables.type, id) })
             }
@@ -50,7 +50,7 @@ export function useUnlinkFilter() {
     return useMutation({
         mutationFn: filterApi.unlinkFilter,
         onSuccess: (_, variables) => {
-            const id = variables.webinar_id || variables.lesson_id || variables.content_id
+            const id = variables.webinar_id || variables.lesson_id || variables.content_id || variables.course_id
             if (id) {
                 queryClient.invalidateQueries({ queryKey: FILTER_QUERY_KEYS.byItem(variables.type, id) })
             }
