@@ -36,7 +36,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
 
         setIsUploading(true)
         // Store the file directly in formData to be sent as FormData
-        setFormData(prev => ({ ...prev, image_url: file as any }))
+        setFormData(prev => ({ ...prev, image_url: file as unknown as string }))
 
         // Create preview
         const reader = new FileReader()
@@ -57,12 +57,12 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
         }
     }
 
-    const inputClasses = "w-full bg-slate-50 border-2 border-transparent rounded-2xl px-6 py-4 focus:bg-white focus:border-brand-500/20 focus:ring-4 focus:ring-brand-500/5 transition-all outline-none font-bold text-slate-700 text-lg placeholder:text-slate-300 placeholder:font-medium"
-    const labelClasses = "text-sm font-black text-slate-800 tracking-tight flex items-center gap-2"
+    const inputClasses = "w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-transparent dark:border-slate-700/50 rounded-2xl px-6 py-4 focus:bg-white dark:focus:bg-slate-800 focus:border-brand-500/20 dark:focus:border-brand-500/30 focus:ring-4 focus:ring-brand-500/5 dark:focus:ring-brand-500/10 transition-all outline-none font-bold text-slate-700 dark:text-slate-100 text-lg placeholder:text-slate-300 dark:placeholder:text-slate-600 placeholder:font-medium"
+    const labelClasses = "text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight flex items-center gap-2 transition-colors duration-300"
 
     return (
-        <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto animate-in fade-in zoom-in duration-500">
-            <div className="bg-white border border-slate-100 rounded-[2rem] p-8 md:p-12 shadow-2xl space-y-10">
+        <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto animate-in fade-in zoom-in duration-500 text-start">
+            <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-[2rem] p-8 md:p-12 shadow-2xl space-y-10 transition-colors duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     {/* Names */}
                     <div className="space-y-3">
@@ -132,6 +132,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                             className={inputClasses}
                             value={formData.content_en}
                             onChange={e => setFormData({ ...formData, content_en: e.target.value })}
+                            placeholder="e.g. This was an amazing experience..."
                         />
                     </div>
                     <div className="md:col-span-2 space-y-3">
@@ -146,6 +147,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                             className={inputClasses}
                             value={formData.content_ar}
                             onChange={e => setFormData({ ...formData, content_ar: e.target.value })}
+                            placeholder="مثلاً: كانت تجربة رائعة جداً..."
                         />
                     </div>
 
@@ -188,7 +190,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                         </label>
 
                         <div className="group relative max-w-sm">
-                            <div className={`aspect-square w-32 rounded-3xl overflow-hidden border-4 border-dashed transition-all duration-500 bg-slate-50/50 flex flex-col items-center justify-center gap-4 ${formData.image_url ? 'border-brand-500/20' : 'border-slate-100 hover:border-brand-200 hover:bg-white'}`}>
+                            <div className={`aspect-square w-32 rounded-3xl overflow-hidden border-4 border-dashed transition-all duration-500 bg-slate-50/50 dark:bg-slate-900/10 flex flex-col items-center justify-center gap-4 ${formData.image_url ? 'border-brand-500/20 dark:border-brand-500/30' : 'border-slate-100 dark:border-slate-800 hover:border-brand-200 dark:hover:border-brand-500/40 hover:bg-white dark:hover:bg-slate-800'}`}>
                                 {previewUrl || (typeof formData.image_url === 'string' ? formData.image_url : null) ? (
                                     <div className="relative w-full h-full">
                                         <img
@@ -215,8 +217,8 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                                             <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
                                         ) : (
                                             <>
-                                                <ImageIcon size={32} className="text-slate-300" />
-                                                <span className="text-[10px] font-bold text-slate-400 px-2 line-clamp-2">
+                                                <ImageIcon size={32} className="text-slate-300 dark:text-slate-600" />
+                                                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 px-2 line-clamp-2">
                                                     {t('testimonials.form.image_hint')}
                                                 </span>
                                             </>
@@ -234,7 +236,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500">
+                            <label className="text-xs font-bold text-slate-500 dark:text-slate-400 transition-colors duration-300">
                                 {t('testimonials.form.image_url')}
                             </label>
                             <input
@@ -247,7 +249,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                         </div>
 
                         {/* Video Link */}
-                        <div className="space-y-4 pt-4 border-t border-slate-50 mt-4">
+                        <div className="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800 mt-4 transition-colors duration-300">
                             <label className={labelClasses}>
                                 <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />
                                 {language === 'ar' ? 'رابط الفيديو (اختياري)' : 'Video Link (Optional)'}
@@ -274,7 +276,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="w-full sm:w-auto px-12 py-5 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl transition-all"
+                        className="w-full sm:w-auto px-12 py-5 text-slate-400 dark:text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-2xl transition-all"
                     >
                         {t('common.cancel')}
                     </button>

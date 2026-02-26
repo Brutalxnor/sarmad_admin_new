@@ -216,7 +216,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
     }
 
     return (
-        <div className="space-y-10 animate-fade-in max-w-[1600px] mx-auto px-4 py-6">
+        <div className="space-y-10 animate-fade-in max-w-[1600px] mx-auto px-4 py-6 bg-transparent dark:bg-slate-900 min-h-full transition-colors duration-300">
             {!hideHeader && (
                 <div className="flex justify-between items-center mb-10">
                     <div className="text-start">
@@ -238,7 +238,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
             {/* Tabs & Grid */}
             <div className="space-y-8">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-50 dark:border-slate-700/50 p-2 flex items-center justify-start gap-2 overflow-x-auto transition-colors duration-300">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-50 dark:border-slate-800 p-2 flex items-center justify-start gap-2 overflow-x-auto transition-colors duration-300">
                     {[
                         { id: 'all', label: 'الكل', icon: <LayoutGrid size={18} /> },
                         { id: 'video', label: 'فيديوهات', icon: <Video size={18} /> },
@@ -275,7 +275,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {paginatedArticles.map((item: ContentItem) => (
-                                <div key={item.id} className="group bg-white dark:bg-slate-800 rounded-[2.5rem] border border-gray-50 dark:border-slate-700/50 hover:border-sky-100 dark:hover:border-sky-900/50 transition-all duration-500 shadow-sm hover:shadow-xl dark:shadow-slate-900/20 overflow-hidden flex flex-col">
+                                <div key={item.id} className="group bg-white dark:bg-slate-800 rounded-[2.5rem] border border-gray-50 dark:border-slate-800 hover:border-sky-100 dark:hover:border-sky-900/50 transition-all duration-500 shadow-sm hover:shadow-xl dark:shadow-slate-950/40 overflow-hidden flex flex-col">
                                     {/* Thumbnail Area */}
                                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-700/50 p-2 transition-colors duration-300">
                                         <div className="w-full h-full rounded-[2rem] overflow-hidden relative">
@@ -430,8 +430,8 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
             {/* Custom Delete Confirmation Modal */}
             {deletingItem && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="glass-panel max-w-sm w-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl shadow-2xl scale-in-center overflow-hidden border-rose-100/50 dark:border-rose-900/50 transition-colors duration-300">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="glass-panel max-w-sm w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl shadow-2xl scale-in-center overflow-hidden border-rose-100/50 dark:border-rose-900/50 transition-colors duration-300">
                         <div className="p-6 text-center space-y-4">
                             <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-2xl flex items-center justify-center mx-auto mb-2 text-rose-500 dark:text-rose-400 transition-colors duration-300">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -36,7 +36,7 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
 
         setIsUploading(true)
         // Store the file directly in formData to be sent as FormData
-        setFormData(prev => ({ ...prev, image_url: file as any }))
+        setFormData(prev => ({ ...prev, image_url: file as unknown as string }))
 
         // Create preview
         const reader = new FileReader()
@@ -72,19 +72,19 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
         }
     }
 
-    const inputClasses = "w-full bg-[#F4F9FB] border-none rounded-2xl p-5 text-base font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all text-start"
-    const labelClasses = "text-lg font-black text-slate-800 block text-start"
+    const inputClasses = "w-full bg-[#F4F9FB] dark:bg-slate-900/50 border border-transparent dark:border-slate-700/50 rounded-2xl p-5 text-base font-bold text-slate-700 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-[#35788D]/20 dark:focus:ring-brand-500/20 transition-all text-start outline-none"
+    const labelClasses = "text-lg font-black text-slate-800 dark:text-slate-100 block text-start"
 
     return (
-        <div className="max-w-[1200px] mx-auto px-6 py-10 animate-fade-in bg-[#F9FBFC] min-h-screen">
+        <div className="max-w-[1200px] mx-auto px-6 py-10 animate-fade-in bg-[#F9FBFC] dark:bg-slate-900 min-h-screen transition-colors duration-300">
             {/* Breadcrumb Header */}
             <div className={`flex justify-between items-center mb-12 ${direction === 'rtl' ? 'flex-row' : 'flex-row-reverse'}`}>
                 <div className="flex items-center gap-3 text-sm font-bold">
-                    <span className="text-slate-800 font-black text-lg">{t('success_stories.add_new')}</span>
+                    <span className="text-slate-800 dark:text-slate-100 font-black text-lg">{t('success_stories.add_new')}</span>
                     <span className="text-slate-300 mx-1">|</span>
                     <button
                         onClick={() => onCancel ? onCancel() : navigate('/cms')}
-                        className="text-slate-400 hover:text-[#35788D] transition-all flex items-center gap-2"
+                        className="text-slate-400 dark:text-slate-500 hover:text-[#35788D] dark:hover:text-brand-400 transition-all flex items-center gap-2"
                     >
                         {t('success_stories.back_to_cms')}
                         <ArrowLeft size={18} className={direction === 'rtl' ? '' : 'rotate-180'} />
@@ -92,11 +92,11 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] p-12 shadow-sm border border-gray-100 space-y-10">
+            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-12 shadow-sm border border-gray-100 dark:border-slate-800 space-y-10 transition-colors duration-300">
                 <div className="grid grid-cols-1 lg:grid-cols-1 gap-10">
                     <div className="space-y-8">
-                        <div className="flex items-center gap-2 text-[#35788D] mb-2">
-                            <div className="w-2 h-8 bg-[#35788D] rounded-full" />
+                        <div className="flex items-center gap-2 text-[#35788D] dark:text-[#4AA0BA] mb-2">
+                            <div className="w-2 h-8 bg-[#35788D] dark:bg-[#4AA0BA] rounded-full" />
                             <h3 className="text-xl font-black">{language === 'ar' ? 'تفاصيل قصة النجاح' : 'Success Story Details'}</h3>
                         </div>
 
@@ -153,22 +153,23 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                 </div>
 
                 {/* Row: Stats & Meta (Rating, Order) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-50 dark:border-slate-800/50">
                     <div className="space-y-3">
                         <label className={labelClasses}>{t('testimonials.rating')}</label>
-                        <div className="flex items-center gap-4 bg-[#F4F9FB] p-4 rounded-2xl">
+                        <div className="flex items-center gap-4 bg-[#F4F9FB] dark:bg-slate-900/50 p-4 rounded-2xl border border-transparent dark:border-slate-700/50 transition-colors">
                             <div className="flex gap-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <button
                                         key={star}
+                                        type="button"
                                         onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                                        className={`transition-all ${formData.rating >= star ? 'text-amber-400' : 'text-slate-200'}`}
+                                        className={`transition-all ${formData.rating >= star ? 'text-amber-400' : 'text-slate-200 dark:text-slate-700'}`}
                                     >
-                                        <Star size={24} fill={formData.rating >= star ? 'currentColor' : 'none'} />
+                                        <Star size={star === formData.rating ? 28 : 24} fill={formData.rating >= star ? 'currentColor' : 'none'} className="transition-all" />
                                     </button>
                                 ))}
                             </div>
-                            <span className="font-black text-slate-600 ml-auto">{formData.rating}/5</span>
+                            <span className="font-black text-slate-600 dark:text-slate-400 ml-auto">{formData.rating}/5</span>
                         </div>
                     </div>
 
@@ -185,22 +186,22 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                 </div>
 
                 {/* Media Section */}
-                <div className="space-y-6 pt-6 border-t border-gray-50">
-                    <h3 className="text-xl font-black text-slate-800">{t('success_stories.media_gallery')}</h3>
+                <div className="space-y-6 pt-6 border-t border-gray-50 dark:border-slate-800/50">
+                    <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">{t('success_stories.media_gallery')}</h3>
 
                     <div className="flex flex-col md:flex-row gap-8">
                         <div
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-full md:w-64 h-64 rounded-[2rem] border-2 border-dashed border-gray-100 bg-[#F4F9FB]/30 flex flex-col items-center justify-center cursor-pointer hover:bg-[#F4F9FB] hover:border-[#35788D]/20 transition-all group shrink-0"
+                            className="w-full md:w-64 h-64 rounded-[2rem] border-2 border-dashed border-gray-100 dark:border-slate-700/50 bg-[#F4F9FB]/30 dark:bg-slate-900/50 flex flex-col items-center justify-center cursor-pointer hover:bg-[#F4F9FB] dark:hover:bg-slate-800/80 hover:border-[#35788D]/20 dark:hover:border-brand-500/40 transition-all group shrink-0"
                         >
-                            <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-[#35788D] mb-4 group-hover:scale-110 transition-transform">
+                            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center text-[#35788D] dark:text-[#4AA0BA] mb-4 group-hover:scale-110 transition-transform">
                                 <ImageIcon size={28} />
                             </div>
                             <div className="text-center space-y-1">
-                                <p className="text-base font-black text-slate-800">
+                                <p className="text-base font-black text-slate-800 dark:text-slate-200">
                                     {isUploading ? (direction === 'rtl' ? 'جاري الرفع...' : 'Uploading...') : (language === 'ar' ? 'رفع الصورة الرئيسية' : 'Upload Primary Photo')}
                                 </p>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">JPG, PNG</p>
+                                <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">JPG, PNG</p>
                             </div>
                             <input
                                 type="file"
@@ -212,7 +213,7 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                         </div>
 
                         {previewUrl || (typeof formData.image_url === 'string' ? formData.image_url : null) ? (
-                            <div className="relative group w-full md:w-64 h-64 rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm">
+                            <div className="relative group w-full md:w-64 h-64 rounded-[2rem] overflow-hidden border border-gray-100 dark:border-slate-700/50 shadow-sm transition-colors">
                                 <img src={previewUrl || (formData.image_url as string)} alt="Preview" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <button
@@ -227,16 +228,17 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                                 </div>
                             </div>
                         ) : (
-                            <div className="hidden md:flex flex-1 items-center justify-center bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-100">
-                                <p className="text-slate-300 font-bold italic">{language === 'ar' ? 'لم يتم اختيار صورة بعد' : 'No photo selected yet'}</p>
+                            <div className="hidden md:flex flex-1 items-center justify-center bg-slate-50/50 dark:bg-slate-900/40 rounded-[2rem] border border-dashed border-slate-100 dark:border-slate-800 transition-colors">
+                                <p className="text-slate-300 dark:text-slate-600 font-bold italic">{language === 'ar' ? 'لم يتم اختيار صورة بعد' : 'No photo selected yet'}</p>
                             </div>
                         )}
                     </div>
                 </div>
 
                 {/* Footer Action Buttons */}
-                <div className={`flex flex-col sm:flex-row items-center gap-4 pt-8 border-t border-gray-50 ${direction === 'rtl' ? 'justify-start' : 'justify-end'}`}>
+                <div className={`flex flex-col sm:flex-row items-center gap-4 pt-8 border-t border-gray-50 dark:border-slate-800/50 ${direction === 'rtl' ? 'justify-start' : 'justify-end'}`}>
                     <button
+                        type="button"
                         onClick={() => handleSubmit(true)}
                         disabled={isCreating}
                         className="w-full sm:w-auto px-12 py-5 bg-[#0095D9] text-white rounded-2xl font-black text-lg shadow-lg shadow-[#0095D9]/20 hover:shadow-[#0095D9]/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
@@ -249,16 +251,18 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                         {t('success_stories.publish')}
                     </button>
                     <button
+                        type="button"
                         onClick={() => handleSubmit(false)}
                         disabled={isCreating}
-                        className="w-full sm:w-auto px-10 py-5 bg-[#E0F2F7] text-[#35788D] rounded-2xl font-black text-lg hover:bg-sky-100 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="w-full sm:w-auto px-10 py-5 bg-[#E0F2F7] dark:bg-slate-800 text-[#35788D] dark:text-[#4AA0BA] rounded-2xl font-black text-lg hover:bg-sky-100 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 border border-transparent dark:border-slate-700/50"
                     >
                         <Save size={24} />
                         {t('success_stories.save_draft')}
                     </button>
                     <button
+                        type="button"
                         onClick={() => onCancel ? onCancel() : navigate('/cms')}
-                        className="w-full sm:w-auto px-10 py-5 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl transition-all"
+                        className="w-full sm:w-auto px-10 py-5 text-slate-400 dark:text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-2xl transition-all border border-transparent hover:border-gray-100 dark:hover:border-slate-700/50"
                     >
                         {t('common.cancel')}
                     </button>

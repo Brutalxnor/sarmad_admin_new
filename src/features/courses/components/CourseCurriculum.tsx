@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react'
 import { useCreateSection, useCreateLesson, useCourse } from '../hooks/use-courses'
+import { useLinkFilter } from '@/features/content/hooks/use-filters'
+import { FilterSelector } from '@/shared/components/FilterSelector'
 import { Lock, Video, FileText, Book, Clock, Settings, GraduationCap, Type, ImageIcon, X } from 'lucide-react'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
 
@@ -11,6 +13,11 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
     const { data: course, isLoading } = useCourse(courseId || '')
     const { mutate: createSection, isPending: isCreatingSection } = useCreateSection()
     const { mutate: createLesson, isPending: isCreatingLesson } = useCreateLesson()
+    const { mutate: linkFilter } = useLinkFilter()
+
+    const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
+    const [selectedSegmentIds, setSelectedSegmentIds] = useState<string[]>([])
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
 
     const [newSectionTitle, setNewSectionTitle] = useState('')
     const [addingSection, setAddingSection] = useState(false)
@@ -68,7 +75,15 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
             order_index: (section?.lessons?.length || 0) + 1,
             thumbnail_image: newLessonThumbnail || undefined
         }, {
-            onSuccess: () => {
+            onSuccess: (newLesson) => {
+                // Link filters to the new lesson
+                const allFilterIds = [...selectedTopicIds, ...selectedSegmentIds, ...selectedTagIds]
+                if (newLesson && newLesson.id && allFilterIds.length > 0) {
+                    allFilterIds.forEach(filterId => {
+                        linkFilter({ type: 'lesson', lesson_id: newLesson.id, filter_id: filterId })
+                    })
+                }
+
                 setNewLessonTitle('')
                 setNewLessonBody('')
                 setNewLessonUrl('')
@@ -77,6 +92,9 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                 setNewLessonThumbnail(null)
                 setNewLessonThumbnailPreview(null)
                 setAddingLessonToSection(null)
+                setSelectedTopicIds([])
+                setSelectedSegmentIds([])
+                setSelectedTagIds([])
             }
         })
     }
@@ -156,8 +174,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
 
                         <div className="p-6 space-y-3">
                             {addingLessonToSection === section.id && (
-                                <div className="mb-6 space-y-4 p-5 bg-brand-50/30 rounded-2xl border border-brand-100/50 animate-slide-up shadow-inner">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-start">
+                                <div className="mb-6 space-y-4 p-5 bg-brand-50/30 rounded-2xl border border-brand-100/50 animate-slide-up shadow-inner text-start">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="md:col-span-2 space-y-2">
                                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">عنوان الدرس</label>
                                             <input
@@ -236,10 +254,38 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                                                 />
                                             </div>
                                         </div>
+
+                                        <div className="md:col-span-2 space-y-4 pt-2 border-t border-brand-100/30">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <FilterSelector
+                                                    type="topic"
+                                                    label="التصنيف (Topic)"
+                                                    selectedIds={selectedTopicIds}
+                                                    onChange={setSelectedTopicIds}
+                                                    placeholder="اختر التصنيف..."
+                                                />
+                                                <FilterSelector
+                                                    type="segment"
+                                                    label="الشرائح المستهدفة (Segment)"
+                                                    selectedIds={selectedSegmentIds}
+                                                    onChange={setSelectedSegmentIds}
+                                                    multiple
+                                                    placeholder="اختر الشرائح..."
+                                                />
+                                            </div>
+                                            <FilterSelector
+                                                type="tag"
+                                                label="الكلمات الدالة (Tags)"
+                                                selectedIds={selectedTagIds}
+                                                onChange={setSelectedTagIds}
+                                                multiple
+                                                placeholder="أضف كلمات دالة..."
+                                            />
+                                        </div>
                                     </div>
 
                                     {newLessonType === 'article' ? (
-                                        <div className="space-y-2 text-start">
+                                        <div className="space-y-2">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Type size={14} className="text-brand-500" />
                                                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">محتوى الدرس</label>
@@ -254,7 +300,7 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="space-y-2 text-start">
+                                        <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">رابط المحتوى (URL)</label>
                                             <input
                                                 type="text"

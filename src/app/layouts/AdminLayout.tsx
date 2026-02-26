@@ -8,7 +8,7 @@ import { Toaster } from 'react-hot-toast'
 import { useUnreadNotificationsCount } from '@/features/notifications/hooks/use-notifications'
 import { NotificationCenter } from '@/features/notifications/components/NotificationCenter'
 import {
-    Search,
+    // Search, // Temporarily unused
     Bell,
     Menu,
     LogOut,
@@ -50,7 +50,7 @@ export function AdminLayout() {
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
-    const [searchQuery, setSearchQuery] = useState('')
+    // const [searchQuery, setSearchQuery] = useState('') // Temporarily disabled
     const { direction, t, language, toggleLanguage } = useLanguage()
     const { user, isLoading, logout, isAuthenticated } = useAuth()
     const { setTheme, isDark } = useTheme()
@@ -84,14 +84,14 @@ export function AdminLayout() {
         return navItems.filter(item => allowedPaths.includes(item.path))
     }, [user, navItems])
 
-    const searchResults = useMemo(() => {
-        if (!searchQuery.trim()) return []
-        const query = searchQuery.toLowerCase()
-        return filteredNavItems.filter(item =>
-            item.label.toLowerCase().includes(query) ||
-            item.path.toLowerCase().includes(query)
-        )
-    }, [searchQuery, filteredNavItems])
+    // const searchResults = useMemo(() => {
+    //     if (!searchQuery.trim()) return []
+    //     const query = searchQuery.toLowerCase()
+    //     return filteredNavItems.filter(item =>
+    //         item.label.toLowerCase().includes(query) ||
+    //         item.path.toLowerCase().includes(query)
+    //     )
+    // }, [searchQuery, filteredNavItems])
 
     // Auth Guard
     if (isLoading) {
@@ -199,13 +199,13 @@ export function AdminLayout() {
 
                 {/* Bottom Section */}
                 <div className="px-4 py-6 space-y-3 border-t border-gray-50 dark:border-slate-800">
-                    <button
+                    {/* <button
                         onClick={() => setIsNotificationsOpen(true)}
                         className={`flex items-center gap-4 w-full px-5 py-4 rounded-2xl text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-200 transition-all ${isCollapsed ? 'justify-center px-0' : ''}`}
                     >
                         <Bell size={22} className={`flex-shrink-0 ${isCollapsed ? '' : 'ml-3'}`} />
                         {!isCollapsed && <span className="font-bold text-sm flex-1 text-start">{t('nav.notifications') || 'الإشعارات'}</span>}
-                    </button>
+                    </button> */}
 
                     <button
                         onClick={logout}
@@ -236,7 +236,7 @@ export function AdminLayout() {
                     </div>
 
                     <div className="flex-1 flex justify-center max-w-2xl px-8 relative">
-                        {/* Search Bar */}
+                        {/* Search Bar (Temporarily Disabled per request)
                         <div className="relative w-full group">
                             <input
                                 type="text"
@@ -249,7 +249,7 @@ export function AdminLayout() {
                                 <Search size={20} />
                             </div>
 
-                            {/* Search Results Dropdown */}
+                            // Search Results Dropdown
                             {searchResults.length > 0 && (
                                 <div className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 py-3 z-50 animate-slide-up overflow-hidden">
                                     <div className="px-4 py-2 border-b border-gray-50 dark:border-slate-700/50 mb-2">
@@ -281,6 +281,7 @@ export function AdminLayout() {
                                 </div>
                             )}
                         </div>
+                        */}
                     </div>
 
                     <div className="flex items-center gap-6">

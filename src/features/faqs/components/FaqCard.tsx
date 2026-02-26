@@ -16,9 +16,9 @@ export function FaqCard({ faq, onDelete, onToggleActive }: FaqCardProps) {
     const answer = language === 'ar' ? faq.answer_ar : faq.answer_en
 
     return (
-        <div className={`glass-panel overflow-hidden transition-all duration-300 hover:shadow-lg translate-y-0 hover:-translate-y-1 ${!faq.is_active ? 'opacity-60 grayscale-[0.5]' : ''}`}>
+        <div className={`glass-panel dark:bg-slate-900 overflow-hidden transition-all duration-300 hover:shadow-lg translate-y-0 hover:-translate-y-1 ${!faq.is_active ? 'opacity-60 grayscale-[0.5]' : ''}`}>
             <div
-                className={`p-6 flex items-center justify-between cursor-pointer ${isOpen ? 'bg-brand-50/30' : ''}`}
+                className={`p-6 flex items-center justify-between cursor-pointer ${isOpen ? 'bg-brand-50/30 dark:bg-brand-900/10' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="flex-1 flex items-center gap-4">
@@ -32,11 +32,11 @@ export function FaqCard({ faq, onDelete, onToggleActive }: FaqCardProps) {
                     >
                         <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 transform ${faq.is_active ? (direction === 'rtl' ? '-translate-x-6' : 'translate-x-6') : 'translate-x-0'}`} />
                     </div>
-                    <h3 className={`text-lg font-bold text-slate-800 ${isOpen ? 'text-brand-700' : ''}`}>
+                    <h3 className={`text-lg font-bold text-slate-800 dark:text-slate-100 transition-colors ${isOpen ? 'text-brand-700 dark:text-brand-400' : ''}`}>
                         {question}
                     </h3>
                     {!faq.is_active && (
-                        <span className="px-2 py-0.5 bg-slate-100 text-slate-400 text-[10px] font-black uppercase tracking-widest rounded-md">
+                        <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-md transition-colors">
                             {direction === 'rtl' ? 'غير نشط' : 'Inactive'}
                         </span>
                     )}
@@ -62,8 +62,8 @@ export function FaqCard({ faq, onDelete, onToggleActive }: FaqCardProps) {
             </div>
 
             {isOpen && (
-                <div className="p-6 pt-0 animate-fade-in border-t border-slate-50 mt-2">
-                    <p className={`text-slate-600 leading-relaxed whitespace-pre-line font-medium ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
+                <div className="p-6 pt-0 animate-fade-in border-t border-slate-50 dark:border-slate-800 mt-2 transition-colors">
+                    <p className={`text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line font-medium transition-colors ${direction === 'rtl' ? 'text-right' : 'text-left'}`}>
                         {answer}
                     </p>
                 </div>
