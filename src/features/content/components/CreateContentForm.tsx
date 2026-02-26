@@ -18,6 +18,7 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
     const { mutate: updateContent, isPending: isUpdating } = useUpdateArticle()
     const { direction, language } = useLanguage()
 
+    const isEditMode = !!initialData?.id
     const { data: linkedFilters = [] } = useFiltersByItem('content', initialData?.id || '')
     const { mutate: linkFilter } = useLinkFilter()
     const { mutate: unlinkFilter } = useUnlinkFilter()
@@ -33,14 +34,17 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
             const segments = linkedFilters.filter(f => f.type === 'segment').map(f => f.id)
             const tags = linkedFilters.filter(f => f.type === 'tag').map(f => f.id)
 
-            setSelectedTopicIds(prev => JSON.stringify(prev) !== JSON.stringify(topics) ? topics : prev)
-            setSelectedSegmentIds(prev => JSON.stringify(prev) !== JSON.stringify(segments) ? segments : prev)
-            setSelectedTagIds(prev => JSON.stringify(prev) !== JSON.stringify(tags) ? tags : prev)
+            setSelectedTopicIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...topics].sort()) ? topics : prev)
+            setSelectedSegmentIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...segments].sort()) ? segments : prev)
+            setSelectedTagIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...tags].sort()) ? tags : prev)
+        } else if (isEditMode) {
+            setSelectedTopicIds([])
+            setSelectedSegmentIds([])
+            setSelectedTagIds([])
         }
-    }, [linkedFilters])
+    }, [linkedFilters, isEditMode])
 
     const isPending = isCreating || isUpdating
-    const isEditMode = !!initialData?.id
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     // Helper to extract topic ID and name Safely

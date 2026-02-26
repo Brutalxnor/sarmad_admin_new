@@ -47,11 +47,15 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
             const tags = linkedFilters.filter(f => f.type === 'tag').map(f => f.id)
 
             // Only update if changed to avoid cascading renders
-            setSelectedTopicIds(prev => JSON.stringify(prev) !== JSON.stringify(topics) ? topics : prev)
-            setSelectedSegmentIds(prev => JSON.stringify(prev) !== JSON.stringify(segments) ? segments : prev)
-            setSelectedTagIds(prev => JSON.stringify(prev) !== JSON.stringify(tags) ? tags : prev)
+            setSelectedTopicIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...topics].sort()) ? topics : prev)
+            setSelectedSegmentIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...segments].sort()) ? segments : prev)
+            setSelectedTagIds(prev => JSON.stringify([...prev].sort()) !== JSON.stringify([...tags].sort()) ? tags : prev)
+        } else if (isEditMode) {
+            setSelectedTopicIds([])
+            setSelectedSegmentIds([])
+            setSelectedTagIds([])
         }
-    }, [linkedFilters])
+    }, [linkedFilters, isEditMode])
 
     const [formData, setFormData] = useState<Partial<Webinar>>({
         title: '',

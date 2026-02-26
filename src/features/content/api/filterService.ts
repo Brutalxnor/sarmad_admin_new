@@ -10,11 +10,12 @@ export interface Filter {
 }
 
 export interface LinkFilterData {
-    type: 'webinar' | 'lesson' | 'content'
+    type: 'webinar' | 'lesson' | 'content' | 'course'
     filter_id: string
     webinar_id?: string
     lesson_id?: string
     content_id?: string
+    course_id?: string
 }
 
 export const filterApi = {
