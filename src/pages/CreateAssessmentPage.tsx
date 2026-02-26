@@ -12,7 +12,8 @@ import {
     CheckCircle2,
     LayoutList,
     FileText,
-    AlertCircle
+    AlertCircle,
+    Info
 } from 'lucide-react'
 
 interface LocalQuestion {
@@ -24,7 +25,7 @@ interface LocalQuestion {
 
 export default function CreateAssessmentPage() {
     const navigate = useNavigate()
-    const { direction } = useLanguage()
+    const { direction, language } = useLanguage()
     const createQuestion = useCreateQuestion()
     const createMetadata = useCreateMetadata()
     const isRTL = direction === 'rtl'
@@ -191,6 +192,67 @@ export default function CreateAssessmentPage() {
                         <Save size={22} />
                         {isRTL ? 'حفظ التقييم' : 'Save Assessment'}
                     </button>
+                </div>
+            </div>
+
+            {/* Additional Information Guide */}
+            <div className="max-w-6xl mx-auto bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm animate-fade-in relative overflow-hidden">
+                {/* Decorative background element */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -z-0 opacity-50 transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+
+                <div className={`flex items-center gap-4 mb-8 relative z-10 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <div className="w-12 h-12 rounded-2xl border-2 border-[#1EAD93]/20 bg-[#1EAD93]/5 text-[#1EAD93] flex items-center justify-center shrink-0">
+                        <Info size={24} />
+                    </div>
+                    <div className={isRTL ? 'text-right' : 'text-left'}>
+                        <h3 className="text-2xl font-black text-[#1E293B] mb-1">
+                            {language === 'ar' ? 'معلومات إضافية' : 'Additional Information'}
+                        </h3>
+                        <p className="text-sm font-bold text-[#64748B]">
+                            {language === 'ar' ? 'دليل توزيع النسب وتوجيه النتائج' : 'Guide for distribution of percentages and directing results'}
+                        </p>
+                    </div>
+                </div>
+
+                <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 ${isRTL ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {/* Card 1 (75% - 100%) */}
+                    <div className="bg-white border-2 border-[#F3E8FF] rounded-3xl p-6 flex flex-col items-center justify-center text-center transition-all hover:shadow-md hover:border-[#D8B4FE]">
+                        <div className="bg-[#FAF5FF] text-[#7E22CE] font-black px-6 py-2.5 rounded-2xl text-sm mb-4 w-full tracking-wider">
+                            100% - 75%
+                        </div>
+                        <div className="font-black text-[#4C1D95] text-lg mb-2">
+                            {language === 'ar' ? 'أنماط الأرق' : 'Insomnia Patterns'}
+                        </div>
+                        <div className="text-xs font-bold text-[#9333EA]">
+                            {language === 'ar' ? 'توصية ببرنامج CBT-I' : 'CBT-I Program Recommendation'}
+                        </div>
+                    </div>
+
+                    {/* Card 2 (25% - 75%) */}
+                    <div className="bg-white border-2 border-[#D1FAE5] rounded-3xl p-6 flex flex-col items-center justify-center text-center transition-all hover:shadow-md hover:border-[#6EE7B7]">
+                        <div className="bg-[#ECFDF5] text-[#047857] font-black px-6 py-2.5 rounded-2xl text-sm mb-4 w-full tracking-wider">
+                            75% - 25%
+                        </div>
+                        <div className="font-black text-[#065F46] text-lg mb-2">
+                            {language === 'ar' ? 'مخاطر منخفضة' : 'Low Risks'}
+                        </div>
+                        <div className="text-xs font-bold text-[#059669]">
+                            {language === 'ar' ? 'خطة تعليمية + استشارة' : 'Educational Plan + Consultation'}
+                        </div>
+                    </div>
+
+                    {/* Card 3 (< 25%) */}
+                    <div className="bg-white border-2 border-[#F1F5F9] rounded-3xl p-6 flex flex-col items-center justify-center text-center transition-all hover:shadow-md hover:border-[#CBD5E1]">
+                        <div className="bg-[#F8FAFC] text-[#334155] font-black px-6 py-2.5 rounded-2xl text-sm mb-4 w-full tracking-wider">
+                            {'< 25%'}
+                        </div>
+                        <div className="font-black text-[#1E293B] text-lg mb-2">
+                            {language === 'ar' ? 'مخاطر ضئيلة' : 'Minor Risks'}
+                        </div>
+                        <div className="text-xs font-bold text-[#64748B]">
+                            {language === 'ar' ? 'متابعة المحتوى التعليمي العام' : 'Follow up General Educational Content'}
+                        </div>
+                    </div>
                 </div>
             </div>
 
