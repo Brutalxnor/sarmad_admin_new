@@ -166,6 +166,7 @@ export function FilterSelector({
                                     />
                                     <div className="flex gap-2">
                                         <button
+                                            type="button"
                                             onClick={handleAddFilter}
                                             disabled={isCreating || !newFilterName.trim()}
                                             className="flex-1 bg-slate-900 dark:bg-brand-600 text-white rounded-xl py-2 text-xs font-black shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
@@ -174,6 +175,7 @@ export function FilterSelector({
                                             {isRTL ? 'إضافة وتحديد' : 'Add & Select'}
                                         </button>
                                         <button
+                                            type="button"
                                             onClick={() => setShowAddForm(false)}
                                             className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-800"
                                         >
@@ -183,6 +185,7 @@ export function FilterSelector({
                                 </div>
                             ) : (
                                 <button
+                                    type="button"
                                     onClick={(e) => {
                                         e.stopPropagation()
                                         setShowAddForm(true)
