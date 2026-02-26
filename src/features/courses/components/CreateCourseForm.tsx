@@ -3,8 +3,10 @@ import { useCreateCourse, useUpdateCourse } from '../hooks/use-courses'
 import type { Course } from '../types'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
 import { CourseCurriculum } from './CourseCurriculum'
-import { useTopics } from '@/features/content/hooks/use-content'
 import { useLanguage } from '@/shared/context/LanguageContext'
+import { useCallback } from 'react'
+import { useFiltersByItem, useLinkFilter, useUnlinkFilter } from '@/features/content/hooks/use-filters'
+import { FilterSelector } from '@/shared/components/FilterSelector'
 import { FileText, GraduationCap, Globe, Lock, ImageIcon, ArrowRight, CheckCircle } from 'lucide-react'
 
 interface CreateCourseFormProps {
@@ -16,25 +18,34 @@ interface CreateCourseFormProps {
 export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCourseFormProps) {
     const { mutate: createCourse, isPending: isCreating } = useCreateCourse()
     const { mutate: updateCourse, isPending: isUpdating } = useUpdateCourse()
-    const { data: topics, isLoading: isLoadingTopics } = useTopics()
     const { language } = useLanguage()
+
+    const { data: linkedFilters = [] } = useFiltersByItem('content', initialData?.id || '')
+    const { mutate: linkFilter } = useLinkFilter()
+    const { mutate: unlinkFilter } = useUnlinkFilter()
+
+    const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
+    const [selectedSegmentIds, setSelectedSegmentIds] = useState<string[]>([])
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+    // Initialize selections from linked filters
+    // Initialize selections from linked filters
+    useEffect(() => {
+        if (linkedFilters.length > 0) {
+            const topics = linkedFilters.filter(f => f.type === 'topic').map(f => f.id)
+            const segments = linkedFilters.filter(f => f.type === 'segment').map(f => f.id)
+            const tags = linkedFilters.filter(f => f.type === 'tag').map(f => f.id)
+
+            setSelectedTopicIds(prev => JSON.stringify(prev) !== JSON.stringify(topics) ? topics : prev)
+            setSelectedSegmentIds(prev => JSON.stringify(prev) !== JSON.stringify(segments) ? segments : prev)
+            setSelectedTagIds(prev => JSON.stringify(prev) !== JSON.stringify(tags) ? tags : prev)
+        }
+    }, [linkedFilters])
 
     const isPending = isCreating || isUpdating
     const isEditMode = !!initialData?.id
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || (initialData as any)?.thumbnail_image || null)
-
-    // Helper to get topic string and ID safely
-    const getInitialTopicData = (data: Partial<Course> | undefined) => {
-        const topic = data?.topic
-        const topicId = data?.topic_id || (typeof topic === 'object' ? topic?.id : '')
-        const topicName = typeof topic === 'object'
-            ? (language === 'ar' ? topic?.name_ar : topic?.name_en)
-            : (topic || data?.category || '')
-
-        return { topicName, topicId }
-    }
-
+    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || (initialData as Record<string, unknown>)?.thumbnail_image as string || null)
 
     const [formData, setFormData] = useState<Partial<Course>>({
         title: '',
@@ -42,67 +53,69 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         price: 0,
         access_type: 'public',
         category: '',
-        topic_id: '',
         duration: 0,
         ...initialData
     })
 
+    const [activeTab, setActiveTab] = useState<'info' | 'curriculum'>('info')
+    const [savedCourseId, setSavedCourseId] = useState<string | null>(initialData?.id || null)
+
+    // Helper to get topic string and ID safely
+    const getInitialTopicData = useCallback((data: Partial<Course> | undefined) => {
+        const topic = data?.topic
+        const topicId = data?.topic_id || (typeof topic === 'object' ? topic?.id : undefined)
+        const topicName = typeof topic === 'object'
+            ? (language === 'ar' ? topic?.name_ar : topic?.name_en)
+            : (topic || data?.category || '')
+
+        return { topicName, topicId }
+    }, [language])
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            setFormData(prev => ({ ...prev, thumbnail_url: file as any })) // In a real app, you'd handle File vs string in the mutation
+            setFormData(prev => ({ ...prev, thumbnail_url: file as unknown as string }))
             setPreviewUrl(URL.createObjectURL(file))
         }
     }
 
-    const [activeTab, setActiveTab] = useState<'info' | 'curriculum'>('info')
-    const [savedCourseId, setSavedCourseId] = useState<string | null>(initialData?.id || null)
-
     useEffect(() => {
         if (!initialData || Object.keys(initialData).length === 0) {
-            setFormData({
-                title: '',
-                description: '',
-                price: 0,
-                access_type: 'public',
-                category: '',
-                topic_id: '',
-                thumbnail_url: ''
-            })
+            setFormData(prev => {
+                const newData = {
+                    title: '',
+                    description: '',
+                    price: 0,
+                    status: 'draft',
+                    level: 'beginner',
+                    language: 'en',
+                    duration: 0,
+                    badge: '',
+                    is_published: false
+                };
+                return JSON.stringify(prev) !== JSON.stringify(newData) ? newData : prev;
+            });
             setPreviewUrl(null)
             setSavedCourseId(null)
             return
         }
 
-        const { topicName, topicId } = getInitialTopicData(initialData)
-        console.log("here is intial data", initialData)
+        const { topicName } = getInitialTopicData(initialData)
 
-        // Resolve topic_id from topics list if we only have a name (category)
-        let resolvedTopicId = topicId
-        if (!resolvedTopicId && topicName && topics && topics.length > 0) {
-            const foundTopic = topics.find(t =>
-                t.name_ar === topicName ||
-                t.name_en === topicName ||
-                t.id === topicId
-            )
-            if (foundTopic) resolvedTopicId = foundTopic.id
-        }
+        setFormData(prev => {
+            const newData = {
+                ...prev,
+                ...initialData,
+                title: initialData.title || '',
+                description: initialData.description || '',
+                price: initialData.price !== undefined ? Number(initialData.price) : 0,
+                duration: initialData.duration || 0,
+                category: topicName || '',
+            };
+            return JSON.stringify(prev) !== JSON.stringify(newData) ? newData : prev;
+        });
 
-        const price = initialData.price !== undefined ? Number(initialData.price) : 0
-        const accessType = initialData.access_type || 'public'
-        const thumb = typeof initialData.thumbnail_url === 'string' ? initialData.thumbnail_url : (typeof (initialData as any).thumbnail_image === 'string' ? (initialData as any).thumbnail_image : '')
-
-        setFormData({
-            ...initialData,
-            title: initialData.title || '',
-            description: initialData.description || '',
-            price: price,
-            access_type: accessType as any,
-            category: topicName || '',
-            topic_id: resolvedTopicId || topicId || '',
-            thumbnail_url: thumb,
-            duration: initialData.duration || 0
-        })
+        const thumb = typeof initialData.thumbnail_url === 'string' ? initialData.thumbnail_url : (typeof (initialData as Record<string, unknown>).thumbnail_image === 'string' ? (initialData as Record<string, unknown>).thumbnail_image as string : '')
 
         if (initialData.id) setSavedCourseId(initialData.id)
         if (thumb) {
@@ -110,19 +123,43 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         } else {
             setPreviewUrl(null)
         }
-    }, [initialData, language, topics])
+    }, [initialData, language, getInitialTopicData])
+
+    const handlePersistFilters = (itemId: string) => {
+        const allNewIds = [...selectedTopicIds, ...selectedSegmentIds, ...selectedTagIds]
+        const existingIds = linkedFilters.map(f => f.id)
+
+        // Link new filters
+        allNewIds.forEach(id => {
+            if (!existingIds.includes(id)) {
+                linkFilter({ type: 'content', content_id: itemId, filter_id: id })
+            }
+        })
+
+        // Unlink removed filters
+        existingIds.forEach(id => {
+            if (!allNewIds.includes(id)) {
+                unlinkFilter({ type: 'content', content_id: itemId, filter_id: id })
+            }
+        })
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
         // Clean up data before sending
-        const payload = { ...formData }
+        const payload = {
+            ...formData,
+        }
+        // Remove topic_id if it exists to avoid backend UUID error
+        delete (payload as any).topic_id;
         // Ensure price is a number
         if (payload.price) payload.price = Number(payload.price)
 
         if (isEditMode && initialData.id) {
             updateCourse({ id: initialData.id, data: payload }, {
                 onSuccess: () => {
+                    handlePersistFilters(initialData.id!)
                     if (onSuccess) onSuccess()
                 }
             })
@@ -131,6 +168,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                 onSuccess: (newCourse) => {
                     if (newCourse && newCourse.id) {
                         setSavedCourseId(newCourse.id)
+                        handlePersistFilters(newCourse.id)
                         setActiveTab('curriculum')
                     }
                 }
@@ -142,13 +180,13 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         <div className="space-y-8 animate-fade-in text-start">
             {/* Tabs Header */}
             <div className="flex justify-center">
-                <div className="inline-flex p-1.5 bg-slate-100 rounded-[2rem] border-2 border-slate-50 shadow-inner">
+                <div className="inline-flex p-1.5 bg-slate-100 dark:bg-slate-800/80 rounded-[2rem] border-2 border-slate-50 dark:border-slate-700/50 shadow-inner transition-colors duration-300">
                     <button
                         type="button"
                         onClick={() => setActiveTab('info')}
                         className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 flex items-center gap-2 ${activeTab === 'info'
-                            ? 'bg-white text-brand-600 shadow-xl shadow-slate-200/50 translate-z-0 scale-105'
-                            : 'text-slate-400 hover:text-slate-600'
+                            ? 'bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-xl shadow-slate-200/50 dark:shadow-none translate-z-0 scale-105'
+                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                             }`}
                     >
                         <FileText size={18} />
@@ -165,8 +203,8 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                             }
                         }}
                         className={`px-8 py-3 rounded-[1.75rem] font-black text-sm transition-all duration-300 relative flex items-center gap-2 ${activeTab === 'curriculum'
-                            ? 'bg-white text-brand-600 shadow-xl shadow-slate-200/50 translate-z-0 scale-105'
-                            : 'text-slate-400 hover:text-slate-600'
+                            ? 'bg-white dark:bg-slate-900 text-brand-600 dark:text-brand-400 shadow-xl shadow-slate-200/50 dark:shadow-none translate-z-0 scale-105'
+                            : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'
                             }`}
                     >
                         <GraduationCap size={18} />
@@ -199,30 +237,32 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-black text-slate-700 block text-start uppercase tracking-wider">التصنيف (Category)</label>
-                                    <select
-                                        value={formData.topic_id || ''}
-                                        onChange={e => {
-                                            const selectedTopic = topics?.find(t => t.id === e.target.value)
-                                            setFormData(prev => ({
-                                                ...prev,
-                                                topic_id: e.target.value,
-                                                category: selectedTopic ? (language === 'ar' ? selectedTopic.name_ar : selectedTopic.name_en) : ''
-                                            }))
-                                        }}
-                                        className="input-modern w-full font-bold disabled:opacity-50"
-                                        required
-                                        disabled={isLoadingTopics}
-                                    >
-                                        <option value="">{isLoadingTopics ? 'جاري تحميل المواضيع...' : 'اختر التصنيف...'}</option>
-                                        {topics?.map(topic => (
-                                            <option key={topic.id} value={topic.id}>
-                                                {language === 'ar' ? topic.name_ar : topic.name_en}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FilterSelector
+                                        type="topic"
+                                        label="التصنيف (Topic)"
+                                        selectedIds={selectedTopicIds}
+                                        onChange={setSelectedTopicIds}
+                                        placeholder="اختر التصنيف..."
+                                    />
+                                    <FilterSelector
+                                        type="segment"
+                                        label="الشرائح المستهدفة (Segment)"
+                                        selectedIds={selectedSegmentIds}
+                                        onChange={setSelectedSegmentIds}
+                                        multiple
+                                        placeholder="اختر الشرائح..."
+                                    />
                                 </div>
+
+                                <FilterSelector
+                                    type="tag"
+                                    label="الكلمات الدالة (Tags)"
+                                    selectedIds={selectedTagIds}
+                                    onChange={setSelectedTagIds}
+                                    multiple
+                                    placeholder="أضف كلمات دالة..."
+                                />
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-black text-slate-700 block text-start uppercase tracking-wider">وصف الدورة</label>
@@ -248,13 +288,13 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                             <button
                                                 key={opt.id}
                                                 type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, access_type: opt.id as any }))}
+                                                onClick={() => setFormData(prev => ({ ...prev, access_type: opt.id as 'public' | 'members_only' }))}
                                                 className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 ${formData.access_type === opt.id
-                                                    ? 'bg-brand-50 border-brand-500 text-brand-700 shadow-lg shadow-brand-500/10'
-                                                    : 'bg-white border-slate-50 text-slate-400 hover:border-slate-200'
+                                                    ? 'bg-brand-50 dark:bg-brand-900/20 border-brand-500 dark:border-brand-500/50 text-brand-700 dark:text-brand-400 shadow-lg shadow-brand-500/10'
+                                                    : 'bg-white dark:bg-slate-900/50 border-slate-50 dark:border-slate-700/50 text-slate-400 dark:text-slate-500 hover:border-slate-200 dark:hover:border-slate-600'
                                                     }`}
                                             >
-                                                <span className={formData.access_type === opt.id ? 'text-brand-600' : 'text-slate-300'}>
+                                                <span className={formData.access_type === opt.id ? 'text-brand-600 dark:text-brand-400' : 'text-slate-300 dark:text-slate-600'}>
                                                     {opt.icon}
                                                 </span>
                                                 <span className="font-bold text-sm">{opt.label}</span>
@@ -283,7 +323,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                     <label className="text-sm font-black text-slate-700 block uppercase tracking-wider">الصورة التعريفية (Thumbnail)</label>
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 hover:border-brand-200 transition-all cursor-pointer"
+                                        className="group relative aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-900/40 border-2 border-slate-50 dark:border-slate-700/50 hover:border-brand-200 dark:hover:border-brand-500/30 transition-all cursor-pointer"
                                     >
                                         <input
                                             type="file"
@@ -295,9 +335,9 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
                                         {previewUrl ? (
                                             <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
                                         ) : (
-                                            <div className="w-full h-full relative flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-                                                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '15px 15px' }} />
-                                                <div className="flex flex-col items-center gap-2">
+                                            <div className="w-full h-full relative flex items-center justify-center bg-gradient-to-br from-slate-50 dark:from-slate-800 to-slate-100 dark:to-slate-900">
+                                                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '15px 15px' }} />
+                                                <div className="flex flex-col items-center gap-2 z-10">
                                                     <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center text-brand-600">
                                                         <ImageIcon size={24} />
                                                     </div>

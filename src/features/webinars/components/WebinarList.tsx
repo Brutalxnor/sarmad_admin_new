@@ -67,11 +67,11 @@ export function WebinarList() {
     // Create/Edit form
     if (isCreating || editingWebinar) {
         return (
-            <div className="max-w-[1400px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen animate-fade-in">
+            <div className="max-w-[1400px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen animate-fade-in transition-colors duration-300">
                 {/* Breadcrumb */}
                 <div className={`flex mb-8 ${isRTL ? 'justify-start' : 'justify-end'}`}>
                     <div className="flex items-center gap-2 text-sm font-bold">
-                        <span className="text-slate-800 font-black">
+                        <span className="text-slate-800 dark:text-slate-100 font-black">
                             {editingWebinar
                                 ? (isRTL ? 'تعديل الندوة' : 'Edit Webinar')
                                 : (isRTL ? 'إضافة ندوة جديدة' : 'Add New Webinar')}
@@ -101,12 +101,12 @@ export function WebinarList() {
     }
 
     return (
-        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen space-y-8 animate-fade-in">
+        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen space-y-8 animate-fade-in transition-colors duration-300">
 
             {/* Header */}
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 <div className={isRTL ? 'text-start' : 'text-end'}>
-                    <h1 className="text-4xl font-black text-[#1E293B] tracking-tight mb-1">
+                    <h1 className="text-4xl font-black text-[#1E293B] dark:text-slate-100 tracking-tight mb-1">
                         {isRTL ? 'مكتبة الندوات المسجلة' : 'Recorded Webinars Library'}
                     </h1>
                 </div>
@@ -122,12 +122,12 @@ export function WebinarList() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center relative">
-                        <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>
+                    <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center relative transition-colors">
+                        <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} w-10 h-10 rounded-xl ${stat.iconBg} dark:bg-slate-900/50 flex items-center justify-center transition-colors`}>
                             {stat.icon}
                         </div>
-                        <h3 className="text-3xl font-black text-slate-800 mt-4">{stat.value}</h3>
-                        <p className="text-gray-400 font-bold text-xs mt-1">{stat.label}</p>
+                        <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 mt-4">{stat.value}</h3>
+                        <p className="text-gray-400 dark:text-slate-500 font-bold text-xs mt-1">{stat.label}</p>
                     </div>
                 ))}
             </div>
@@ -140,7 +140,7 @@ export function WebinarList() {
                         onClick={() => setActiveFilter('all')}
                         className={`px-5 py-2 rounded-full text-sm font-black transition-all ${activeFilter === 'all'
                             ? 'bg-[#0095D9] text-white shadow-md shadow-[#0095D9]/20'
-                            : 'bg-white text-slate-500 border border-gray-100 hover:border-[#0095D9]/30 hover:text-[#0095D9]'}`}
+                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-700 hover:border-[#0095D9]/30 hover:text-[#0095D9]'}`}
                     >
                         {isRTL ? 'الكل' : 'All'}
                     </button>
@@ -150,7 +150,7 @@ export function WebinarList() {
                             onClick={() => setActiveFilter(seg)}
                             className={`px-5 py-2 rounded-full text-sm font-black transition-all ${activeFilter === seg
                                 ? 'bg-[#0095D9] text-white shadow-md shadow-[#0095D9]/20'
-                                : 'bg-white text-slate-500 border border-gray-100 hover:border-[#0095D9]/30 hover:text-[#0095D9]'}`}
+                                : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-gray-100 dark:border-slate-700 hover:border-[#0095D9]/30 hover:text-[#0095D9]'}`}
                         >
                             {seg}
                         </button>
@@ -164,10 +164,10 @@ export function WebinarList() {
                         <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value)}
-                            className="appearance-none bg-white border border-gray-100 rounded-xl px-4 py-2 pe-9 text-sm font-black text-slate-600 outline-none cursor-pointer shadow-sm"
+                            className="appearance-none bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl px-4 py-2 pe-9 text-sm font-black text-slate-600 dark:text-slate-400 outline-none cursor-pointer shadow-sm transition-colors"
                         >
-                            <option value="newest">{isRTL ? 'الأحدث أولاً' : 'Newest first'}</option>
-                            <option value="oldest">{isRTL ? 'الأقدم أولاً' : 'Oldest first'}</option>
+                            <option value="newest" className="dark:bg-slate-800">{isRTL ? 'الأحدث أولاً' : 'Newest first'}</option>
+                            <option value="oldest" className="dark:bg-slate-800">{isRTL ? 'الأقدم أولاً' : 'Oldest first'}</option>
                         </select>
                         <ChevronDown size={14} className="absolute top-1/2 -translate-y-1/2 end-3 text-slate-400 pointer-events-none" />
                     </div>
@@ -178,11 +178,11 @@ export function WebinarList() {
             {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 animate-pulse">
-                            <div className="aspect-video bg-slate-100" />
+                        <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-slate-700/50 animate-pulse transition-colors">
+                            <div className="aspect-video bg-slate-100 dark:bg-slate-700/50" />
                             <div className="p-5 space-y-3">
-                                <div className="h-4 bg-slate-100 rounded-lg w-3/4" />
-                                <div className="h-3 bg-slate-100 rounded-lg w-1/2" />
+                                <div className="h-4 bg-slate-100 dark:bg-slate-700/50 rounded-lg w-3/4" />
+                                <div className="h-3 bg-slate-100 dark:bg-slate-700/50 rounded-lg w-1/2" />
                             </div>
                         </div>
                     ))}
@@ -204,8 +204,8 @@ export function WebinarList() {
                     <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={goToPage} />
                 </>
             ) : (
-                <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-sm">
-                    <div className="w-16 h-16 bg-sky-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700/50 p-16 text-center shadow-sm transition-colors">
+                    <div className="w-16 h-16 bg-sky-50 dark:bg-slate-900/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-50 dark:border-slate-700/50">
                         <Video size={28} className="text-[#35788D]" />
                     </div>
                     <p className="text-slate-400 font-bold text-base mb-3">
@@ -246,7 +246,7 @@ function WebinarGridCard({
     const segments = Array.isArray(webinar.segment) ? webinar.segment : [webinar.segment]
 
     return (
-        <div className="bg-white rounded-[24px] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300 flex flex-col h-full font-font-secondary">
+        <div className="bg-white dark:bg-slate-800 rounded-[24px] overflow-hidden shadow-sm border border-gray-100 dark:border-slate-700/50 group hover:shadow-xl dark:hover:shadow-brand-500/10 transition-all duration-300 flex flex-col h-full font-font-secondary">
             {/* Thumbnail Area */}
             <div className="relative aspect-[16/10] overflow-hidden">
                 {thumbnailUrl ? (
@@ -256,7 +256,7 @@ function WebinarGridCard({
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#35788D] to-[#0095D9] flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-[#35788D] to-[#0095D9] flex items-center justify-center opacity-80">
                         <Video size={48} className="text-white/30" />
                     </div>
                 )}
@@ -273,7 +273,7 @@ function WebinarGridCard({
 
                 {/* Top Badges */}
                 <div className="absolute top-4 inset-x-4 flex justify-end gap-2">
-                    <span className="bg-[#E2E8F0]/90 backdrop-blur-sm text-slate-600 text-[11px] font-black px-3 py-1.5 rounded-lg">
+                    <span className="bg-[#E2E8F0]/90 dark:bg-slate-800/90 backdrop-blur-sm text-slate-600 dark:text-slate-200 text-[11px] font-black px-3 py-1.5 rounded-lg border border-white/20 dark:border-slate-700/50">
                         {isRTL ? 'فيديو' : 'Video'}
                     </span>
                 </div>
@@ -284,7 +284,7 @@ function WebinarGridCard({
                 {/* Actions & Title Row */}
                 <div className={`flex items-start justify-between gap-4 mb-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                     {/* Right Title (In RTL, this comes first in DOM but appears right due to flex-row and container direction) */}
-                    <h3 className={`text-xl font-black text-slate-900 line-clamp-2 leading-snug flex-1 ${isRTL ? 'text-right order-1' : 'text-left'}`}>
+                    <h3 className={`text-xl font-black text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug flex-1 ${isRTL ? 'text-right order-1' : 'text-left'}`}>
                         {webinar.title}
                     </h3>
 
@@ -292,7 +292,7 @@ function WebinarGridCard({
                     <div className={`flex items-center gap-1.5 pt-1 ${isRTL ? 'order-2' : ''}`}>
                         <button
                             onClick={onEdit}
-                            className="p-2 text-[#0095D9] hover:bg-sky-50 rounded-xl transition-colors"
+                            className="p-2 text-[#0095D9] hover:bg-sky-50 dark:hover:bg-slate-900 rounded-xl transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -300,13 +300,13 @@ function WebinarGridCard({
                         </button>
                         <button
                             onClick={onDelete}
-                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                            className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-colors"
                         >
                             <Trash2 size={20} strokeWidth={2} />
                         </button>
                         <button
                             onClick={onViewAttendees}
-                            className="p-2 text-[#35788D] hover:bg-sky-50 rounded-xl transition-colors"
+                            className="p-2 text-[#35788D] hover:bg-sky-50 dark:hover:bg-slate-900 rounded-xl transition-colors"
                             title={isRTL ? 'عرض المسجلين' : 'View Registered'}
                         >
                             <Users size={20} />
@@ -316,17 +316,17 @@ function WebinarGridCard({
 
                 {/* Duration & Lang Row */}
                 <div className={`flex items-center gap-4 mb-4 ${isRTL ? 'justify-start' : 'justify-start'}`}>
-                    <div className="flex items-center gap-1.5 text-slate-400 font-bold text-sm">
+                    <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 font-bold text-sm">
                         <span className="tabular-nums">43:34</span>
                         <Clock size={16} />
                     </div>
-                    <span className="bg-[#F8FAFC] border border-slate-100 text-[#35788D] text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                    <span className="bg-[#F8FAFC] dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 text-[#35788D] dark:text-[#4AA0BA] text-[10px] font-black px-3 py-1 rounded-full uppercase transition-colors">
                         {webinar.lang || 'AR'}
                     </span>
                 </div>
 
                 {/* Stats & Date Row */}
-                <div className={`flex items-center gap-4 mb-6 text-slate-400 font-bold text-[13px] ${isRTL ? 'justify-start' : 'justify-start'}`}>
+                <div className={`flex items-center gap-4 mb-6 text-slate-400 dark:text-slate-500 font-bold text-[13px] ${isRTL ? 'justify-start' : 'justify-start'}`}>
                     <div className="flex items-center gap-1.5">
                         <span>{webinar.registration_count || '0'} {isRTL ? 'مشاهدة' : 'Views'}</span>
                         <Eye size={15} />
@@ -340,28 +340,28 @@ function WebinarGridCard({
                 {/* Dynamic Tags Row */}
                 <div className={`flex flex-wrap gap-2 mb-6 ${isRTL ? 'justify-start' : 'justify-start'}`}>
                     {segments.map((seg, i) => (
-                        <span key={i} className="bg-[#F1F5F9] text-[#35788D] text-xs font-black px-4 py-2 rounded-full border border-slate-100/50">
+                        <span key={i} className="bg-[#F1F5F9] dark:bg-slate-900/50 text-[#35788D] dark:text-[#4AA0BA] text-xs font-black px-4 py-2 rounded-full border border-slate-100/50 dark:border-slate-700/50 transition-colors">
                             {seg}
                         </span>
                     ))}
                 </div>
 
                 {/* Divider */}
-                <div className="h-px bg-slate-100 w-full mb-6" />
+                <div className="h-px bg-slate-100 dark:bg-slate-700/50 w-full mb-6" />
 
                 {/* Speaker Section */}
                 <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse text-right' : 'text-left'}`}>
                     <div className="flex-1 min-w-0">
-                        <h4 className="text-lg font-black text-slate-800 truncate">{webinar.speaker}</h4>
-                        <p className="text-sm font-bold text-slate-400">{isRTL ? 'مختص طب النوم' : 'Sleep Specialist'}</p>
+                        <h4 className="text-lg font-black text-slate-800 dark:text-slate-100 truncate">{webinar.speaker}</h4>
+                        <p className="text-sm font-bold text-slate-400 dark:text-slate-500">{isRTL ? 'مختص طب النوم' : 'Sleep Specialist'}</p>
                     </div>
                     <div className="relative group/avatar">
                         <div className="w-16 h-16 rounded-full border-[3px] border-[#38A169]/30 p-1 group-hover:border-[#38A169]/50 transition-colors">
-                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-100">
+                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors">
                                 {webinar.thumbnail_image ? ( // Fallback to thumbnail if no speaker image
                                     <img src={thumbnailUrl} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-400 font-black">
+                                    <div className="w-full h-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-600 font-black">
                                         {webinar.speaker?.charAt(0)}
                                     </div>
                                 )}

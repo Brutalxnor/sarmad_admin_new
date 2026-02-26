@@ -23,9 +23,9 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
     const registrationPercentage = Math.min(Math.round((webinar.registration_count / webinar.capacity) * 100), 100)
 
     return (
-        <div className="glass-panel overflow-hidden card-hover flex flex-col h-full bg-white group">
+        <div className="glass-panel overflow-hidden card-hover flex flex-col h-full bg-white dark:bg-slate-800 group border border-transparent dark:border-slate-700/50 transition-all duration-300">
             {/* Header/Banner Area */}
-            <div className="relative aspect-video w-full overflow-hidden bg-slate-100 group">
+            <div className="relative aspect-video w-full overflow-hidden bg-slate-100 dark:bg-slate-900 transition-colors duration-300 group">
                 {webinar.thumbnail_image ? (
                     <img
                         src={typeof webinar.thumbnail_image === 'string' ? webinar.thumbnail_image : ''}
@@ -91,16 +91,16 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
             {/* Content Area */}
             <div className="p-5 flex-1 flex flex-col">
                 <div className="mb-4">
-                    <h4 className="text-lg font-black text-slate-800 line-clamp-1 leading-tight mb-1 group-hover:text-brand-600 transition-colors">
+                    <h4 className="text-lg font-black text-slate-800 dark:text-slate-100 line-clamp-1 leading-tight mb-1 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
                         {webinar.title}
                     </h4>
                     {webinar.description && (
                         <div
-                            className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mb-3 font-medium prose prose-sm prose-slate max-w-none"
+                            className="text-[11px] text-slate-400 dark:text-slate-500 line-clamp-2 leading-relaxed mb-3 font-medium prose prose-sm prose-slate dark:prose-invert max-w-none transition-colors"
                             dangerouslySetInnerHTML={{ __html: webinar.description }}
                         />
                     )}
-                    <div className="flex items-center text-slate-500 text-sm">
+                    <div className="flex items-center text-slate-500 dark:text-slate-400 text-sm transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
@@ -110,7 +110,7 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
 
                 <div className="space-y-4 mt-auto">
                     {/* Date & Time */}
-                    <div className="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl">
+                    <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 rounded-2xl border border-transparent dark:border-slate-700/30 transition-colors">
                         <div className="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 ml-1.5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -128,10 +128,10 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
                     {/* Registration Stats */}
                     <div className="space-y-2">
                         <div className="flex justify-between text-xs font-bold">
-                            <span className="text-slate-400">التسجيلات</span>
-                            <span className="text-brand-600">{webinar.registration_count} / {webinar.capacity}</span>
+                            <span className="text-slate-400 dark:text-slate-500">التسجيلات</span>
+                            <span className="text-brand-600 dark:text-brand-400">{webinar.registration_count} / {webinar.capacity}</span>
                         </div>
-                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-slate-100 dark:bg-slate-900 h-2.5 rounded-full overflow-hidden transition-colors">
                             <div
                                 className="h-full bg-linear-to-r from-brand-600 to-brand-400 rounded-full transition-all duration-1000"
                                 style={{ width: `${registrationPercentage}%` }}
@@ -145,7 +145,7 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
             <div className="p-5 pt-0 grid grid-cols-2 gap-3">
                 <button
                     onClick={onViewAttendees}
-                    className="py-3 text-xs font-black text-slate-600 hover:bg-slate-50 rounded-2xl transition-all border border-slate-100 shadow-xs flex items-center justify-center gap-2"
+                    className="py-3 text-xs font-black text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-2xl transition-all border border-slate-100 dark:border-slate-700 shadow-xs flex items-center justify-center gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -154,7 +154,7 @@ export function WebinarCard({ webinar, onViewAttendees, onEdit, onDelete }: Webi
                 </button>
                 <button
                     onClick={onEdit}
-                    className="py-3 text-xs font-black text-brand-600 hover:bg-brand-50 rounded-2xl transition-all border border-brand-100 shadow-xs flex items-center justify-center gap-2"
+                    className="py-3 text-xs font-black text-brand-600 dark:text-brand-400 bg-white dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-2xl transition-all border border-brand-100 dark:border-brand-500/30 shadow-xs flex items-center justify-center gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

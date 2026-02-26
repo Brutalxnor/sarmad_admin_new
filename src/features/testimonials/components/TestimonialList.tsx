@@ -60,13 +60,13 @@ export function TestimonialList() {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => setIsCreating(false)}
-                        className={`p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400 ${direction === 'rtl' ? '' : 'rotate-180'}`}
+                        className={`p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-slate-400 ${direction === 'rtl' ? '' : 'rotate-180'}`}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <h1 className="text-3xl font-extrabold text-slate-800">
+                    <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100">
                         {t('testimonials.add_new')}
                     </h1>
                 </div>
@@ -79,7 +79,7 @@ export function TestimonialList() {
     }
 
     return (
-        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] min-h-screen space-y-8 animate-fade-in">
+        <div className="max-w-[1600px] mx-auto px-6 py-10 bg-[#F9FBFC] dark:bg-slate-900 min-h-screen space-y-8 animate-fade-in transition-colors duration-300">
             <LoadingModal
                 isOpen={isDeleting}
                 title={direction === 'rtl' ? 'جاري الحذف...' : 'Deleting...'}
@@ -100,15 +100,15 @@ export function TestimonialList() {
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 ${direction === 'rtl' ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                 {/* Right Side (Title & Badge) */}
                 <div className={`flex items-center gap-4 ${direction === 'rtl' ? 'flex-row' : 'flex-row-reverse'}`}>
-                    <div className="bg-[#F4F9FB] px-4 py-1.5 rounded-full flex items-center gap-2">
-                        <span className="text-[#35788D] font-black text-sm">
+                    <div className="bg-[#F4F9FB] dark:bg-slate-800/50 px-4 py-1.5 rounded-full flex items-center gap-2 border border-transparent dark:border-slate-700/50">
+                        <span className="text-[#35788D] dark:text-[#4AA0BA] font-black text-sm">
                             {filteredTestimonials?.length || 0}
                         </span>
-                        <span className="text-[#35788D] font-bold text-xs opacity-60 uppercase tracking-widest">
+                        <span className="text-[#35788D] dark:text-[#4AA0BA] font-bold text-xs opacity-60 uppercase tracking-widest">
                             {language === 'ar' ? 'قصة نجاح' : 'Success Stories'}
                         </span>
                     </div>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+                    <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                         {language === 'ar' ? 'قصص النجاح' : 'Success Stories'}
                     </h1>
                 </div>
@@ -128,7 +128,7 @@ export function TestimonialList() {
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value as 'all' | 'active' | 'inactive')}
-                        className="bg-white border border-slate-100 shadow-sm rounded-full px-6 py-3.5 text-sm font-bold text-slate-400 focus:ring-2 focus:ring-[#35788D]/10 outline-none transition-all cursor-pointer appearance-none min-w-[120px] text-center"
+                        className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 shadow-sm rounded-full px-6 py-3.5 text-sm font-bold text-slate-400 hover:border-slate-200 dark:hover:border-brand-500/30 focus:ring-2 focus:ring-[#35788D]/10 outline-none transition-all cursor-pointer appearance-none min-w-[120px] text-center"
                     >
                         <option value="all">{direction === 'rtl' ? 'الكل' : 'All'}</option>
                         <option value="active">{direction === 'rtl' ? 'نشط' : 'Active'}</option>
@@ -162,8 +162,8 @@ export function TestimonialList() {
                     />
                 </>
             ) : (
-                <div className="glass-panel p-16 text-center bg-white/50 border-dashed border-2 border-slate-100">
-                    <div className="w-20 h-20 bg-slate-50/80 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                <div className="glass-panel p-16 text-center bg-white/50 dark:bg-slate-800/20 border-dashed border-2 border-slate-100 dark:border-slate-700/50">
+                    <div className="w-20 h-20 bg-slate-50/80 dark:bg-slate-800/80 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100 dark:border-slate-700/50">
                         <span className="text-4xl">🌟</span>
                     </div>
                     <p className="text-slate-400 font-bold text-lg mb-2">{t('testimonials.empty_desc')}</p>

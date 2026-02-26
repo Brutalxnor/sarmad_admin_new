@@ -151,7 +151,7 @@ export default function LoginPage() {
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-black focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
                                     placeholder="admin@example.com"
                                 />
                             </div>
@@ -165,7 +165,7 @@ export default function LoginPage() {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-black focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -202,7 +202,7 @@ export default function LoginPage() {
                                     minLength={8}
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-black focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
                                 />
                             </div>
 
@@ -216,7 +216,7 @@ export default function LoginPage() {
                                     minLength={8}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-black focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 outline-none transition-all"
                                 />
                             </div>
 

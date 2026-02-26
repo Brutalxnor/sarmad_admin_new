@@ -5,6 +5,8 @@ import { webinarsApi } from '../api'
 import type { Webinar } from '../types'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
+import { useFiltersByItem, useLinkFilter, useUnlinkFilter } from '@/features/content/hooks/use-filters'
+import { FilterSelector } from '@/shared/components/FilterSelector'
 import { Link as LinkIcon, Bell, Calendar, Clock, FileText, ArrowLeft, CheckSquare, Square, ImagePlus, Trash2 } from 'lucide-react'
 
 interface CreateWebinarFormProps {
@@ -28,6 +30,28 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
     const isRTL = direction === 'rtl'
     const queryClient = useQueryClient()
     const isEditMode = !!initialData?.id
+
+    const { data: linkedFilters = [] } = useFiltersByItem('webinar', initialData?.id || '')
+    const { mutate: linkFilter } = useLinkFilter()
+    const { mutate: unlinkFilter } = useUnlinkFilter()
+
+    const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
+    const [selectedSegmentIds, setSelectedSegmentIds] = useState<string[]>([])
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([])
+
+    // Initialize selections from linked filters
+    useEffect(() => {
+        if (linkedFilters.length > 0) {
+            const topics = linkedFilters.filter(f => f.type === 'topic').map(f => f.id)
+            const segments = linkedFilters.filter(f => f.type === 'segment').map(f => f.id)
+            const tags = linkedFilters.filter(f => f.type === 'tag').map(f => f.id)
+
+            // Only update if changed to avoid cascading renders
+            setSelectedTopicIds(prev => JSON.stringify(prev) !== JSON.stringify(topics) ? topics : prev)
+            setSelectedSegmentIds(prev => JSON.stringify(prev) !== JSON.stringify(segments) ? segments : prev)
+            setSelectedTagIds(prev => JSON.stringify(prev) !== JSON.stringify(tags) ? tags : prev)
+        }
+    }, [linkedFilters])
 
     const [formData, setFormData] = useState<Partial<Webinar>>({
         title: '',
@@ -62,6 +86,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
     useEffect(() => {
         if (initialData) {
+            // eslint-disable-next-line
             setFormData(prev => ({ ...prev, ...initialData }))
             if (initialData.date_time) {
                 const dt = new Date(initialData.date_time)
@@ -94,6 +119,25 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
     })
 
     const isPending = createMutation.isPending || updateMutation.isPending
+
+    const handlePersistFilters = (itemId: string) => {
+        const allNewIds = [...selectedTopicIds, ...selectedSegmentIds, ...selectedTagIds]
+        const existingIds = linkedFilters.map(f => f.id)
+
+        // Link new filters
+        allNewIds.forEach(id => {
+            if (!existingIds.includes(id)) {
+                linkFilter({ type: 'webinar', webinar_id: itemId, filter_id: id })
+            }
+        })
+
+        // Unlink removed filters
+        existingIds.forEach(id => {
+            if (!allNewIds.includes(id)) {
+                unlinkFilter({ type: 'webinar', webinar_id: itemId, filter_id: id })
+            }
+        })
+    }
 
     const handleSubmit = (asDraft = false) => {
         // Validation: If not draft, required fields must be present
@@ -134,14 +178,24 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
         }
 
         if (isEditMode && initialData?.id) {
-            updateMutation.mutate({ id: initialData.id, data: submitData })
+            updateMutation.mutate({ id: initialData.id, data: submitData }, {
+                onSuccess: () => {
+                    handlePersistFilters(initialData.id!)
+                }
+            })
         } else {
-            createMutation.mutate(submitData)
+            createMutation.mutate(submitData, {
+                onSuccess: (newWebinar) => {
+                    if (newWebinar && newWebinar.id) {
+                        handlePersistFilters(newWebinar.id)
+                    }
+                }
+            })
         }
     }
 
 
-    const inputClasses = "w-full bg-white border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold placeholder:text-slate-300 focus:ring-2 focus:ring-[#35788D]/20 transition-all shadow-sm outline-none"
+    const inputClasses = "w-full bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700/50 rounded-2xl px-5 py-4 text-sm font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-[#35788D]/20 dark:focus:ring-brand-500/20 transition-all shadow-sm outline-none"
 
     return (
         <div className="max-w-[1400px] mx-auto space-y-8 animate-fade-in">
@@ -154,7 +208,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
                     {/* Title */}
                     <div className="space-y-2">
-                        <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                        <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                             {isRTL ? 'عنوان ندوة مباشرة جديدة (باللغه العربيه)' : 'New Webinar Title'}
                         </label>
                         <input
@@ -169,10 +223,10 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
                     {/* Description */}
                     <div className="space-y-2">
-                        <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                        <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                             {isRTL ? 'وصف الندوة' : 'Webinar Description'}
                         </label>
-                        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm min-h-[220px]">
+                        <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-gray-100 dark:border-slate-700/50 overflow-hidden shadow-sm min-h-[220px] transition-colors duration-300">
                             <RichTextEditor
                                 value={formData.description || ''}
                                 onChange={value => setFormData(prev => ({ ...prev, description: value }))}
@@ -181,11 +235,39 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                         </div>
                     </div>
 
+                    {/* Filter Selection Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <FilterSelector
+                            type="topic"
+                            label={isRTL ? "التصنيف (Topic)" : "Topic"}
+                            selectedIds={selectedTopicIds}
+                            onChange={setSelectedTopicIds}
+                            placeholder={isRTL ? "اختر التصنيف..." : "Select Topic..."}
+                        />
+                        <FilterSelector
+                            type="segment"
+                            label={isRTL ? "الشرائح المستهدفة (Segment)" : "Target Segments"}
+                            selectedIds={selectedSegmentIds}
+                            onChange={setSelectedSegmentIds}
+                            multiple
+                            placeholder={isRTL ? "اختر الشرائح..." : "Select Segments..."}
+                        />
+                    </div>
+
+                    <FilterSelector
+                        type="tag"
+                        label={isRTL ? "الكلمات الدالة (Tags)" : "Tags"}
+                        selectedIds={selectedTagIds}
+                        onChange={setSelectedTagIds}
+                        multiple
+                        placeholder={isRTL ? "أضف كلمات دالة..." : "Add tags..."}
+                    />
+
                     {/* Date + Time + Duration row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Date */}
                         <div className="space-y-2">
-                            <label className={`text-sm font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                            <label className={`text-sm font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                                 {isRTL ? 'تاريخ الندوة' : 'Webinar Date'}
                             </label>
                             <div className="relative">
@@ -201,18 +283,18 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
                         {/* Time + Duration */}
                         <div className="space-y-2">
-                            <label className={`text-sm font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                            <label className={`text-sm font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                                 {isRTL ? 'وقت البدء والمدة' : 'Start Time & Duration'}
                             </label>
                             <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-4 shadow-sm flex-1">
+                                <div className="flex items-center gap-2 bg-white dark:bg-slate-900/50 border border-gray-100 dark:border-slate-700/50 rounded-2xl px-4 py-4 shadow-sm flex-1 transition-colors duration-300">
                                     <input
                                         type="text"
                                         value={duration}
                                         onChange={e => setDuration(e.target.value)}
-                                        className="w-12 text-sm font-bold text-slate-700 outline-none text-center bg-transparent"
+                                        className="w-12 text-sm font-bold text-slate-700 dark:text-slate-100 outline-none text-center bg-transparent transition-colors"
                                     />
-                                    <span className="text-xs text-slate-400 font-bold">{isRTL ? 'دقيقة' : 'min'}</span>
+                                    <span className="text-xs text-slate-400 dark:text-slate-500 font-bold transition-colors">{isRTL ? 'دقيقة' : 'min'}</span>
                                 </div>
                                 <div className="relative flex-1">
                                     <input
@@ -229,7 +311,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
                     {/* Speaker selection */}
                     <div className="space-y-3">
-                        <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                        <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                             {isRTL ? 'اختيار المتحدث (من أخصائي العيادة)' : 'Select Speaker (from clinic specialists)'}
                         </label>
                         <div className="flex flex-wrap gap-4">
@@ -250,11 +332,11 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                             type="button"
                                             onClick={() => {
                                                 setSelectedSpeakerId(speaker.id)
-                                                setFormData(prev => ({ ...prev, speaker: displayName, speaker_id: speaker.id } as any))
+                                                setFormData(prev => ({ ...prev, speaker: displayName, speaker_id: speaker.id }))
                                             }}
                                             className={`flex items-center gap-3 px-5 py-3 rounded-2xl border-2 transition-all ${isSelected
-                                                ? 'border-[#35788D] bg-sky-50/50 shadow-md'
-                                                : 'border-gray-100 bg-white hover:border-gray-200'
+                                                ? 'border-[#35788D] dark:border-brand-500 bg-sky-50/50 dark:bg-brand-900/20 shadow-md'
+                                                : 'border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-900/50 hover:border-gray-200 dark:hover:border-slate-600'
                                                 }`}
                                         >
                                             {isSelected ? (
@@ -270,8 +352,8 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                                 </div>
                                             )}
                                             <div className={`${isRTL ? 'text-start' : 'text-end'}`}>
-                                                <p className="text-sm font-black text-slate-800">{displayName}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold">{speaker.specialty || speaker.role || ''}</p>
+                                                <p className="text-sm font-black text-slate-800 dark:text-slate-100">{displayName}</p>
+                                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{speaker.specialty || speaker.role || ''}</p>
                                             </div>
                                         </button>
                                     )
@@ -287,7 +369,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                     {/* Access Type & Price */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                            <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                                 {isRTL ? 'نوع الوصول' : 'Access Type'}
                             </label>
                             <div className="flex gap-4">
@@ -295,8 +377,8 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, access_type: 'public' }))}
                                     className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${formData.access_type === 'public'
-                                        ? 'border-[#35788D] bg-sky-50 text-[#35788D]'
-                                        : 'border-gray-100 bg-white text-slate-400 hover:border-gray-200'
+                                        ? 'border-[#35788D] dark:border-brand-500 bg-sky-50 dark:bg-brand-900/20 text-[#35788D] dark:text-brand-400'
+                                        : 'border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 hover:border-gray-200 dark:hover:border-slate-600'
                                         }`}
                                 >
                                     {isRTL ? 'عام' : 'Public'}
@@ -305,8 +387,8 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, access_type: 'members_only' }))}
                                     className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${formData.access_type === 'members_only'
-                                        ? 'border-[#35788D] bg-sky-50 text-[#35788D]'
-                                        : 'border-gray-100 bg-white text-slate-400 hover:border-gray-200'
+                                        ? 'border-[#35788D] dark:border-brand-500 bg-sky-50 dark:bg-brand-900/20 text-[#35788D] dark:text-brand-400'
+                                        : 'border-gray-100 dark:border-slate-700/50 bg-white dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 hover:border-gray-200 dark:hover:border-slate-600'
                                         }`}
                                 >
                                     {isRTL ? 'للمشتركين فقط' : 'Members Only'}
@@ -315,7 +397,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                         </div>
 
                         <div className="space-y-2">
-                            <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                            <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                                 {isRTL ? 'السعر (EGP)' : 'Price (EGP)'}
                             </label>
                             <div className="relative">
@@ -342,7 +424,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
 
                     {/* Capacity */}
                     <div className="space-y-2">
-                        <label className={`text-base font-black text-slate-800 block ${isRTL ? 'text-start' : 'text-end'}`}>
+                        <label className={`text-base font-black text-slate-800 dark:text-slate-100 block ${isRTL ? 'text-start' : 'text-end'}`}>
                             {isRTL ? 'سعة الحضور' : 'Attendance Capacity'}
                         </label>
                         <p className="text-xs text-slate-400 font-bold">
@@ -360,7 +442,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                 placeholder={isRTL ? 'مثلا: 45' : 'e.g. 45'}
                                 className={inputClasses + ' max-w-[120px]'}
                             />
-                            <span className="text-sm font-black text-slate-600 bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm">
+                            <span className="text-sm font-black text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 rounded-2xl px-5 py-4 shadow-sm transition-colors duration-300">
                                 {isRTL ? 'مقعد' : 'seats'}
                             </span>
                         </div>
@@ -371,18 +453,18 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                 <div className="lg:col-span-4 space-y-6">
 
                     {/* Thumbnail Upload */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                    <div className="bg-white dark:bg-slate-900/30 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm p-6 space-y-4 transition-colors duration-300">
                         <div className="flex items-center gap-2">
-                            <ImagePlus size={18} className="text-[#35788D]" />
-                            <h3 className="text-base font-black text-slate-800">
+                            <ImagePlus size={18} className="text-[#35788D] dark:text-brand-500" />
+                            <h3 className="text-base font-black text-slate-800 dark:text-slate-100">
                                 {isRTL ? 'صورة الغلاف' : 'Thumbnail Image'}
                             </h3>
                         </div>
 
                         <div className="group relative">
                             <div className={`aspect-video w-full rounded-xl overflow-hidden border-2 border-dashed transition-all duration-300 flex items-center justify-center ${formData.thumbnail_image
-                                ? 'border-[#35788D]/20 bg-white'
-                                : 'border-gray-200 hover:border-[#35788D]/40 bg-[#F4F9FB] hover:bg-sky-50/50'
+                                ? 'border-[#35788D]/20 dark:border-brand-500/20 bg-white dark:bg-slate-900/50'
+                                : 'border-gray-200 dark:border-slate-700/50 hover:border-[#35788D]/40 dark:hover:border-brand-500/40 bg-[#F4F9FB] dark:bg-slate-800/50 hover:bg-sky-50/50 dark:hover:bg-slate-800/80'
                                 }`}>
                                 {formData.thumbnail_image ? (
                                     <div className="relative w-full h-full">
@@ -407,10 +489,10 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center gap-2 py-4 pointer-events-none">
-                                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                                            <ImagePlus size={22} className="text-[#35788D]" />
+                                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 shadow-sm flex items-center justify-center">
+                                            <ImagePlus size={22} className="text-[#35788D] dark:text-brand-500" />
                                         </div>
-                                        <p className="text-xs font-bold text-slate-400">
+                                        <p className="text-xs font-bold text-slate-400 dark:text-slate-500">
                                             {isRTL ? 'اسحب الصورة أو اضغط للرفع' : 'Drag or click to upload'}
                                         </p>
                                         <p className="text-[10px] text-slate-300 font-medium">PNG, JPG (max 2MB)</p>
@@ -431,10 +513,10 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                     </div>
 
                     {/* Session Link */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-5">
+                    <div className="bg-white dark:bg-slate-900/30 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm p-6 space-y-5 transition-colors duration-300">
                         <div className="flex items-center gap-2">
-                            <LinkIcon size={18} className="text-[#35788D]" />
-                            <h3 className="text-base font-black text-slate-800">
+                            <LinkIcon size={18} className="text-[#35788D] dark:text-brand-500" />
+                            <h3 className="text-base font-black text-slate-800 dark:text-slate-100">
                                 {isRTL ? 'رابط الجلسة' : 'Session Link'}
                             </h3>
                         </div>
@@ -447,11 +529,11 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                             <select
                                 value={platform}
                                 onChange={e => setPlatform(e.target.value)}
-                                className="w-full bg-[#F4F9FB] border-none rounded-xl px-4 py-3 text-sm font-bold text-slate-600 outline-none cursor-pointer"
+                                className="w-full bg-[#F4F9FB] dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-200 outline-none cursor-pointer focus:ring-2 focus:ring-[#35788D]/20 dark:focus:ring-brand-500/20 transition-colors duration-300"
                             >
-                                <option>Zoom Meetings</option>
-                                <option>Google Meet</option>
-                                <option>Microsoft Teams</option>
+                                <option className="dark:bg-slate-900">Zoom Meetings</option>
+                                <option className="dark:bg-slate-900">Google Meet</option>
+                                <option className="dark:bg-slate-900">Microsoft Teams</option>
                             </select>
                         </div>
 
@@ -465,7 +547,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                 value={inviteLink}
                                 onChange={e => setInviteLink(e.target.value)}
                                 placeholder="https://..."
-                                className="w-full bg-[#F4F9FB] border-none rounded-xl px-4 py-3 text-sm font-bold text-slate-600 placeholder:text-slate-300 outline-none"
+                                className="w-full bg-[#F4F9FB] dark:bg-slate-900 border-none rounded-xl px-4 py-3 text-sm font-bold text-slate-600 dark:text-slate-200 placeholder:text-slate-300 dark:placeholder:text-slate-500 outline-none transition-colors duration-300"
                                 dir="ltr"
                             />
                         </div>
@@ -479,10 +561,10 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                     </div>
 
                     {/* Reminder Settings */}
-                    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
+                    <div className="bg-white dark:bg-slate-900/30 rounded-2xl border border-gray-100 dark:border-slate-700/50 shadow-sm p-6 space-y-4 transition-colors duration-300">
                         <div className="flex items-center gap-2">
-                            <Bell size={18} className="text-[#35788D]" />
-                            <h3 className="text-base font-black text-slate-800">
+                            <Bell size={18} className="text-[#35788D] dark:text-brand-500" />
+                            <h3 className="text-base font-black text-slate-800 dark:text-slate-100">
                                 {isRTL ? 'إعدادات التذكير' : 'Reminder Settings'}
                             </h3>
                         </div>
@@ -497,7 +579,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                 ) : (
                                     <Square size={18} className="text-gray-300 shrink-0" />
                                 )}
-                                <span className="text-sm font-bold text-slate-700 group-hover:text-[#35788D] transition-colors">
+                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-[#35788D] dark:group-hover:text-brand-400 transition-colors">
                                     {isRTL ? 'إرسال بريد إلكتروني عند التسجيل' : 'Send email on registration'}
                                 </span>
                             </label>
@@ -511,7 +593,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                                 ) : (
                                     <Square size={18} className="text-gray-300 shrink-0" />
                                 )}
-                                <span className="text-sm font-bold text-slate-700 group-hover:text-[#35788D] transition-colors">
+                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-[#35788D] dark:group-hover:text-brand-400 transition-colors">
                                     {isRTL ? 'تذكير قبل 30 دقيقة (Email)' : 'Reminder 30 min before (Email)'}
                                 </span>
                             </label>
@@ -536,7 +618,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                     type="button"
                     onClick={() => handleSubmit(true)}
                     disabled={isPending}
-                    className="bg-white border border-gray-200 text-slate-600 px-7 py-3.5 rounded-full font-black text-sm hover:bg-gray-50 hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-60"
+                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 px-7 py-3.5 rounded-full font-black text-sm hover:bg-gray-50 dark:hover:bg-slate-800 hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-60"
                 >
                     <FileText size={16} />
                     {isRTL ? 'حفظ كمسودة' : 'Save as Draft'}
@@ -545,7 +627,7 @@ export function CreateWebinarForm({ initialData, onSuccess, onCancel }: CreateWe
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="text-slate-400 hover:text-slate-600 px-7 py-3.5 rounded-full font-bold text-sm transition-colors border border-transparent hover:border-gray-200"
+                    className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 px-7 py-3.5 rounded-full font-bold text-sm transition-colors border border-transparent hover:border-gray-200 dark:hover:border-slate-700"
                 >
                     {isRTL ? 'إلغاء' : 'Cancel'}
                 </button>
