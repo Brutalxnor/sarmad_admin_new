@@ -11,7 +11,6 @@ import {
     Plus,
     CheckCircle2,
     EyeOff,
-    Star,
     Edit3,
     GripVertical
 } from 'lucide-react'

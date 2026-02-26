@@ -33,6 +33,7 @@ export interface Course {
     topic?: string | Topic;
     price?: number;
     access_type: 'public' | 'members_only';
+    duration?: number;
     sections?: Section[];
     created_at?: string;
     updated_at?: string;

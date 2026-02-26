@@ -21,9 +21,6 @@ import {
     UserRound,
     Package,
     DollarSign,
-    BarChart2,
-    Shield,
-    Sliders,
     ChevronsRight,
     Users
 } from 'lucide-react'

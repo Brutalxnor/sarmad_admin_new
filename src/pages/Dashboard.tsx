@@ -3,6 +3,7 @@ import { useAuth } from '@/features/staff/context/AuthContext'
 import { Users, Activity, Video, Database } from 'lucide-react'
 import { useRecentAuditLogs } from '@/features/staff/hooks/useAuditLogs'
 import { useDashboardStats } from '@/features/dashboard/hooks/use-dashboard-stats'
+import { useNotifications, useMarkNotificationRead } from '@/features/notifications/hooks/use-notifications'
 import { formatDistanceToNow } from 'date-fns'
 import { ar } from 'date-fns/locale'
 
@@ -13,6 +14,8 @@ export default function Dashboard() {
 
     const { data: recentLogsResponse, isLoading: isLoadingLogs } = useRecentAuditLogs(5)
     const { data: dashboardStats, isLoading: isLoadingStats } = useDashboardStats()
+    const { data: notifications, isLoading: isLoadingNotifications } = useNotifications(5)
+    const { mutate: markRead } = useMarkNotificationRead()
 
     const statsData = dashboardStats || {
         users: 0,
@@ -76,11 +79,14 @@ export default function Dashboard() {
         color: getModuleStyle(log.module)
     }))
 
-    const alerts = [
-        { id: 1, text: '3 محاولات دفع فاشلة في آخر ساعة', time: 'منذ 10 دقائق', type: 'error', color: 'bg-rose-50 border-rose-200 text-rose-800' },
-        { id: 2, text: 'خطأ في مزامنة CRM - يتطلب اهتمام', time: 'منذ 25 دقيقة', type: 'warning', color: 'bg-orange-50 border-orange-200 text-orange-800' },
-        { id: 3, text: 'تحديث نظام مجدول في 12 فبراير 2026', time: 'منذ ساعة', type: 'info', color: 'bg-sky-50 border-sky-200 text-sky-800' },
-    ]
+    const getAlertColor = (priority?: string, is_read?: boolean) => {
+        if (is_read) return 'bg-slate-50 border-slate-200 text-slate-600'
+        if (priority === 'high') return 'bg-rose-50 border-rose-200 text-rose-800'
+        if (priority === 'medium') return 'bg-orange-50 border-orange-200 text-orange-800'
+        return 'bg-sky-50 border-sky-200 text-sky-800'
+    }
+
+    const unreadCount = notifications?.filter(n => !n.is_read).length ?? 0
 
     return (
         <div className="space-y-10 animate-fade-in max-w-[1600px] mx-auto px-4 py-6">
@@ -179,16 +185,38 @@ export default function Dashboard() {
                 <div className="lg:col-span-4 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50 relative">
                     <div className="flex items-center justify-between mb-10">
                         <h3 className="text-2xl font-black text-slate-800">{t('dashboard.system_alerts') || 'تنبيهات النظام'}</h3>
-                        <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200">1</div>
+                        {unreadCount > 0 && (
+                            <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200">
+                                {unreadCount}
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-4 mb-10">
-                        {alerts.map((alert) => (
-                            <div key={alert.id} className={`${alert.color} p-6 rounded-2xl border-s-4 transition-transform hover:scale-[1.02] cursor-default text-start`}>
-                                <h4 className="font-bold text-sm mb-2">{alert.text}</h4>
-                                <span className="opacity-60 text-xs font-bold">{alert.time}</span>
+                        {isLoadingNotifications ? (
+                            [1, 2, 3].map((i) => (
+                                <div key={i} className="animate-pulse bg-slate-50 rounded-2xl p-5 h-16" />
+                            ))
+                        ) : notifications && notifications.length > 0 ? (
+                            notifications.map((notification) => (
+                                <div
+                                    key={notification.id}
+                                    onClick={() => !notification.is_read && markRead(notification.id)}
+                                    className={`${getAlertColor(notification.priority, notification.is_read)} p-5 rounded-2xl border-s-4 transition-all hover:scale-[1.02] cursor-pointer text-start`}
+                                >
+                                    <h4 className={`text-sm mb-1.5 ${!notification.is_read ? 'font-black' : 'font-bold opacity-70'}`}>
+                                        {notification.message}
+                                    </h4>
+                                    <span className="opacity-60 text-xs font-bold">
+                                        {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: isRTL ? ar : undefined })}
+                                    </span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="py-10 text-center text-slate-300">
+                                <p className="text-sm font-bold">{isRTL ? 'لا توجد تنبيهات' : 'No notifications'}</p>
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <button className="w-full py-4 bg-[#0095D9] text-white font-black rounded-2xl shadow-lg shadow-[#0095D9]/30 hover:shadow-[#0095D9]/40 hover:-translate-y-0.5 transition-all">
