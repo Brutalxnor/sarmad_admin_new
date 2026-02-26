@@ -18,7 +18,6 @@ import {
     Trash2,
     ClipboardCheck,
     FileText,
-    TrendingUp,
     BarChart3,
     LayoutGrid,
     ArrowUpRight,
