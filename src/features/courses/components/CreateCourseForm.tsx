@@ -58,19 +58,44 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
     const [savedCourseId, setSavedCourseId] = useState<string | null>(initialData?.id || null)
 
     useEffect(() => {
-        if (initialData) {
-            const { topicName, topicId } = getInitialTopicData(initialData)
+        if (!initialData || Object.keys(initialData).length === 0) {
             setFormData({
                 title: '',
                 description: '',
                 price: 0,
                 access_type: 'public',
-                thumbnail_url: '',
-                ...initialData,
-                category: topicName,
-                topic_id: topicId
+                category: '',
+                topic_id: '',
+                thumbnail_url: ''
             })
-            if (initialData.id) setSavedCourseId(initialData.id)
+            setPreviewUrl(null)
+            setSavedCourseId(null)
+            return
+        }
+
+        const { topicName, topicId } = getInitialTopicData(initialData)
+        console.log("here is intial data", initialData)
+
+        const price = initialData.price !== undefined ? Number(initialData.price) : 0
+        const accessType = initialData.access_type || 'public'
+        const thumb = typeof initialData.thumbnail_url === 'string' ? initialData.thumbnail_url : ''
+
+        setFormData({
+            ...initialData,
+            title: initialData.title || '',
+            description: initialData.description || '',
+            price: price,
+            access_type: accessType as any,
+            category: topicName || '',
+            topic_id: topicId || '',
+            thumbnail_url: thumb
+        })
+
+        if (initialData.id) setSavedCourseId(initialData.id)
+        if (thumb) {
+            setPreviewUrl(thumb)
+        } else {
+            setPreviewUrl(null)
         }
     }, [initialData, language])
 

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useCreateSection, useCreateLesson, useCourse } from '../hooks/use-courses'
-import { Lock, Video, FileText, Book, Clock, Settings, GraduationCap } from 'lucide-react'
+import { Lock, Video, FileText, Book, Clock, Settings, GraduationCap, Type, ImageIcon, X } from 'lucide-react'
+import { RichTextEditor } from '@/shared/components/RichTextEditor'
 
 interface CourseCurriculumProps {
     courseId: string | null
@@ -20,6 +21,9 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
     const [newLessonUrl, setNewLessonUrl] = useState('')
     const [newLessonDuration, setNewLessonDuration] = useState(0)
     const [newLessonIsPreview, setNewLessonIsPreview] = useState(false)
+    const [newLessonThumbnail, setNewLessonThumbnail] = useState<File | null>(null)
+    const [newLessonThumbnailPreview, setNewLessonThumbnailPreview] = useState<string | null>(null)
+    const lessonFileInputRef = useRef<HTMLInputElement>(null)
     const [addingLessonToSection, setAddingLessonToSection] = useState<string | null>(null)
 
     if (!courseId) {
@@ -61,7 +65,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
             media_url: newLessonUrl,
             duration: newLessonDuration,
             is_preview: newLessonIsPreview,
-            order_index: (section?.lessons?.length || 0) + 1
+            order_index: (section?.lessons?.length || 0) + 1,
+            thumbnail_image: newLessonThumbnail || undefined
         }, {
             onSuccess: () => {
                 setNewLessonTitle('')
@@ -69,6 +74,8 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                 setNewLessonUrl('')
                 setNewLessonDuration(0)
                 setNewLessonIsPreview(false)
+                setNewLessonThumbnail(null)
+                setNewLessonThumbnailPreview(null)
                 setAddingLessonToSection(null)
             }
         })
@@ -184,17 +191,67 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                                                 placeholder="0"
                                             />
                                         </div>
+
+                                        <div className="md:col-span-2 space-y-2">
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">صورة الدرس (Thumbnail)</label>
+                                            <div
+                                                onClick={() => lessonFileInputRef.current?.click()}
+                                                className="w-full aspect-[21/9] rounded-2xl border-2 border-dashed border-slate-200 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-brand-500 transition-all overflow-hidden group relative"
+                                            >
+                                                {newLessonThumbnailPreview ? (
+                                                    <div className="relative w-full h-full">
+                                                        <img src={newLessonThumbnailPreview} alt="Lesson Preview" className="w-full h-full object-cover" />
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setNewLessonThumbnail(null);
+                                                                setNewLessonThumbnailPreview(null);
+                                                            }}
+                                                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors z-10"
+                                                        >
+                                                            <X size={12} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center space-y-1">
+                                                        <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 mx-auto group-hover:text-brand-600">
+                                                            <ImageIcon size={18} />
+                                                        </div>
+                                                        <p className="text-[10px] font-black text-slate-600">انقر لرفع صورة الدرس</p>
+                                                        <p className="text-[8px] font-bold text-slate-400">مثالية بمقاس 1280x720 بكسل</p>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    ref={lessonFileInputRef}
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            setNewLessonThumbnail(file);
+                                                            setNewLessonThumbnailPreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {newLessonType === 'article' ? (
                                         <div className="space-y-2 text-start">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">محتوى الدرس</label>
-                                            <textarea
-                                                value={newLessonBody}
-                                                onChange={e => setNewLessonBody(e.target.value)}
-                                                className="input-modern w-full min-h-[120px] resize-none"
-                                                placeholder="اكتب المحتوى التعليمي هنا بالتفصيل..."
-                                            />
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Type size={14} className="text-brand-500" />
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">محتوى الدرس</label>
+                                            </div>
+                                            <div className="bg-white rounded-2xl border border-brand-100 overflow-hidden shadow-sm">
+                                                <RichTextEditor
+                                                    value={newLessonBody}
+                                                    onChange={content => setNewLessonBody(content)}
+                                                    placeholder="اكتب المحتوى التعليمي هنا بالتفصيل واستخدم أدوات التنسيق..."
+                                                    minHeight="200px"
+                                                />
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="space-y-2 text-start">
@@ -210,19 +267,19 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                                     )}
 
                                     <div className="flex items-center justify-between pt-2 border-t border-brand-100/30">
-                                        <label className="flex items-center gap-2 cursor-pointer group/toggle">
-                                            <div className={`w-10 h-5 rounded-full p-1 transition-colors duration-300 ${newLessonIsPreview ? 'bg-emerald-500' : 'bg-slate-200'}`}>
-                                                <div className={`w-3 h-3 bg-white rounded-full transition-transform duration-300 ${newLessonIsPreview ? 'translate-x-5' : 'translate-x-0'}`} />
+                                        <label className="flex items-center gap-3 cursor-pointer group/toggle">
+                                            <div className="relative group/knob">
+                                                <input
+                                                    type="checkbox"
+                                                    className="sr-only peer"
+                                                    checked={newLessonIsPreview}
+                                                    onChange={e => setNewLessonIsPreview(e.target.checked)}
+                                                />
+                                                <div className="w-12 h-6 bg-slate-200 rounded-full transition-all duration-300 peer-checked:bg-emerald-500 shadow-inner group-hover/toggle:ring-4 group-hover/toggle:ring-brand-500/10" />
+                                                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 peer-checked:left-7 shadow-md group-hover/knob:scale-110" />
                                             </div>
-                                            <input
-                                                type="checkbox"
-                                                className="hidden"
-                                                checked={newLessonIsPreview}
-                                                onChange={e => setNewLessonIsPreview(e.target.checked)}
-                                            />
-                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-wide">الدرس متاح للمعاينة مجاناً</span>
+                                            <span className="text-[11px] font-black text-slate-600 uppercase tracking-wide transition-colors group-hover/toggle:text-brand-600">الدرس متاح للمعاينة مجاناً</span>
                                         </label>
-
                                         <div className="flex gap-2">
                                             <button
                                                 type="button"
@@ -247,14 +304,18 @@ export function CourseCurriculum({ courseId }: CourseCurriculumProps) {
                             <div className="grid grid-cols-1 gap-3">
                                 {section.lessons?.map((lesson) => (
                                     <div key={lesson.id} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-all duration-300 group/lesson border border-transparent hover:border-slate-100 text-start">
-                                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 shadow-xs group-hover/lesson:scale-110 transition-transform">
-                                            {lesson.type === 'video' ? <Video size={20} /> : lesson.type === 'pdf' ? <FileText size={20} /> : <Book size={20} />}
+                                        <div className="w-20 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 shadow-xs group-hover/lesson:scale-105 transition-transform overflow-hidden relative">
+                                            {lesson.thumbnail_image ? (
+                                                <img src={lesson.thumbnail_image as string} className="w-full h-full object-cover" alt={lesson.title} />
+                                            ) : (
+                                                lesson.type === 'video' ? <Video size={20} /> : lesson.type === 'pdf' ? <FileText size={20} /> : <Book size={20} />
+                                            )}
                                         </div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <p className="text-base font-bold text-slate-800 tracking-tight">{lesson.title}</p>
                                                 {lesson.is_preview && (
-                                                    <span className="text-[8px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-black border border-emerald-100 uppercase tracking-widest">Preview</span>
+                                                    <span className="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-black border border-emerald-100 uppercase tracking-tight">معاينة مجانية</span>
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3">

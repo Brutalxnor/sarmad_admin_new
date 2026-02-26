@@ -30,6 +30,7 @@ export interface CreateStaffRequest {
 export interface UpdateStaffRequest {
     name?: string
     role?: StaffRole
+    must_change_password?: boolean
 }
 
 export interface StaffAuthResponse {
@@ -101,7 +102,19 @@ export const staffService = {
     },
 
     // User Profile
-    updateProfile: async (data: Partial<UserProfile>) => {
+    updateProfile: async (data: Partial<UserProfile>, file?: File) => {
+        if (file) {
+            const formData = new FormData()
+            Object.entries(data).forEach(([key, value]) => {
+                if (key !== 'profile_picture' && value !== undefined && value !== null) {
+                    formData.append(key, value.toString())
+                }
+            })
+            formData.append('profile_picture', file)
+            const response = await apiClient.put<StaffAuthResponse>(`${BASE_URL}/profile`, formData)
+            return response.data
+        }
+
         const response = await apiClient.put<StaffAuthResponse>(`${BASE_URL}/profile`, data)
         return response.data
     },

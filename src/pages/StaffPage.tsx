@@ -44,17 +44,10 @@ export default function StaffPage() {
             suffix: ''
         },
         {
-            label: language === 'ar' ? 'حسابات معطلة' : 'Disabled Accounts',
-            value: '0',
+            label: language === 'ar' ? 'حسابات غير نشطة' : 'Inactive Accounts',
+            value: staff.filter(s => s.must_change_password).length.toString(),
             icon: <UserMinus className="text-rose-500" />,
             iconBg: 'bg-rose-50',
-            suffix: ''
-        },
-        {
-            label: language === 'ar' ? 'تسجيلات دخول اليوم' : 'Daily Sign-ins',
-            value: '34',
-            icon: <TrendingUp className="text-orange-600" />,
-            iconBg: 'bg-orange-50',
             suffix: ''
         }
     ]
@@ -91,7 +84,7 @@ export default function StaffPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative">
                         <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>

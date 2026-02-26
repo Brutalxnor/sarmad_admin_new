@@ -62,3 +62,17 @@ export function useDeactivateAssessment() {
         }
     })
 }
+
+export function useDeleteAssessment() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => metadataApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
+            toast.success('Assessment deleted successfully')
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to delete assessment')
+        }
+    })
+}

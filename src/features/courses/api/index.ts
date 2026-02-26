@@ -13,12 +13,38 @@ export const coursesApi = {
     },
 
     create: async (data: Partial<Course>) => {
-        const response = await apiClient.post('/courses', data)
+        const formData = new FormData()
+        Object.entries(data).forEach(([key, value]) => {
+            if (value === undefined || value === null) return
+
+            // Explicitly exclude virtual/joined fields
+            if (['author', 'author_role', 'author_profile', 'category', 'topic', 'sections'].includes(key)) return
+
+            if (key === 'thumbnail_url' && (value as any) instanceof File) {
+                formData.append(key, value as any)
+            } else {
+                formData.append(key, String(value))
+            }
+        })
+        const response = await apiClient.post('/courses', formData)
         return response.data.data as Course
     },
 
     update: async (id: string, data: Partial<Course>) => {
-        const response = await apiClient.patch(`/courses/${id}`, data)
+        const formData = new FormData()
+        Object.entries(data).forEach(([key, value]) => {
+            if (value === undefined || value === null) return
+
+            // Explicitly exclude virtual/joined fields
+            if (['author', 'author_role', 'author_profile', 'category', 'topic', 'sections'].includes(key)) return
+
+            if (key === 'thumbnail_url' && (value as any) instanceof File) {
+                formData.append(key, value as any)
+            } else {
+                formData.append(key, String(value))
+            }
+        })
+        const response = await apiClient.patch(`/courses/${id}`, formData)
         return response.data.data as Course
     },
 
@@ -33,7 +59,16 @@ export const coursesApi = {
     },
 
     createLesson: async (data: Partial<Lesson>) => {
-        const response = await apiClient.post('/courses/lessons', data)
+        const formData = new FormData()
+        Object.entries(data).forEach(([key, value]) => {
+            if (value === undefined || value === null) return
+            if (key === 'thumbnail_image' && (value as any) instanceof File) {
+                formData.append(key, value as any)
+            } else {
+                formData.append(key, String(value))
+            }
+        })
+        const response = await apiClient.post('/courses/lessons', formData)
         return response.data.data as Lesson
     }
 }

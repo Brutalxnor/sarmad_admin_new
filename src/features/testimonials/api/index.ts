@@ -8,12 +8,30 @@ export const testimonialsApi = {
     },
 
     create: async (data: Partial<Testimonial>) => {
-        const response = await apiClient.post('/testimonials', data)
+        const formData = new FormData()
+        Object.entries(data).forEach(([key, value]) => {
+            if (value === undefined || value === null) return
+            if (key === 'image_url' && value instanceof File) {
+                formData.append('image', value)
+            } else {
+                formData.append(key, String(value))
+            }
+        })
+        const response = await apiClient.post('/testimonials', formData)
         return response.data
     },
 
     update: async (id: string, data: Partial<Testimonial>) => {
-        const response = await apiClient.patch(`/testimonials/${id}`, data)
+        const formData = new FormData()
+        Object.entries(data).forEach(([key, value]) => {
+            if (value === undefined || value === null) return
+            if (key === 'image_url' && value instanceof File) {
+                formData.append('image', value)
+            } else {
+                formData.append(key, String(value))
+            }
+        })
+        const response = await apiClient.patch(`/testimonials/${id}`, formData)
         return response.data
     },
 

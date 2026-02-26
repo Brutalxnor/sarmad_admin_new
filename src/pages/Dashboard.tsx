@@ -1,10 +1,16 @@
 import { useLanguage } from '../shared/context/LanguageContext'
 import { useAuth } from '@/features/staff/context/AuthContext'
 import { Users, Activity, Video, Database } from 'lucide-react'
+import { useRecentAuditLogs } from '@/features/staff/hooks/useAuditLogs'
+import { formatDistanceToNow } from 'date-fns'
+import { ar } from 'date-fns/locale'
 
 export default function Dashboard() {
-    const { t } = useLanguage()
+    const { t, language } = useLanguage()
     const { user } = useAuth()
+    const isRTL = language === 'ar'
+
+    const { data: recentLogsResponse, isLoading: isLoadingLogs } = useRecentAuditLogs(5)
 
     const stats = [
         {
@@ -41,13 +47,25 @@ export default function Dashboard() {
         },
     ]
 
-    const activities = [
-        { id: 1, type: 'cms', text: 'نشر محتوى جديد: "دليل النوم الصحي"', user: 'د. أحمد العتيبي', time: 'منذ 5 دقائق', initial: 'د', color: 'bg-blue-100 text-blue-600' },
-        { id: 2, type: 'order', text: 'أكملت طلب #4523 HST', user: 'سارة المطيري', time: 'منذ 15 دقيقة', initial: 'س', color: 'bg-sky-100 text-sky-600' },
-        { id: 3, type: 'webinar', text: 'راجع وافق على ندوة "النوم والصحة النفسية"', user: 'محمد السبيعي', time: 'منذ 30 دقيقة', initial: 'م', color: 'bg-slate-100 text-slate-600' },
-        { id: 4, type: 'user', text: 'أضافت مستخدم داخلي جديد', user: 'فاطمة القحطاني', time: 'منذ ساعة', initial: 'ف', color: 'bg-indigo-100 text-indigo-600' },
-        { id: 5, type: 'system', text: 'تم التكامل مع CRM بنجاح', user: 'النظام', time: 'منذ ساعتين', initial: 'ا', color: 'bg-gray-100 text-gray-600' },
-    ]
+    const getModuleStyle = (module: string) => {
+        const styles: Record<string, string> = {
+            'Content': 'bg-blue-100 text-blue-600',
+            'Order': 'bg-sky-100 text-sky-600',
+            'Webinar': 'bg-slate-100 text-slate-600',
+            'StaffAuth': 'bg-indigo-100 text-indigo-600',
+            'System': 'bg-gray-100 text-gray-600',
+        }
+        return styles[module] || 'bg-slate-50 text-slate-400'
+    }
+
+    const activities = (recentLogsResponse?.data || []).map(log => ({
+        id: log.id,
+        text: log.message_ar,
+        user: log.staff_name || (isRTL ? 'النظام' : 'System'),
+        time: formatDistanceToNow(new Date(log.created_at), { addSuffix: true, locale: isRTL ? ar : undefined }),
+        initial: (log.staff_name || 'S').charAt(0),
+        color: getModuleStyle(log.module)
+    }))
 
     const alerts = [
         { id: 1, text: '3 محاولات دفع فاشلة في آخر ساعة', time: 'منذ 10 دقائق', type: 'error', color: 'bg-rose-50 border-rose-200 text-rose-800' },
@@ -106,21 +124,38 @@ export default function Dashboard() {
                     </div>
 
                     <div className="space-y-8">
-                        {activities.map((act) => (
-                            <div key={act.id} className="flex items-center justify-between group cursor-default">
-                                <div className="text-start">
-                                    <h4 className="font-bold text-slate-800 text-lg mb-1">{act.text}</h4>
-                                    <div className="flex items-center gap-2 text-sm">
-                                        <span className="text-gray-400">{act.time}</span>
-                                        <span className="text-gray-300">•</span>
-                                        <span className="text-gray-400 font-bold">{act.user}</span>
+                        {isLoadingLogs ? (
+                            // Loading Skeletons
+                            [1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="flex items-center justify-between animate-pulse">
+                                    <div className="space-y-3 flex-1">
+                                        <div className="h-5 bg-gray-100 rounded-full w-3/4"></div>
+                                        <div className="h-3 bg-gray-50 rounded-full w-1/2"></div>
+                                    </div>
+                                    <div className="w-12 h-12 rounded-full bg-gray-100"></div>
+                                </div>
+                            ))
+                        ) : activities.length === 0 ? (
+                            <div className="py-10 text-center text-gray-400 italic font-bold">
+                                {isRTL ? 'لا توجد أنشطة حالية' : 'No recent activities'}
+                            </div>
+                        ) : (
+                            activities.map((act) => (
+                                <div key={act.id} className="flex items-center justify-between group cursor-default">
+                                    <div className="text-start">
+                                        <h4 className="font-bold text-slate-800 text-lg mb-1">{act.text}</h4>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <span className="text-gray-400">{act.time}</span>
+                                            <span className="text-gray-300">•</span>
+                                            <span className="text-gray-400 font-bold">{act.user}</span>
+                                        </div>
+                                    </div>
+                                    <div className={`w-12 h-12 rounded-full ${act.color} flex items-center justify-center font-black text-lg shadow-inner`}>
+                                        {act.initial}
                                     </div>
                                 </div>
-                                <div className={`w-12 h-12 rounded-full ${act.color} flex items-center justify-center font-black text-lg shadow-inner`}>
-                                    {act.initial}
-                                </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
                 </div>
 

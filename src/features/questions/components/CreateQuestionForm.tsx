@@ -46,6 +46,17 @@ export function CreateQuestionForm({ onSuccess, initialData, defaultVersion, isA
         e.preventDefault()
         if (!question.trim()) return
 
+        // Check if total percentage is 100%
+        const totalPercentage = answers.reduce((sum, a) => sum + a.percentage, 0)
+        if (totalPercentage !== 100) {
+            const isRTL = language === 'ar'
+            toast.error(isRTL
+                ? `يجب أن يكون مجموع النسب 100%. المجموع الحالي: ${totalPercentage}%`
+                : `Total percentage must be 100%. Current sum: ${totalPercentage}%`
+            )
+            return
+        }
+
         const dto = {
             question,
             category: category || undefined,

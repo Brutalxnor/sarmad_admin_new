@@ -4,7 +4,8 @@ import { toast } from 'react-hot-toast'
 import {
     useAssessmentsWithQuestions,
     useActivateAssessment,
-    useDeactivateAssessment
+    useDeactivateAssessment,
+    useDeleteAssessment
 } from '@/features/assessments/hooks/use-assessment-metadata'
 import { ViewQuestionModal } from '@/features/questions/components/ViewQuestionModal'
 import { EditQuestionModal } from '@/features/questions/components/EditQuestionModal'
@@ -12,9 +13,9 @@ import type { Question } from '@/features/questions/types/question.types'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import {
     Plus,
-    Settings,
     Edit2,
     Eye,
+    Trash2,
     ClipboardCheck,
     FileText,
     TrendingUp,
@@ -23,6 +24,7 @@ import {
     ArrowUpRight,
     CheckCircle2
 } from 'lucide-react'
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal'
 
 type TabType = 'overview' | 'questions' | 'scoring' | 'guidance'
 
@@ -33,10 +35,12 @@ export default function AssessmentsPage() {
     const activateAssessment = useActivateAssessment()
     const deactivateAssessment = useDeactivateAssessment()
     const [activeTab, setActiveTab] = useState<TabType>('overview')
-    const [selectedVersion, setSelectedVersion] = useState<string>('all')
+    const [selectedCategory, setSelectedCategory] = useState<string>('all')
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+    const [assessmentToDelete, setAssessmentToDelete] = useState<string | null>(null)
+    const deleteAssessment = useDeleteAssessment()
 
     const handleViewQuestion = (question: Question) => {
         setSelectedQuestion(question)
@@ -65,6 +69,13 @@ export default function AssessmentsPage() {
         }
     }
 
+    const confirmDeleteAssessment = async () => {
+        if (assessmentToDelete) {
+            await deleteAssessment.mutateAsync(assessmentToDelete)
+            setAssessmentToDelete(null)
+        }
+    }
+
     const isRTL = direction === 'rtl'
     const groupedData = assessmentsResponse?.data || []
 
@@ -88,12 +99,18 @@ export default function AssessmentsPage() {
         return groupedData.reduce((sum: number, g: any) => sum + (g.questions?.length || 0), 0)
     }, [groupedData])
 
+    const categories = useMemo(() => {
+        const allQuestions = groupedData.flatMap((g: any) => g.questions || [])
+        return Array.from(new Set(allQuestions.map((q: any) => q.category).filter(Boolean))) as string[]
+    }, [groupedData])
+
     const displayQuestions = useMemo(() => {
-        if (selectedVersion === 'all') {
-            return groupedData.flatMap((g: any) => g.questions || [])
+        const allQuestions = groupedData.flatMap((g: any) => g.questions || [])
+        if (selectedCategory === 'all') {
+            return allQuestions
         }
-        return groupedData.find((g: any) => String(g.version) === String(selectedVersion))?.questions || []
-    }, [groupedData, selectedVersion])
+        return allQuestions.filter((q: any) => q.category === selectedCategory)
+    }, [groupedData, selectedCategory])
 
     const stats = [
         {
@@ -227,8 +244,11 @@ export default function AssessmentsPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
-                                        <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#35788D] hover:text-white transition-all shadow-sm">
-                                            <Settings size={18} />
+                                        <button
+                                            onClick={() => setAssessmentToDelete(assessment.id)}
+                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                        >
+                                            <Trash2 size={18} />
                                         </button>
                                         <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
                                             <Edit2 size={18} />
@@ -271,16 +291,16 @@ export default function AssessmentsPage() {
                             {/* Version Filter */}
                             <div className="flex items-center gap-4">
                                 <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                    {language === 'ar' ? 'تصفية حسب الإصدار:' : 'Filter by Version:'}
+                                    {language === 'ar' ? 'تصفية حسب الفئة:' : 'Filter by Category:'}
                                 </span>
                                 <select
-                                    value={selectedVersion}
-                                    onChange={(e) => setSelectedVersion(e.target.value)}
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
                                     className="bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-black text-[#35788D] outline-none cursor-pointer"
                                 >
-                                    <option value="all">{language === 'ar' ? 'جميع الإصدارات' : 'All Versions'}</option>
-                                    {groupedData.map((g: any) => (
-                                        <option key={g.version} value={g.version}>{g.version}</option>
+                                    <option value="all">{language === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat} value={cat}>{cat}</option>
                                     ))}
                                 </select>
                             </div>
@@ -302,14 +322,6 @@ export default function AssessmentsPage() {
                                             <div className={`text-slate-800 font-black flex items-center gap-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                                 <span className="text-[#35788D] opacity-40">س{idx + 1}.</span>
                                                 <span className="line-clamp-1 max-w-md">{q.question}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="px-3 py-1 bg-sky-50 text-[#0095D9] rounded-full text-[10px] font-black">
-                                                    {q.assess_version}
-                                                </span>
-                                                <span className="px-3 py-1 bg-rose-50 text-rose-500 rounded-full text-[10px] font-black">
-                                                    {t('assessments.questions.mandatory')}
-                                                </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -344,6 +356,19 @@ export default function AssessmentsPage() {
                     </div>
                 )}
             </div>
+
+            <ConfirmationModal
+                isOpen={!!assessmentToDelete}
+                title={language === 'ar' ? 'حذف التقييم' : 'Delete Assessment'}
+                message={language === 'ar'
+                    ? 'هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء.'
+                    : 'Are you sure you want to delete this assessment? This action cannot be undone.'}
+                confirmText={language === 'ar' ? 'تاكيد الحذف' : 'Confirm Delete'}
+                cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+                onConfirm={confirmDeleteAssessment}
+                onCancel={() => setAssessmentToDelete(null)}
+                isDestructive
+            />
 
             <ViewQuestionModal
                 isOpen={isViewModalOpen}

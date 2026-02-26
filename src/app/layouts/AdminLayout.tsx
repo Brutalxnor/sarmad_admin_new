@@ -156,7 +156,10 @@ export function AdminLayout() {
                         onClick={() => setIsCollapsed(!isCollapsed)}
                         className={`p-2 text-gray-300 hover:text-brand-500 hover:bg-gray-50 rounded-xl transition-all hidden md:block ${isCollapsed ? 'mt-4' : ''}`}
                     >
-                        <ChevronsRight size={24} className={`transition-transform duration-500 ${isCollapsed ? '' : 'rotate-180'}`} />
+                        <ChevronsRight size={24} className={`transition-transform duration-500 ${direction === 'rtl'
+                            ? (isCollapsed ? 'rotate-180' : '')
+                            : (isCollapsed ? '' : 'rotate-180')
+                            }`} />
                     </button>
                     {isCollapsed && <span className="text-sm font-black bg-linear-to-b from-[#0096CC] to-[#000000] bg-clip-text text-transparent absolute -bottom-4 opacity-70">سرمد</span>}
                 </div>

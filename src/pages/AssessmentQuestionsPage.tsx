@@ -66,12 +66,6 @@ export default function AssessmentQuestionsPage() {
             icon: <div className="w-10 h-10 rounded-xl bg-sky-400 flex items-center justify-center text-white"><EyeOff size={20} /></div>,
             bg: 'bg-white'
         },
-        {
-            label: isRTL ? 'إجمالي النقاط' : 'Total Points',
-            value: 100, // Hardcoded for now based on UI
-            icon: <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600"><Star size={20} fill="currentColor" /></div>,
-            bg: 'bg-white'
-        },
     ]
 
 
@@ -119,7 +113,7 @@ export default function AssessmentQuestionsPage() {
             </div>
 
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center relative group hover:shadow-md transition-all">
                         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'}`}>
