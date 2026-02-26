@@ -9,7 +9,7 @@ export function UserBookings({ bookings }: { bookings: ConsultationBooking[] }) 
 
     if (bookings.length === 0) {
         return (
-            <div className="glass-panel p-8 text-center text-slate-400 font-bold border-dashed border-2">
+            <div className="glass-panel dark:bg-slate-800/50 p-8 text-center text-slate-400 dark:text-slate-500 font-bold border-dashed border-2 dark:border-slate-700 transition-colors duration-300">
                 {t('users.no_bookings') || 'No bookings found'}
             </div>
         )

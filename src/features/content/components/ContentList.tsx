@@ -147,12 +147,12 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
     if (view === 'add-selection') {
         const types = [
-            { id: 'article', icon: <FileText size={40} className="text-sky-500" />, title: t('content.add.type.article'), desc: t('content.add.type.article_desc'), action: t('content.add.action.article'), color: 'bg-sky-50' },
-            { id: 'video', icon: <PlayCircle size={40} className="text-blue-500" />, title: t('content.add.type.video'), desc: t('content.add.type.video_desc'), action: t('content.add.action.video'), color: 'bg-blue-50' },
-            { id: 'course', icon: <GraduationCap size={40} className="text-indigo-500" />, title: t('content.add.type.course'), desc: t('content.add.type.course_desc'), action: t('content.add.action.course'), color: 'bg-indigo-50' },
-            { id: 'success_story', icon: <Star size={40} className="text-amber-500" />, title: t('content.add.type.success_story'), desc: t('content.add.type.success_story_desc'), action: t('content.add.action.success_story'), color: 'bg-amber-50' },
-            { id: 'webinar', icon: <Video size={40} className="text-emerald-500" />, title: t('content.add.type.webinar'), desc: t('content.add.type.webinar_desc'), action: t('content.add.action.webinar'), color: 'bg-emerald-50' },
-            { id: 'faq', icon: <HelpCircle size={40} className="text-slate-400" />, title: t('content.add.type.faq'), desc: t('content.add.type.faq_desc'), action: t('content.add.action.faq'), color: 'bg-slate-50' },
+            { id: 'article', icon: <FileText size={40} className="text-sky-500" />, title: t('content.add.type.article'), desc: t('content.add.type.article_desc'), action: t('content.add.action.article'), color: 'bg-sky-50 dark:bg-sky-900/30' },
+            { id: 'video', icon: <PlayCircle size={40} className="text-blue-500" />, title: t('content.add.type.video'), desc: t('content.add.type.video_desc'), action: t('content.add.action.video'), color: 'bg-blue-50 dark:bg-blue-900/30' },
+            { id: 'course', icon: <GraduationCap size={40} className="text-indigo-500" />, title: t('content.add.type.course'), desc: t('content.add.type.course_desc'), action: t('content.add.action.course'), color: 'bg-indigo-50 dark:bg-indigo-900/30' },
+            { id: 'success_story', icon: <Star size={40} className="text-amber-500" />, title: t('content.add.type.success_story'), desc: t('content.add.type.success_story_desc'), action: t('content.add.action.success_story'), color: 'bg-amber-50 dark:bg-amber-900/30' },
+            { id: 'webinar', icon: <Video size={40} className="text-emerald-500" />, title: t('content.add.type.webinar'), desc: t('content.add.type.webinar_desc'), action: t('content.add.action.webinar'), color: 'bg-emerald-50 dark:bg-emerald-900/30' },
+            { id: 'faq', icon: <HelpCircle size={40} className="text-slate-400 dark:text-slate-300" />, title: t('content.add.type.faq'), desc: t('content.add.type.faq_desc'), action: t('content.add.action.faq'), color: 'bg-slate-50 dark:bg-slate-700/50' },
         ]
 
         return (
@@ -160,13 +160,13 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                 <div className="flex flex-col items-center text-center space-y-4">
                     <button
                         onClick={handleBackToList}
-                        className="text-gray-400 hover:text-[#35788D] font-bold text-sm flex items-center gap-2 mb-4"
+                        className="text-gray-400 dark:text-slate-400 hover:text-[#35788D] dark:hover:text-[#4AA0BA] font-bold text-sm flex items-center gap-2 mb-4 transition-colors duration-300"
                     >
                         <ArrowLeft size={16} className={direction === 'rtl' ? 'rotate-180' : ''} />
                         {t('content.back_to_list')}
                     </button>
-                    <h1 className="text-4xl font-black text-slate-800">{t('content.add.selection_title')}</h1>
-                    <p className="text-gray-400 font-bold max-w-lg">{t('content.add.selection_subtitle')}</p>
+                    <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">{t('content.add.selection_title')}</h1>
+                    <p className="text-gray-400 dark:text-slate-500 font-bold max-w-lg transition-colors duration-300">{t('content.add.selection_subtitle')}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
@@ -178,15 +178,15 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                 setSelectedType(type.id as any)
                                 setView('create')
                             }}
-                            className="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-50 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
+                            className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-10 shadow-sm border border-gray-50 dark:border-slate-700/50 flex flex-col items-center text-center group hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-slate-900/50 hover:-translate-y-2 transition-all duration-500 cursor-pointer"
                         >
                             <div className={`w-24 h-24 rounded-full ${type.color} flex items-center justify-center mb-8 transition-transform duration-500 group-hover:scale-110`}>
                                 {type.icon}
                             </div>
-                            <h3 className="text-2xl font-black text-slate-800 mb-4">{type.title}</h3>
-                            <p className="text-gray-400 text-sm font-bold leading-relaxed mb-8 flex-1">{type.desc}</p>
+                            <h3 className="text-2xl font-black text-slate-800 dark:text-slate-200 mb-4 transition-colors duration-300">{type.title}</h3>
+                            <p className="text-gray-400 dark:text-slate-500 text-sm font-bold leading-relaxed mb-8 flex-1 transition-colors duration-300">{type.desc}</p>
                             <button
-                                className="text-[#35788D] font-black text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
+                                className="text-[#35788D] dark:text-[#4AA0BA] font-black text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
                             >
                                 {type.action}
                                 <ArrowLeft size={16} className={direction === 'rtl' ? 'rotate-180' : ''} />
@@ -220,8 +220,8 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
             {!hideHeader && (
                 <div className="flex justify-between items-center mb-10">
                     <div className="text-start">
-                        <h1 className="text-4xl font-black text-slate-800 mb-2">{t('content.management_title')}</h1>
-                        <p className="text-gray-400 font-bold text-sm">{t('content.management_subtitle')}</p>
+                        <h1 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">{t('content.management_title')}</h1>
+                        <p className="text-gray-400 dark:text-slate-500 font-bold text-sm transition-colors duration-300">{t('content.management_subtitle')}</p>
                     </div>
                     {canCreate && (
                         <button
@@ -238,7 +238,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
             {/* Tabs & Grid */}
             <div className="space-y-8">
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-50 p-2 flex items-center justify-start gap-2 overflow-x-auto">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-50 dark:border-slate-700/50 p-2 flex items-center justify-start gap-2 overflow-x-auto transition-colors duration-300">
                     {[
                         { id: 'all', label: 'الكل', icon: <LayoutGrid size={18} /> },
                         { id: 'video', label: 'فيديوهات', icon: <Video size={18} /> },
@@ -252,8 +252,8 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                 goToPage(1)
                             }}
                             className={`flex items-center gap-2 px-6 py-3 text-sm font-bold transition-all rounded-xl relative ${activeTab === tab.id
-                                ? 'text-[#0095D9] bg-sky-50/50'
-                                : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                ? 'text-[#0095D9] bg-sky-50/50 dark:bg-sky-900/30 dark:text-[#4AA0BA]'
+                                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
                                 }`}
                         >
                             <span>{tab.label}</span>
@@ -268,16 +268,16 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="bg-white rounded-[2.5rem] h-96 animate-pulse border border-gray-50 shadow-sm" />
+                            <div key={i} className="bg-white dark:bg-slate-800 rounded-[2.5rem] h-96 animate-pulse border border-gray-50 dark:border-slate-700/50 shadow-sm transition-colors duration-300" />
                         ))}
                     </div>
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {paginatedArticles.map((item: ContentItem) => (
-                                <div key={item.id} className="group bg-white rounded-[2.5rem] border border-gray-50 hover:border-sky-100 transition-all duration-500 shadow-sm hover:shadow-xl overflow-hidden flex flex-col">
+                                <div key={item.id} className="group bg-white dark:bg-slate-800 rounded-[2.5rem] border border-gray-50 dark:border-slate-700/50 hover:border-sky-100 dark:hover:border-sky-900/50 transition-all duration-500 shadow-sm hover:shadow-xl dark:shadow-slate-900/20 overflow-hidden flex flex-col">
                                     {/* Thumbnail Area */}
-                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 p-2">
+                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-700/50 p-2 transition-colors duration-300">
                                         <div className="w-full h-full rounded-[2rem] overflow-hidden relative">
                                             {item.thumbnail_image ? (
                                                 <img
@@ -286,7 +286,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                                 />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-slate-50 text-slate-200">
+                                                <div className="w-full h-full flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-200 dark:text-slate-600 transition-colors duration-300">
                                                     <LayoutGrid size={48} />
                                                 </div>
                                             )}
@@ -323,15 +323,15 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                     {/* Content Area */}
                                     <div className="p-8 flex-1 flex flex-col justify-between">
                                         <div className="space-y-4">
-                                            <div className="flex items-center justify-between text-slate-400">
+                                            <div className="flex items-center justify-between text-slate-400 dark:text-slate-500 transition-colors duration-300">
                                                 <div className="flex items-center gap-4 text-[11px] font-bold">
                                                     <div className="flex items-center gap-1.5">
-                                                        <Clock size={14} className="text-sky-500" />
-                                                        <span>{item.duration || '12 دقيقة'}</span>
+                                                        <Clock size={14} className="text-sky-500 dark:text-sky-400" />
+                                                        <span className="dark:text-slate-400">{item.duration || '12 دقيقة'}</span>
                                                     </div>
                                                     <div className="flex items-center gap-1.5">
-                                                        <Users size={14} className="text-blue-500" />
-                                                        <span>{direction === 'rtl' ? '860 مشاهدة' : '860 views'}</span>
+                                                        <Users size={14} className="text-blue-500 dark:text-blue-400" />
+                                                        <span className="dark:text-slate-400">{direction === 'rtl' ? '860 مشاهدة' : '860 views'}</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-2">
@@ -339,13 +339,13 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                         <div className={`flex items-center gap-2 ${direction === 'rtl' ? 'flex-row-reverse' : 'flex-row'}`}>
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); setEditingContent(item); setView('edit'); }}
-                                                                className="w-8 h-8 rounded-lg bg-sky-50 text-sky-500 flex items-center justify-center hover:bg-sky-100 transition-colors"
+                                                                className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-500 dark:text-sky-400 flex items-center justify-center hover:bg-sky-100 dark:hover:bg-sky-500/20 transition-colors"
                                                             >
                                                                 <Edit3 size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={(e) => { e.stopPropagation(); if (item.id) setDeletingItem({ id: item.id, type: item.type }); }}
-                                                                className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-colors"
+                                                                className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 flex items-center justify-center hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors"
                                                             >
                                                                 <Trash2 size={14} />
                                                             </button>
@@ -354,7 +354,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                 </div>
                                             </div>
 
-                                            <h4 className="text-xl font-black text-slate-800 line-clamp-2 leading-relaxed text-start group-hover:text-[#35788D] transition-colors">
+                                            <h4 className="text-xl font-black text-slate-800 dark:text-slate-100 line-clamp-2 leading-relaxed text-start group-hover:text-[#35788D] dark:group-hover:text-[#4AA0BA] transition-colors duration-300">
                                                 {item.title || 'دليل النوم الصحي الشامل'}
                                             </h4>
 
@@ -362,7 +362,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
                                             <div className="flex flex-wrap gap-2 pt-2">
                                                 {(item.tags || ['نوم_سليم', 'صحة_الدماغ', 'طرق_النوم']).map((tag, i) => (
-                                                    <span key={i} className="text-[10px] font-black text-sky-600 bg-sky-50 px-3 py-1.5 rounded-full border border-sky-100/50">
+                                                    <span key={i} className="text-[10px] font-black text-sky-600 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/40 px-3 py-1.5 rounded-full border border-sky-100/50 dark:border-sky-800/50 transition-colors duration-300">
                                                         {tag}
                                                     </span>
                                                 ))}
@@ -370,9 +370,9 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                         </div>
 
                                         {/* Author Footer */}
-                                        <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
+                                        <div className="mt-8 pt-6 border-t border-gray-50 dark:border-slate-700/50 flex items-center justify-between transition-colors duration-300">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full border border-gray-100 p-0.5 shadow-sm">
+                                                <div className="w-10 h-10 rounded-full border border-gray-100 dark:border-slate-600 p-0.5 shadow-sm transition-colors duration-300">
                                                     <img
                                                         src={(item as any).author_avatar || `https://ui-avatars.com/api/?name=${item.author || 'A'}&background=35788D&color=fff`}
                                                         className="w-full h-full rounded-full object-cover"
@@ -380,11 +380,11 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                     />
                                                 </div>
                                                 <div className="text-start">
-                                                    <p className="text-sm font-black text-slate-800 leading-none mb-1">{item.author || 'أحمد عبدالله'}</p>
-                                                    <p className="text-[10px] text-gray-400 font-bold">{(item as any).author_role || 'مختص طب النوم'}</p>
+                                                    <p className="text-sm font-black text-slate-800 dark:text-slate-200 leading-none mb-1 transition-colors duration-300">{item.author || 'أحمد عبدالله'}</p>
+                                                    <p className="text-[10px] text-gray-400 dark:text-slate-500 font-bold transition-colors duration-300">{(item as any).author_role || 'مختص طب النوم'}</p>
                                                 </div>
                                             </div>
-                                            <div className="w-8 h-8 rounded-full border border-gray-100 flex items-center justify-center text-gray-300 hover:text-[#35788D] hover:bg-slate-50 transition-all cursor-pointer">
+                                            <div className="w-8 h-8 rounded-full border border-gray-100 dark:border-slate-600 flex items-center justify-center text-gray-300 dark:text-slate-500 hover:text-[#35788D] dark:hover:text-[#4AA0BA] hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-pointer">
                                                 <ChevronRight className={direction === 'rtl' ? 'rotate-180' : ''} size={16} />
                                             </div>
                                         </div>
@@ -394,15 +394,15 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                         </div>
 
                         {filteredContent.length === 0 && (
-                            <div className="col-span-full bg-white p-24 rounded-[3rem] text-center border-dashed border-4 border-slate-50 shadow-sm">
-                                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 border border-slate-100/50">
-                                    <BookOpen size={48} className="text-slate-200" />
+                            <div className="col-span-full bg-white dark:bg-slate-800 p-24 rounded-[3rem] text-center border-dashed border-4 border-slate-50 dark:border-slate-700/50 shadow-sm transition-colors duration-300">
+                                <div className="w-24 h-24 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-8 border border-slate-100/50 dark:border-slate-600/50 transition-colors duration-300">
+                                    <BookOpen size={48} className="text-slate-200 dark:text-slate-600" />
                                 </div>
-                                <h3 className="text-2xl font-black text-slate-800 mb-4">{t('content.empty_library')}</h3>
+                                <h3 className="text-2xl font-black text-slate-800 dark:text-slate-200 mb-4 transition-colors duration-300">{t('content.empty_library')}</h3>
                                 {canCreate && (
                                     <button
                                         onClick={() => setView('add-selection')}
-                                        className="text-[#0095D9] font-black text-lg hover:underline underline-offset-8"
+                                        className="text-[#0095D9] dark:text-[#4AA0BA] font-black text-lg hover:underline underline-offset-8 transition-colors duration-300"
                                     >
                                         {t('content.start_first_article')}
                                     </button>
@@ -410,8 +410,8 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                             </div>
                         )}
 
-                        <div className="mt-12 flex justify-between items-center bg-white p-6 rounded-3xl border border-gray-50 shadow-sm">
-                            <p className="text-sm text-gray-400 font-bold">
+                        <div className="mt-12 flex justify-between items-center bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-50 dark:border-slate-700/50 shadow-sm transition-colors duration-300">
+                            <p className="text-sm text-gray-400 dark:text-slate-400 font-bold transition-colors duration-300">
                                 {direction === 'rtl' ? (
                                     `عرض ${Math.min(paginatedArticles.length, 9)}-1 من أصل ${filteredContent.length} مادة`
                                 ) : (
@@ -430,30 +430,30 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
 
             {/* Custom Delete Confirmation Modal */}
             {deletingItem && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="glass-panel max-w-sm w-full bg-white/90 backdrop-blur-xl shadow-2xl scale-in-center overflow-hidden border-rose-100/50">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="glass-panel max-w-sm w-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl shadow-2xl scale-in-center overflow-hidden border-rose-100/50 dark:border-rose-900/50 transition-colors duration-300">
                         <div className="p-6 text-center space-y-4">
-                            <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-2 text-rose-500">
+                            <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-2xl flex items-center justify-center mx-auto mb-2 text-rose-500 dark:text-rose-400 transition-colors duration-300">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </div>
                             <div className="space-y-2">
-                                <h3 className="text-xl font-black text-slate-800">{t('content.delete_confirm_title')}</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                                <h3 className="text-xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">{t('content.delete_confirm_title')}</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium transition-colors duration-300">
                                     {t('content.delete_confirm_desc')}
                                 </p>
                             </div>
                             <div className="flex flex-col gap-2 pt-2">
                                 <button
                                     onClick={confirmDelete}
-                                    className="w-full py-3 px-4 bg-rose-600 text-white rounded-xl font-black text-sm shadow-lg shadow-rose-200 hover:bg-rose-700 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                    className="w-full py-3 px-4 bg-rose-600 text-white rounded-xl font-black text-sm shadow-lg shadow-rose-200 dark:shadow-rose-900/20 hover:bg-rose-700 transition-all hover:-translate-y-0.5 active:translate-y-0"
                                 >
                                     {t('content.confirm_delete')}
                                 </button>
                                 <button
                                     onClick={() => setDeletingItem(null)}
-                                    className="w-full py-3 px-4 text-slate-500 font-bold text-sm hover:bg-slate-50 rounded-xl transition-all"
+                                    className="w-full py-3 px-4 text-slate-500 dark:text-slate-400 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-xl transition-all"
                                 >
                                     {t('content.cancel')}
                                 </button>

@@ -90,14 +90,14 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                 onClick={onClose}
             />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-up">
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="text-lg font-bold text-slate-800">
+            <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-up transition-colors duration-300">
+                <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                         {isEditMode ? t('staff.edit') : t('staff.create')}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition-colors"
                     >
                         ✕
                     </button>
@@ -105,7 +105,7 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('staff.form.name')}
                         </label>
                         <input
@@ -113,12 +113,12 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                             required
                             value={formData.name}
                             onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+                            className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('staff.form.email')}
                         </label>
                         <input
@@ -127,13 +127,13 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                             disabled={isEditMode}
                             value={formData.email}
                             onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500"
+                            className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all disabled:bg-slate-50 dark:disabled:bg-slate-800 disabled:text-slate-500 dark:disabled:text-slate-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                         />
                     </div>
 
                     {!isEditMode && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                                 {t('staff.form.password')}
                             </label>
                             <input
@@ -142,19 +142,19 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                                 minLength={8}
                                 value={formData.password}
                                 onChange={e => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                                className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all"
+                                className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                             />
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                             {t('staff.form.role')}
                         </label>
                         <select
                             value={formData.role}
                             onChange={e => setFormData(prev => ({ ...prev, role: e.target.value as StaffRole }))}
-                            className={`w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all appearance-none bg-white ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
+                            className={`w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700/50 text-slate-800 dark:text-slate-100 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-all appearance-none ${direction === 'rtl' ? 'text-right' : 'text-left'}`}
                         >
                             <option value="Coach">{t('staff.role.Coach')}</option>
                             <option value="AdminOperations">{t('staff.role.AdminOperations')}</option>
@@ -165,28 +165,28 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
 
                     {isEditMode && (
                         <div className="pt-2">
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 {direction === 'rtl' ? 'حالة الحساب' : 'Account Status'}
                             </label>
-                            <div className="flex gap-2 p-1 bg-slate-50 rounded-xl border border-slate-100">
+                            <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-700/50 rounded-xl border border-slate-100 dark:border-slate-600">
                                 <button
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, must_change_password: false }))}
                                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-black text-xs transition-all ${!formData.must_change_password
-                                        ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
-                                        : 'text-slate-400 hover:text-slate-600'}`}
+                                        ? 'bg-white dark:bg-slate-600 text-emerald-600 dark:text-emerald-400 shadow-sm border border-emerald-100 dark:border-emerald-500/20'
+                                        : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                                 >
-                                    <div className={`w-2 h-2 rounded-full ${!formData.must_change_password ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                                    <div className={`w-2 h-2 rounded-full ${!formData.must_change_password ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'}`} />
                                     {direction === 'rtl' ? 'نشط' : 'Active'}
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setFormData(prev => ({ ...prev, must_change_password: true }))}
                                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-black text-xs transition-all ${formData.must_change_password
-                                        ? 'bg-white text-orange-600 shadow-sm border border-orange-100'
-                                        : 'text-slate-400 hover:text-slate-600'}`}
+                                        ? 'bg-white dark:bg-slate-600 text-orange-600 dark:text-orange-400 shadow-sm border border-orange-100 dark:border-orange-500/20'
+                                        : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300'}`}
                                 >
-                                    <div className={`w-2 h-2 rounded-full ${formData.must_change_password ? 'bg-orange-500' : 'bg-slate-300'}`} />
+                                    <div className={`w-2 h-2 rounded-full ${formData.must_change_password ? 'bg-orange-500' : 'bg-slate-300 dark:bg-slate-600'}`} />
                                     {direction === 'rtl' ? 'غير نشط' : 'Inactive'}
                                 </button>
                             </div>
@@ -197,7 +197,7 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                            className="px-4 py-2 text-slate-600 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
                         >
                             {t('questions.cancel')}
                         </button>

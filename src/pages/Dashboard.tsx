@@ -80,10 +80,10 @@ export default function Dashboard() {
     }))
 
     const getAlertColor = (priority?: string, is_read?: boolean) => {
-        if (is_read) return 'bg-slate-50 border-slate-200 text-slate-600'
-        if (priority === 'high') return 'bg-rose-50 border-rose-200 text-rose-800'
-        if (priority === 'medium') return 'bg-orange-50 border-orange-200 text-orange-800'
-        return 'bg-sky-50 border-sky-200 text-sky-800'
+        if (is_read) return 'bg-slate-50 border-slate-200 text-slate-600 dark:bg-slate-700/50 dark:border-slate-600 dark:text-slate-400'
+        if (priority === 'high') return 'bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-500/10 dark:border-rose-500/30 dark:text-rose-400'
+        if (priority === 'medium') return 'bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-500/10 dark:border-orange-500/30 dark:text-orange-400'
+        return 'bg-sky-50 border-sky-200 text-sky-800 dark:bg-sky-500/10 dark:border-sky-500/30 dark:text-sky-400'
     }
 
     const unreadCount = notifications?.filter(n => !n.is_read).length ?? 0
@@ -93,7 +93,7 @@ export default function Dashboard() {
             {/* Branding Header Area (Dashboard Exclusive) */}
             <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-4">
-                    <h2 className="text-lg font-bold text-slate-800">{t('dashboard.overview') || 'نظرة عامة على النظام'}</h2>
+                    <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 transition-colors duration-300">{t('dashboard.overview') || 'نظرة عامة على النظام'}</h2>
                 </div>
             </div>
 
@@ -110,22 +110,22 @@ export default function Dashboard() {
                 {isLoadingStats ? (
                     // Stats Skeletons
                     [1, 2, 3, 4].map((i) => (
-                        <div key={i} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start animate-pulse">
-                            <div className="w-14 h-14 rounded-2xl bg-gray-100 mb-6"></div>
-                            <div className="w-1/2 h-3 bg-gray-100 rounded-full mb-3"></div>
-                            <div className="w-3/4 h-8 bg-gray-100 rounded-full mb-3"></div>
-                            <div className="w-1/3 h-2 bg-gray-50 rounded-full"></div>
+                        <div key={i} className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-slate-700 flex flex-col items-center lg:items-start animate-pulse transition-colors duration-300">
+                            <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-slate-700 mb-6"></div>
+                            <div className="w-1/2 h-3 bg-gray-100 dark:bg-slate-700 rounded-full mb-3"></div>
+                            <div className="w-3/4 h-8 bg-gray-100 dark:bg-slate-700 rounded-full mb-3"></div>
+                            <div className="w-1/3 h-2 bg-gray-50 dark:bg-slate-700/50 rounded-full"></div>
                         </div>
                     ))
                 ) : (
                     stats.map((stat, idx) => (
-                        <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start group hover:shadow-md transition-shadow">
-                            <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} flex items-center justify-center mb-6`}>
+                        <div key={idx} className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-sm border border-gray-50 dark:border-slate-700 flex flex-col items-center lg:items-start group hover:shadow-md transition-all duration-300">
+                            <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} dark:bg-opacity-10 flex items-center justify-center mb-6`}>
                                 {stat.icon}
                             </div>
                             <div className="text-center lg:text-start">
-                                <p className="text-gray-400 font-bold text-xs mb-2">{stat.title}</p>
-                                <h3 className="text-4xl font-black text-slate-800 mb-2">
+                                <p className="text-gray-400 dark:text-gray-500 font-bold text-xs mb-2">{stat.title}</p>
+                                <h3 className="text-4xl font-black text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">
                                     {stat.value}
                                 </h3>
 
@@ -139,10 +139,10 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                 {/* Recent Activities - Right Side (Larger) */}
-                <div className="lg:col-span-8 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50">
+                <div className="lg:col-span-8 bg-white dark:bg-slate-800 rounded-[2rem] p-10 shadow-sm border border-gray-50 dark:border-slate-700 transition-colors duration-300">
                     <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-2xl font-black text-slate-800">{t('dashboard.recent_activity')}</h3>
-                        <button className="text-gray-400 font-bold text-sm hover:text-[#35788D] transition-colors">{t('dashboard.view_all') || 'عرض الكل'}</button>
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">{t('dashboard.recent_activity')}</h3>
+                        <button className="text-gray-400 dark:text-gray-500 font-bold text-sm hover:text-[#35788D] dark:hover:text-[#4AA0BA] transition-colors">{t('dashboard.view_all') || 'عرض الكل'}</button>
                     </div>
 
                     <div className="space-y-8">
@@ -151,28 +151,28 @@ export default function Dashboard() {
                             [1, 2, 3, 4, 5].map((i) => (
                                 <div key={i} className="flex items-center justify-between animate-pulse">
                                     <div className="space-y-3 flex-1">
-                                        <div className="h-5 bg-gray-100 rounded-full w-3/4"></div>
-                                        <div className="h-3 bg-gray-50 rounded-full w-1/2"></div>
+                                        <div className="h-5 bg-gray-100 dark:bg-slate-700 rounded-full w-3/4"></div>
+                                        <div className="h-3 bg-gray-50 dark:bg-slate-700/50 rounded-full w-1/2"></div>
                                     </div>
-                                    <div className="w-12 h-12 rounded-full bg-gray-100"></div>
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-700"></div>
                                 </div>
                             ))
                         ) : activities.length === 0 ? (
-                            <div className="py-10 text-center text-gray-400 italic font-bold">
+                            <div className="py-10 text-center text-gray-400 dark:text-gray-500 italic font-bold">
                                 {isRTL ? 'لا توجد أنشطة حالية' : 'No recent activities'}
                             </div>
                         ) : (
                             activities.map((act) => (
                                 <div key={act.id} className="flex items-center justify-between group cursor-default">
                                     <div className="text-start">
-                                        <h4 className="font-bold text-slate-800 text-lg mb-1">{act.text}</h4>
+                                        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-lg mb-1 transition-colors duration-300">{act.text}</h4>
                                         <div className="flex items-center gap-2 text-sm">
-                                            <span className="text-gray-400">{act.time}</span>
-                                            <span className="text-gray-300">•</span>
-                                            <span className="text-gray-400 font-bold">{act.user}</span>
+                                            <span className="text-gray-400 dark:text-gray-500">{act.time}</span>
+                                            <span className="text-gray-300 dark:text-gray-600">•</span>
+                                            <span className="text-gray-400 dark:text-gray-500 font-bold">{act.user}</span>
                                         </div>
                                     </div>
-                                    <div className={`w-12 h-12 rounded-full ${act.color} flex items-center justify-center font-black text-lg shadow-inner`}>
+                                    <div className={`w-12 h-12 rounded-full ${act.color} dark:bg-opacity-10 dark:text-opacity-90 flex items-center justify-center font-black text-lg shadow-inner`}>
                                         {act.initial}
                                     </div>
                                 </div>
@@ -182,11 +182,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* System Alerts - Left Side (Smaller) */}
-                <div className="lg:col-span-4 bg-white rounded-[2rem] p-10 shadow-sm border border-gray-50 relative">
-                    <div className="flex items-center justify-between mb-10">
-                        <h3 className="text-2xl font-black text-slate-800">{t('dashboard.system_alerts') || 'تنبيهات النظام'}</h3>
+                <div className="lg:col-span-4 bg-white dark:bg-slate-800 rounded-[2rem] p-10 shadow-sm border border-gray-50 dark:border-slate-700 relative transition-colors duration-300">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">{t('dashboard.system_alerts') || 'تنبيهات النظام'}</h3>
                         {unreadCount > 0 && (
-                            <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200">
+                            <div className="w-6 h-6 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center shadow-lg shadow-rose-200 dark:shadow-rose-900/30">
                                 {unreadCount}
                             </div>
                         )}
@@ -195,25 +195,25 @@ export default function Dashboard() {
                     <div className="space-y-4 mb-10">
                         {isLoadingNotifications ? (
                             [1, 2, 3].map((i) => (
-                                <div key={i} className="animate-pulse bg-slate-50 rounded-2xl p-5 h-16" />
+                                <div key={i} className="animate-pulse bg-slate-50 dark:bg-slate-700/50 rounded-2xl p-5 h-16" />
                             ))
                         ) : notifications && notifications.length > 0 ? (
                             notifications.map((notification) => (
                                 <div
                                     key={notification.id}
                                     onClick={() => !notification.is_read && markRead(notification.id)}
-                                    className={`${getAlertColor(notification.priority, notification.is_read)} p-5 rounded-2xl border-s-4 transition-all hover:scale-[1.02] cursor-pointer text-start`}
+                                    className={`${getAlertColor(notification.priority, notification.is_read)} dark:bg-opacity-20 dark:border-opacity-30 p-5 rounded-2xl border-s-4 transition-all hover:scale-[1.02] cursor-pointer text-start group`}
                                 >
-                                    <h4 className={`text-sm mb-1.5 ${!notification.is_read ? 'font-black' : 'font-bold opacity-70'}`}>
+                                    <h4 className={`text-sm mb-1.5 transition-colors ${!notification.is_read ? 'font-black dark:text-slate-100' : 'font-bold opacity-70 dark:text-slate-300'}`}>
                                         {notification.message}
                                     </h4>
-                                    <span className="opacity-60 text-xs font-bold">
+                                    <span className="opacity-60 text-xs font-bold dark:text-slate-400 transition-colors">
                                         {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: isRTL ? ar : undefined })}
                                     </span>
                                 </div>
                             ))
                         ) : (
-                            <div className="py-10 text-center text-slate-300">
+                            <div className="py-10 text-center text-slate-300 dark:text-slate-600">
                                 <p className="text-sm font-bold">{isRTL ? 'لا توجد تنبيهات' : 'No notifications'}</p>
                             </div>
                         )}

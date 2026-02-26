@@ -16,14 +16,14 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
 
     if (assessments.length === 0) {
         return (
-            <div className="bg-white rounded-[2rem] p-12 text-center border border-gray-100 shadow-sm">
-                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <FileText size={40} className="text-slate-200" />
+            <div className="bg-white dark:bg-slate-800 rounded-[2rem] p-12 text-center border border-gray-100 dark:border-slate-700 shadow-sm transition-colors duration-300">
+                <div className="w-20 h-20 bg-slate-50 dark:bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <FileText size={40} className="text-slate-200 dark:text-slate-600" />
                 </div>
-                <h3 className="text-xl font-black text-slate-400 mb-2">
+                <h3 className="text-xl font-black text-slate-400 dark:text-slate-500 mb-2">
                     {isRTL ? 'لا توجد اختبارات منجزة' : 'No completed tests'}
                 </h3>
-                <p className="text-slate-300 font-bold max-w-xs mx-auto">
+                <p className="text-slate-300 dark:text-slate-500 font-bold max-w-xs mx-auto">
                     {isRTL ? 'لم يقم هذا المستخدم بإكمال أي اختبارات تقييمية بعد.' : 'This user has not completed any assessment tests yet.'}
                 </p>
             </div>
@@ -32,9 +32,9 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
 
     return (
         <div className="space-y-6">
-            <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden">
-                <div className={`p-8 border-b border-slate-50 bg-slate-50/10 flex items-center justify-between ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                    <h3 className="text-xl font-black text-slate-800">{isRTL ? 'الإختبارات المنجزة' : 'Completed Tests'}</h3>
+            <div className="bg-white dark:bg-slate-800 rounded-[2rem] border border-gray-100 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-300">
+                <div className={`p-8 border-b border-slate-50 dark:border-slate-700/50 bg-slate-50/10 dark:bg-slate-800 flex items-center justify-between ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                    <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">{isRTL ? 'الإختبارات المنجزة' : 'Completed Tests'}</h3>
                 </div>
 
                 <div className="p-6 space-y-4">
@@ -43,19 +43,19 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
                         const isHighRisk = item.routing_outcome === 'specialist' || (item.risk_levels && Object.values(item.risk_levels).includes('high')) || (item.score > 70)
 
                         return (
-                            <div key={item.id} className={`group bg-white rounded-[1.5rem] p-6 border border-gray-100 hover:border-[#35788D]/30 hover:shadow-md transition-all flex flex-col md:flex-row items-center justify-between gap-6 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                            <div key={item.id} className={`group bg-white dark:bg-slate-800 rounded-[1.5rem] p-6 border border-gray-100 dark:border-slate-700 hover:border-[#35788D]/30 dark:hover:border-[#4AA0BA]/50 hover:shadow-md transition-all flex flex-col md:flex-row items-center justify-between gap-6 ${isRTL ? 'flex-row' : 'flex-row-reverse'} relative overflow-hidden`}>
                                 {/* Right Side (Title & Date) */}
-                                <div className={`flex items-center gap-5 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#35788D] group-hover:bg-[#35788D] group-hover:text-white transition-all">
+                                <div className={`flex items-center gap-5 ${isRTL ? 'flex-row' : 'flex-row-reverse'} z-10 relative`}>
+                                    <div className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 flex items-center justify-center text-[#35788D] dark:text-[#4AA0BA] group-hover:bg-[#35788D] group-hover:text-white dark:group-hover:bg-[#4AA0BA] dark:group-hover:text-slate-900 transition-all">
                                         <FileText size={24} />
                                     </div>
                                     <div className={isRTL ? 'text-right' : 'text-left'}>
-                                        <h4 className="text-lg font-black text-slate-800 mb-1">
+                                        <h4 className="text-lg font-black text-slate-800 dark:text-slate-100 mb-1 transition-colors duration-300">
                                             {item.answers?.[0]?.questions?.assess_version
                                                 ? (isRTL ? `تقييم: ${item.answers[0].questions.assess_version}` : `Assessment: ${item.answers[0].questions.assess_version}`)
                                                 : (isRTL ? `مقياس اختبار النوم #${item.id.slice(-4).toUpperCase()}` : `Sleep Test Scale #${item.id.slice(-4).toUpperCase()}`)}
                                         </h4>
-                                        <div className={`flex items-center gap-2 text-slate-400 font-bold text-sm ${isRTL ? 'justify-end' : 'justify-start'}`}>
+                                        <div className={`flex items-center gap-2 text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'justify-end' : 'justify-start'}`}>
                                             <Calendar size={14} />
                                             <span>{new Date(item.created_at).toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                         </div>
@@ -63,13 +63,13 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
                                 </div>
 
                                 {/* Center (Score & Risk) */}
-                                <div className="flex flex-col items-center justify-center min-w-[120px]">
-                                    <div className="text-2xl font-black text-slate-800">
-                                        {item.score || 0}<span className="text-sm text-slate-300 ml-1">/100</span>
+                                <div className="flex flex-col items-center justify-center min-w-[120px] z-10 relative">
+                                    <div className="text-2xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">
+                                        {item.score || 0}<span className="text-sm text-slate-300 dark:text-slate-500 ml-1">/100</span>
                                     </div>
                                     <span className={`mt-1 px-4 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${isHighRisk
-                                        ? 'bg-rose-50 text-rose-500 border-rose-100'
-                                        : 'bg-emerald-50 text-emerald-500 border-emerald-100'
+                                        ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-500 border-rose-100 dark:border-rose-500/20'
+                                        : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 border-emerald-100 dark:border-emerald-500/20'
                                         }`}>
                                         {isHighRisk
                                             ? (isRTL ? 'خطر مرتفع' : 'High Risk')
@@ -79,10 +79,11 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
                                 </div>
 
                                 {/* Left Side (Button) */}
-                                <button className={`flex items-center gap-2 px-6 py-3 rounded-xl border border-[#35788D]/20 text-[#35788D] font-black text-sm hover:bg-[#35788D] hover:text-white transition-all ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
+                                <button className={`flex items-center gap-2 px-6 py-3 rounded-xl border border-[#35788D]/20 dark:border-[#4AA0BA]/30 text-[#35788D] dark:text-[#4AA0BA] font-black text-sm hover:bg-[#35788D] hover:text-white dark:hover:bg-[#4AA0BA] dark:hover:text-slate-900 transition-all ${isRTL ? 'flex-row' : 'flex-row-reverse'} z-10 relative`}>
                                     <Eye size={16} />
                                     <span>{isRTL ? 'عرض التفاصيل' : 'View Details'}</span>
                                 </button>
+
                             </div>
                         )
                     })}

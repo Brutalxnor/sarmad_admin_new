@@ -66,19 +66,19 @@ export function EditAssessmentModal({ assessment, isOpen, onClose }: EditAssessm
             <form onSubmit={handleSubmit} className="space-y-6 py-4" dir={direction}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                        <label className={`block text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                             {isRTL ? 'اسم التقييم' : 'Assessment Name'}
                         </label>
                         <input
                             type="text"
                             value={formData.name || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800"
+                            className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800 dark:text-slate-100"
                             required
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                        <label className={`block text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                             {isRTL ? 'رقم الإصدار' : 'Version Number'}
                         </label>
                         <input
@@ -86,7 +86,7 @@ export function EditAssessmentModal({ assessment, isOpen, onClose }: EditAssessm
                             step="0.1"
                             value={formData.version || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, version: parseFloat(e.target.value) }))}
-                            className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800"
+                            className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800 dark:text-slate-100"
                             required
                         />
                     </div>
@@ -94,13 +94,13 @@ export function EditAssessmentModal({ assessment, isOpen, onClose }: EditAssessm
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                        <label className={`block text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                             {isRTL ? 'التصنيف' : 'Category'}
                         </label>
                         <select
                             value={formData.category || 'Health'}
                             onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                            className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all font-bold text-slate-800 appearance-none"
+                            className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all font-bold text-slate-800 dark:text-slate-100 appearance-none"
                         >
                             <option value="Health">{isRTL ? 'صحي' : 'Health'}</option>
                             <option value="Psychology">{isRTL ? 'نفسي' : 'Psychology'}</option>
@@ -108,34 +108,34 @@ export function EditAssessmentModal({ assessment, isOpen, onClose }: EditAssessm
                         </select>
                     </div>
                     <div className="space-y-2">
-                        <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                        <label className={`block text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                             {isRTL ? 'الوقت المقدر (بالدقائق)' : 'Estimated Time (mins)'}
                         </label>
                         <input
                             type="number"
                             value={formData.estimated_time || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, estimated_time: e.target.value }))}
-                            className="w-full p-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800"
+                            className="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-bold text-slate-800 dark:text-slate-100"
                         />
                     </div>
                 </div>
 
                 <div className="space-y-2">
-                    <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
+                    <label className={`block text-slate-400 dark:text-slate-500 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                         {isRTL ? 'وصف التقييم' : 'Description'}
                     </label>
                     <textarea
                         value={formData.description || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        className="w-full min-h-[100px] p-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all resize-none font-bold text-slate-800"
+                        className="w-full min-h-[100px] p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 border border-slate-100 dark:border-slate-600 outline-none focus:ring-2 focus:ring-[#0095D9]/10 transition-all resize-none font-bold text-slate-800 dark:text-slate-100"
                     />
                 </div>
 
-                <div className="flex bg-slate-50 p-4 rounded-xl border border-blue-100 gap-4 mt-4">
+                <div className="flex bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-blue-100 dark:border-slate-600 gap-4 mt-4">
                     <div className="text-blue-500">
                         <AlertCircle size={24} />
                     </div>
-                    <p className="text-xs text-blue-700 font-medium leading-relaxed">
+                    <p className="text-xs text-blue-700 dark:text-blue-400 font-medium leading-relaxed">
                         {isRTL
                             ? 'تنبيه: تغيير رقم الإصدار قد يؤثر على كيفية عرض الأسئلة المرتبطة بهذا الإصدار.'
                             : 'Note: Changing the version number might affect how associated questions are displayed.'}
@@ -146,7 +146,7 @@ export function EditAssessmentModal({ assessment, isOpen, onClose }: EditAssessm
                     <button
                         type="button"
                         onClick={onClose}
-                        className="flex-1 px-6 py-3.5 rounded-xl bg-slate-50 text-slate-400 font-black hover:bg-slate-100 transition-all"
+                        className="flex-1 px-6 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-400 dark:text-slate-300 font-black hover:bg-slate-100 dark:hover:bg-slate-600 transition-all"
                     >
                         {isRTL ? 'إلغاء' : 'Cancel'}
                     </button>
