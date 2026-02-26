@@ -16,14 +16,13 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { createTestimonial, isCreating } = useTestimonials()
     const [isUploading, setIsUploading] = useState(false)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
     const [formData, setFormData] = useState({
         name_ar: '',
-        name_en: '',
         role_ar: '',
-        role_en: '',
         content_ar: '',
-        content_en: '',
+        video: '',
         rating: 5,
         category: 'Success Story',
         display_order: 0,
@@ -36,13 +35,17 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
         if (!file) return
 
         setIsUploading(true)
-        // Simulate upload delay
-        setTimeout(() => {
-            const fakeUrl = URL.createObjectURL(file)
-            setFormData(prev => ({ ...prev, image_url: fakeUrl }))
+        // Store the file directly in formData to be sent as FormData
+        setFormData(prev => ({ ...prev, image_url: file as any }))
+
+        // Create preview
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result as string)
             setIsUploading(false)
-            toast.success(language === 'ar' ? 'تم رفع الصورة بنجاح' : 'Image uploaded successfully')
-        }, 1000)
+            toast.success(language === 'ar' ? 'تم تجهيز الصورة للرفع' : 'Image ready for upload')
+        }
+        reader.readAsDataURL(file)
     }
 
     const handleSubmit = async (isActive: boolean) => {
@@ -55,10 +58,10 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
             await createTestimonial({
                 ...formData,
                 is_active: isActive,
-                // If English fields are empty, use Arabic ones as fallback for now
-                name_en: formData.name_en || formData.name_ar,
-                role_en: formData.role_en || formData.role_ar,
-                content_en: formData.content_en || formData.content_ar
+                // Map Arabic fields to English labels for backend compatibility
+                name_en: formData.name_ar,
+                role_en: formData.role_ar,
+                content_en: formData.content_ar
             })
             toast.success(language === 'ar' ? 'تم حفظ قصة النجاح بنجاح' : 'Success story saved successfully')
             onSuccess?.()
@@ -90,40 +93,53 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
             </div>
 
             <div className="bg-white rounded-[2.5rem] p-12 shadow-sm border border-gray-100 space-y-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                    {/* Column 1: Arabic Details */}
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-10">
                     <div className="space-y-8">
                         <div className="flex items-center gap-2 text-[#35788D] mb-2">
                             <div className="w-2 h-8 bg-[#35788D] rounded-full" />
-                            <h3 className="text-xl font-black">{language === 'ar' ? 'التفاصيل بالعربية' : 'Arabic Details'}</h3>
+                            <h3 className="text-xl font-black">{language === 'ar' ? 'تفاصيل قصة النجاح' : 'Success Story Details'}</h3>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <label className={labelClasses}>{t('success_stories.patient_name')}</label>
+                                <input
+                                    type="text"
+                                    value={formData.name_ar}
+                                    onChange={e => setFormData(prev => ({ ...prev, name_ar: e.target.value }))}
+                                    className={inputClasses}
+                                    placeholder="مثلاً: أمين عماد"
+                                    dir="rtl"
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className={labelClasses}>{t('success_stories.title')}</label>
+                                <input
+                                    type="text"
+                                    value={formData.role_ar}
+                                    onChange={e => setFormData(prev => ({ ...prev, role_ar: e.target.value }))}
+                                    className={inputClasses}
+                                    placeholder="مثلاً: قصة التغلب على الأرق المزمن"
+                                    dir="rtl"
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.patient_name')} (عربي)</label>
+                            <label className={labelClasses}>{language === 'ar' ? 'رابط الفيديو' : 'Video Link'}</label>
                             <input
-                                type="text"
-                                value={formData.name_ar}
-                                onChange={e => setFormData(prev => ({ ...prev, name_ar: e.target.value }))}
+                                type="url"
+                                value={formData.video}
+                                onChange={e => setFormData(prev => ({ ...prev, video: e.target.value }))}
                                 className={inputClasses}
-                                placeholder="مثلاً: أمين عماد"
-                                dir="rtl"
+                                placeholder="https://youtube.com/..."
+                                dir="ltr"
                             />
                         </div>
 
                         <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.title')} (عربي)</label>
-                            <input
-                                type="text"
-                                value={formData.role_ar}
-                                onChange={e => setFormData(prev => ({ ...prev, role_ar: e.target.value }))}
-                                className={inputClasses}
-                                placeholder="مثلاً: قصة التغلب على الأرق المزمن"
-                                dir="rtl"
-                            />
-                        </div>
-
-                        <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.journey')} (عربي)</label>
+                            <label className={labelClasses}>{t('success_stories.journey')}</label>
                             <textarea
                                 rows={6}
                                 value={formData.content_ar}
@@ -134,54 +150,10 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                             />
                         </div>
                     </div>
-
-                    {/* Column 2: English Details & Meta */}
-                    <div className="space-y-8">
-                        <div className="flex items-center gap-2 text-slate-400 mb-2">
-                            <div className="w-2 h-8 bg-slate-200 rounded-full" />
-                            <h3 className="text-xl font-black">{language === 'ar' ? 'التفاصيل بالإنجليزية' : 'English Details'}</h3>
-                        </div>
-
-                        <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.patient_name')} (English)</label>
-                            <input
-                                type="text"
-                                value={formData.name_en}
-                                onChange={e => setFormData(prev => ({ ...prev, name_en: e.target.value }))}
-                                className={inputClasses}
-                                placeholder="e.g. Amin Emad"
-                                dir="ltr"
-                            />
-                        </div>
-
-                        <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.title')} (English)</label>
-                            <input
-                                type="text"
-                                value={formData.role_en}
-                                onChange={e => setFormData(prev => ({ ...prev, role_en: e.target.value }))}
-                                className={inputClasses}
-                                placeholder="e.g. Journey of Overcoming Insomnia"
-                                dir="ltr"
-                            />
-                        </div>
-
-                        <div className="space-y-3">
-                            <label className={labelClasses}>{t('success_stories.journey')} (English)</label>
-                            <textarea
-                                rows={6}
-                                value={formData.content_en}
-                                onChange={e => setFormData(prev => ({ ...prev, content_en: e.target.value }))}
-                                className={`${inputClasses} resize-none`}
-                                placeholder="Describe the journey in English..."
-                                dir="ltr"
-                            />
-                        </div>
-                    </div>
                 </div>
 
-                {/* Row: Stats & Meta (Rating, Order, Category) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-50">
+                {/* Row: Stats & Meta (Rating, Order) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-50">
                     <div className="space-y-3">
                         <label className={labelClasses}>{t('testimonials.rating')}</label>
                         <div className="flex items-center gap-4 bg-[#F4F9FB] p-4 rounded-2xl">
@@ -209,19 +181,6 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                             className={inputClasses}
                             placeholder="0"
                         />
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className={labelClasses}>{language === 'ar' ? 'الفئة' : 'Category'}</label>
-                        <select
-                            value={formData.category}
-                            onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                            className={inputClasses}
-                        >
-                            <option value="Success Story">{language === 'ar' ? 'قصة نجاح' : 'Success Story'}</option>
-                            <option value="General">{language === 'ar' ? 'عام' : 'General'}</option>
-                            <option value="Corporate">{language === 'ar' ? 'شركات' : 'Corporate'}</option>
-                        </select>
                     </div>
                 </div>
 
@@ -252,12 +211,15 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                             />
                         </div>
 
-                        {formData.image_url ? (
+                        {previewUrl || (typeof formData.image_url === 'string' ? formData.image_url : null) ? (
                             <div className="relative group w-full md:w-64 h-64 rounded-[2rem] overflow-hidden border border-gray-100 shadow-sm">
-                                <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                <img src={previewUrl || (formData.image_url as string)} alt="Preview" className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                     <button
-                                        onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                                        onClick={() => {
+                                            setFormData(prev => ({ ...prev, image_url: '' }))
+                                            setPreviewUrl(null)
+                                        }}
                                         className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white hover:bg-rose-500 transition-colors"
                                     >
                                         <Trash2 size={24} />

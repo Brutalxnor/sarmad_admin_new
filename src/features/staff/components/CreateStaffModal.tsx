@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useCreateStaff, useUpdateStaff } from '../hooks/useStaff'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import type { StaffRole, StaffUser } from '../api/staffService'
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal'
 
 interface CreateStaffModalProps {
     isOpen: boolean
@@ -21,8 +22,10 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
         email: '',
         password: '',
         name: '',
-        role: 'Coach' as StaffRole
+        role: 'Coach' as StaffRole,
+        must_change_password: false
     })
+    const [isConfirmingRole, setIsConfirmingRole] = useState(false)
 
     useEffect(() => {
         if (initialData) {
@@ -30,40 +33,54 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                 email: initialData.email,
                 password: '', // Don't pre-fill password for security/update reasons
                 name: initialData.name || '',
-                role: initialData.role
+                role: initialData.role,
+                must_change_password: initialData.must_change_password
             })
         } else {
             setFormData({
                 email: '',
                 password: '',
                 name: '',
-                role: 'Coach' as StaffRole
+                role: 'Coach' as StaffRole,
+                must_change_password: false
             })
         }
     }, [initialData, isOpen])
 
     if (!isOpen) return null
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const proceedWithSubmit = async () => {
         try {
             if (isEditMode && initialData) {
-                // For updates, we only send name and role as per staffService.ts UpdateStaffRequest
                 await updateStaffMutation.mutateAsync({
                     id: initialData.id,
                     data: {
                         name: formData.name,
-                        role: formData.role
+                        role: formData.role,
+                        must_change_password: formData.must_change_password
                     }
                 })
             } else {
                 await createStaffMutation.mutateAsync(formData)
             }
             onClose()
+            setIsConfirmingRole(false)
         } catch (error) {
             console.error('Failed to save staff:', error)
             alert('Failed to save staff member. Please try again.')
         }
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+
+        // If editing and role changed, ask for confirmation
+        if (isEditMode && initialData && formData.role !== initialData.role && !isConfirmingRole) {
+            setIsConfirmingRole(true)
+            return
+        }
+
+        await proceedWithSubmit()
     }
 
     return (
@@ -73,7 +90,7 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                 onClick={onClose}
             />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-scale-up">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-up">
                 <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 className="text-lg font-bold text-slate-800">
                         {isEditMode ? t('staff.edit') : t('staff.create')}
@@ -146,6 +163,36 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                         </select>
                     </div>
 
+                    {isEditMode && (
+                        <div className="pt-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                                {direction === 'rtl' ? 'حالة الحساب' : 'Account Status'}
+                            </label>
+                            <div className="flex gap-2 p-1 bg-slate-50 rounded-xl border border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, must_change_password: false }))}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-black text-xs transition-all ${!formData.must_change_password
+                                        ? 'bg-white text-emerald-600 shadow-sm border border-emerald-100'
+                                        : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${!formData.must_change_password ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
+                                    {direction === 'rtl' ? 'نشط' : 'Active'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, must_change_password: true }))}
+                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg font-black text-xs transition-all ${formData.must_change_password
+                                        ? 'bg-white text-orange-600 shadow-sm border border-orange-100'
+                                        : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    <div className={`w-2 h-2 rounded-full ${formData.must_change_password ? 'bg-orange-500' : 'bg-slate-300'}`} />
+                                    {direction === 'rtl' ? 'غير نشط' : 'Inactive'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="pt-4 flex justify-end gap-3">
                         <button
                             type="button"
@@ -165,6 +212,18 @@ export function CreateStaffModal({ isOpen, onClose, initialData }: CreateStaffMo
                         </button>
                     </div>
                 </form>
+
+                <ConfirmationModal
+                    isOpen={isConfirmingRole}
+                    title={direction === 'rtl' ? 'تأكيد تغيير الدور' : 'Confirm Role Change'}
+                    message={direction === 'rtl'
+                        ? `هل أنت متأكد من تغيير دور الموظف إلى "${t(`staff.role.${formData.role}`)}"؟`
+                        : `Are you sure you want to change this staff member's role to "${t(`staff.role.${formData.role}`)}"?`}
+                    confirmText={direction === 'rtl' ? 'تأكيد' : 'Confirm'}
+                    cancelText={direction === 'rtl' ? 'إلغاء' : 'Cancel'}
+                    onConfirm={proceedWithSubmit}
+                    onCancel={() => setIsConfirmingRole(false)}
+                />
             </div>
         </div>
     )

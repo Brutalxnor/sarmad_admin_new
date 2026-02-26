@@ -16,6 +16,14 @@ export function useCreateMetadata() {
     })
 }
 
+export function useAssessmentMetadata(id: string) {
+    return useQuery({
+        queryKey: ['assessment-metadata', id],
+        queryFn: () => metadataApi.getById(id),
+        enabled: !!id
+    })
+}
+
 export function useAllMetadata() {
     return useQuery({
         queryKey: ['assessment-metadata'],
@@ -59,6 +67,20 @@ export function useDeactivateAssessment() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
             toast.success('Assessment deactivated successfully')
+        }
+    })
+}
+
+export function useDeleteAssessment() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => metadataApi.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['assessment-metadata'] })
+            toast.success('Assessment deleted successfully')
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to delete assessment')
         }
     })
 }

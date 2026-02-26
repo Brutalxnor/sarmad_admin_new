@@ -4,7 +4,8 @@ import { toast } from 'react-hot-toast'
 import {
     useAssessmentsWithQuestions,
     useActivateAssessment,
-    useDeactivateAssessment
+    useDeactivateAssessment,
+    useDeleteAssessment
 } from '@/features/assessments/hooks/use-assessment-metadata'
 import { ViewQuestionModal } from '@/features/questions/components/ViewQuestionModal'
 import { EditQuestionModal } from '@/features/questions/components/EditQuestionModal'
@@ -12,9 +13,9 @@ import type { Question } from '@/features/questions/types/question.types'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import {
     Plus,
-    Settings,
     Edit2,
     Eye,
+    Trash2,
     ClipboardCheck,
     FileText,
     TrendingUp,
@@ -23,6 +24,9 @@ import {
     ArrowUpRight,
     CheckCircle2
 } from 'lucide-react'
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal'
+import { EditAssessmentModal } from '@/features/assessments/components/EditAssessmentModal'
+import type { AssessmentMetadata } from '@/features/assessments/api/metadata'
 
 type TabType = 'overview' | 'questions' | 'scoring' | 'guidance'
 
@@ -33,10 +37,14 @@ export default function AssessmentsPage() {
     const activateAssessment = useActivateAssessment()
     const deactivateAssessment = useDeactivateAssessment()
     const [activeTab, setActiveTab] = useState<TabType>('overview')
-    const [selectedVersion, setSelectedVersion] = useState<string>('all')
+    const [selectedCategory, setSelectedCategory] = useState<string>('all')
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+    const [assessmentToDelete, setAssessmentToDelete] = useState<string | null>(null)
+    const [isAssessmentEditModalOpen, setIsAssessmentEditModalOpen] = useState(false)
+    const [selectedAssessmentForEdit, setSelectedAssessmentForEdit] = useState<AssessmentMetadata | null>(null)
+    const deleteAssessment = useDeleteAssessment()
 
     const handleViewQuestion = (question: Question) => {
         setSelectedQuestion(question)
@@ -46,6 +54,19 @@ export default function AssessmentsPage() {
     const handleEditQuestion = (question: Question) => {
         setSelectedQuestion(question)
         setIsEditModalOpen(true)
+    }
+
+    const handleEditAssessment = (assessment: any) => {
+        setSelectedAssessmentForEdit({
+            id: assessment.id,
+            name: assessment.title,
+            version: parseFloat(assessment.version),
+            status: assessment.status === 'active',
+            is_active: assessment.status === 'active',
+            questions: assessment.questions,
+            lastUpdate: assessment.lastUpdate
+        } as any)
+        setIsAssessmentEditModalOpen(true)
     }
 
     const handleToggleStatus = (id: string, currentStatus: string) => {
@@ -65,6 +86,13 @@ export default function AssessmentsPage() {
         }
     }
 
+    const confirmDeleteAssessment = async () => {
+        if (assessmentToDelete) {
+            await deleteAssessment.mutateAsync(assessmentToDelete)
+            setAssessmentToDelete(null)
+        }
+    }
+
     const isRTL = direction === 'rtl'
     const groupedData = assessmentsResponse?.data || []
 
@@ -78,7 +106,6 @@ export default function AssessmentsPage() {
             questions: assessment.questions?.length || 0,
             // Realistic mock data until backend provides these metrics
             submissions: '0',
-            completionRate: '0%',
             lastUpdate: assessment.updated_at ? new Date(assessment.updated_at).toLocaleDateString() : (assessment.created_at ? new Date(assessment.created_at).toLocaleDateString() : ''),
             questionsList: assessment.questions || []
         }))
@@ -88,12 +115,18 @@ export default function AssessmentsPage() {
         return groupedData.reduce((sum: number, g: any) => sum + (g.questions?.length || 0), 0)
     }, [groupedData])
 
+    const categories = useMemo(() => {
+        const allQuestions = groupedData.flatMap((g: any) => g.questions || [])
+        return Array.from(new Set(allQuestions.map((q: any) => q.category).filter(Boolean))) as string[]
+    }, [groupedData])
+
     const displayQuestions = useMemo(() => {
-        if (selectedVersion === 'all') {
-            return groupedData.flatMap((g: any) => g.questions || [])
+        const allQuestions = groupedData.flatMap((g: any) => g.questions || [])
+        if (selectedCategory === 'all') {
+            return allQuestions
         }
-        return groupedData.find((g: any) => String(g.version) === String(selectedVersion))?.questions || []
-    }, [groupedData, selectedVersion])
+        return allQuestions.filter((q: any) => q.category === selectedCategory)
+    }, [groupedData, selectedCategory])
 
     const stats = [
         {
@@ -110,20 +143,6 @@ export default function AssessmentsPage() {
             iconBg: 'bg-sky-50',
             suffix: ''
         },
-        {
-            label: t('assessments.stats.submissions'),
-            value: '21,245',
-            icon: <TrendingUp className="text-emerald-500" />,
-            iconBg: 'bg-emerald-50',
-            suffix: ''
-        },
-        {
-            label: t('assessments.stats.completion'),
-            value: '85%',
-            icon: <BarChart3 className="text-orange-600" />,
-            iconBg: 'bg-orange-50',
-            suffix: ''
-        }
     ]
 
     return (
@@ -148,7 +167,7 @@ export default function AssessmentsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative">
                         <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
@@ -199,13 +218,13 @@ export default function AssessmentsPage() {
                             <div
                                 key={assessment.id}
                                 onClick={() => navigate(`/assessments/${assessment.version}/questions`)}
-                                className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm hover:shadow-md transition-all relative group cursor-pointer"
+                                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all relative group cursor-pointer"
                             >
-                                <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-8 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                                <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                     <div className={`flex items-center gap-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                         <div className="flex flex-col gap-1">
                                             <div className={`flex items-center gap-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                <h3 className="text-2xl font-black text-slate-800">{assessment.title}</h3>
+                                                <h3 className="text-xl font-black text-slate-800">{assessment.title}</h3>
                                                 <span className="text-sky-500 font-black text-xs px-2 py-0.5 bg-sky-50 rounded-md">
                                                     {assessment.version}
                                                 </span>
@@ -227,10 +246,16 @@ export default function AssessmentsPage() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-6" onClick={(e) => e.stopPropagation()}>
-                                        <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#35788D] hover:text-white transition-all shadow-sm">
-                                            <Settings size={18} />
+                                        <button
+                                            onClick={() => setAssessmentToDelete(assessment.id)}
+                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm"
+                                        >
+                                            <Trash2 size={18} />
                                         </button>
-                                        <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
+                                        <button
+                                            onClick={() => handleEditAssessment(assessment)}
+                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                                        >
                                             <Edit2 size={18} />
                                         </button>
                                         <button
@@ -243,16 +268,14 @@ export default function AssessmentsPage() {
                                 </div>
 
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                                     {[
                                         { label: t('assessments.list.questions'), value: assessment.questions },
-                                        { label: t('assessments.list.submissions'), value: assessment.submissions },
-                                        { label: t('assessments.list.completion'), value: assessment.completionRate },
                                         { label: t('assessments.list.last_update'), value: assessment.lastUpdate }
                                     ].map((item, idx) => (
-                                        <div key={idx} className="bg-[#F4F9FB]/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                                        <div key={idx} className="bg-[#F4F9FB]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center">
                                             <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-2">{item.label}</p>
-                                            <p className="text-xl font-black text-slate-700">{item.value}</p>
+                                            <p className="text-lg font-black text-slate-700">{item.value}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -271,16 +294,16 @@ export default function AssessmentsPage() {
                             {/* Version Filter */}
                             <div className="flex items-center gap-4">
                                 <span className="text-xs font-black text-slate-400 uppercase tracking-widest">
-                                    {language === 'ar' ? 'تصفية حسب الإصدار:' : 'Filter by Version:'}
+                                    {language === 'ar' ? 'تصفية حسب الفئة:' : 'Filter by Category:'}
                                 </span>
                                 <select
-                                    value={selectedVersion}
-                                    onChange={(e) => setSelectedVersion(e.target.value)}
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
                                     className="bg-slate-50 border-none rounded-xl px-4 py-2 text-sm font-black text-[#35788D] outline-none cursor-pointer"
                                 >
-                                    <option value="all">{language === 'ar' ? 'جميع الإصدارات' : 'All Versions'}</option>
-                                    {groupedData.map((g: any) => (
-                                        <option key={g.version} value={g.version}>{g.version}</option>
+                                    <option value="all">{language === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat} value={cat}>{cat}</option>
                                     ))}
                                 </select>
                             </div>
@@ -302,14 +325,6 @@ export default function AssessmentsPage() {
                                             <div className={`text-slate-800 font-black flex items-center gap-2 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                                 <span className="text-[#35788D] opacity-40">س{idx + 1}.</span>
                                                 <span className="line-clamp-1 max-w-md">{q.question}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <span className="px-3 py-1 bg-sky-50 text-[#0095D9] rounded-full text-[10px] font-black">
-                                                    {q.assess_version}
-                                                </span>
-                                                <span className="px-3 py-1 bg-rose-50 text-rose-500 rounded-full text-[10px] font-black">
-                                                    {t('assessments.questions.mandatory')}
-                                                </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
@@ -345,6 +360,19 @@ export default function AssessmentsPage() {
                 )}
             </div>
 
+            <ConfirmationModal
+                isOpen={!!assessmentToDelete}
+                title={language === 'ar' ? 'حذف التقييم' : 'Delete Assessment'}
+                message={language === 'ar'
+                    ? 'هل أنت متأكد من حذف هذا التقييم؟ لا يمكن التراجع عن هذا الإجراء.'
+                    : 'Are you sure you want to delete this assessment? This action cannot be undone.'}
+                confirmText={language === 'ar' ? 'تاكيد الحذف' : 'Confirm Delete'}
+                cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+                onConfirm={confirmDeleteAssessment}
+                onCancel={() => setAssessmentToDelete(null)}
+                isDestructive
+            />
+
             <ViewQuestionModal
                 isOpen={isViewModalOpen}
                 onClose={() => setIsViewModalOpen(false)}
@@ -354,6 +382,12 @@ export default function AssessmentsPage() {
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 question={selectedQuestion}
+            />
+
+            <EditAssessmentModal
+                isOpen={isAssessmentEditModalOpen}
+                onClose={() => setIsAssessmentEditModalOpen(false)}
+                assessment={selectedAssessmentForEdit}
             />
         </div>
     )

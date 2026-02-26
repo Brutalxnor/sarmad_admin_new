@@ -4,6 +4,7 @@ import { CreateCourseForm } from './CreateCourseForm'
 import { CourseDetailsModal } from './CourseDetailsModal'
 import type { Course } from '../types'
 import { useLanguage } from '@/shared/context/LanguageContext'
+import { toast } from 'react-hot-toast'
 
 import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
@@ -14,7 +15,7 @@ interface CourseListProps {
 
 export function CourseList({ hideHeader }: CourseListProps) {
     const { data: courses, isLoading } = useCourses()
-    const { mutate: deleteCourse } = useDeleteCourse()
+    const { mutateAsync: deleteCourse } = useDeleteCourse()
     const { language } = useLanguage()
     const [isCreating, setIsCreating] = useState(false)
     const [editingCourse, setEditingCourse] = useState<Course | null>(null)
@@ -31,10 +32,17 @@ export function CourseList({ hideHeader }: CourseListProps) {
         setDeletingCourseId(id)
     }
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (deletingCourseId) {
-            deleteCourse(deletingCourseId)
-            setDeletingCourseId(null)
+            try {
+                await deleteCourse(deletingCourseId)
+                toast.success('تم حذف الدورة بنجاح')
+            } catch (error) {
+                console.error('Failed to delete course:', error)
+                toast.error('فشل في حذف الدورة. قد تكون مرتبطة ببرامج أو مستخدمين.')
+            } finally {
+                setDeletingCourseId(null)
+            }
         }
     }
 

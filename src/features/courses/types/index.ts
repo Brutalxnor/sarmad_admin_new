@@ -8,6 +8,7 @@ export interface Lesson {
     is_preview: boolean;
     duration?: number;
     order_index: number;
+    thumbnail_image?: string | File;
     created_at?: string;
 }
 

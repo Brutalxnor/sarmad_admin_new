@@ -48,6 +48,7 @@ export function AdminLayout() {
     const { data: unreadCount } = useUnreadNotificationsCount()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const { direction, t, language, toggleLanguage } = useLanguage()
@@ -63,10 +64,10 @@ export function AdminLayout() {
         { path: '/users', icon: <Users size={22} />, label: t('nav.users') },
         { path: '/pricing', icon: <Package size={22} />, label: t('nav.pricing') },
         { path: '/orders', icon: <DollarSign size={22} />, label: t('nav.orders') },
-        { path: '/reports', icon: <BarChart2 size={22} />, label: t('nav.reports') },
-        { path: '/integrations', icon: <Settings size={22} />, label: t('nav.integrations') || 'Integrations' },
-        { path: '/audit', icon: <Shield size={22} />, label: t('nav.audit') || 'Audit' },
-        { path: '/settings', icon: <Sliders size={22} />, label: t('nav.platform_settings') || 'Platform Settings' },
+        // { path: '/reports', icon: <BarChart2 size={22} />, label: t('nav.reports') },
+        // { path: '/integrations', icon: <Settings size={22} />, label: t('nav.integrations') || 'Integrations' },
+        // { path: '/audit', icon: <Shield size={22} />, label: t('nav.audit') || 'Audit' },
+        // { path: '/settings', icon: <Sliders size={22} />, label: t('nav.platform_settings') || 'Platform Settings' },
     ], [t])
 
     // Filter nav items based on user role
@@ -156,7 +157,10 @@ export function AdminLayout() {
                         onClick={() => setIsCollapsed(!isCollapsed)}
                         className={`p-2 text-gray-300 hover:text-brand-500 hover:bg-gray-50 rounded-xl transition-all hidden md:block ${isCollapsed ? 'mt-4' : ''}`}
                     >
-                        <ChevronsRight size={24} className={`transition-transform duration-500 ${isCollapsed ? '' : 'rotate-180'}`} />
+                        <ChevronsRight size={24} className={`transition-transform duration-500 ${direction === 'rtl'
+                            ? (isCollapsed ? 'rotate-180' : '')
+                            : (isCollapsed ? '' : 'rotate-180')
+                            }`} />
                     </button>
                     {isCollapsed && <span className="text-sm font-black bg-linear-to-b from-[#0096CC] to-[#000000] bg-clip-text text-transparent absolute -bottom-4 opacity-70">سرمد</span>}
                 </div>
@@ -284,9 +288,57 @@ export function AdminLayout() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-3">
-                            <button className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 hover:bg-gray-50 hover:text-slate-600 transition-all">
-                                <Settings size={22} />
-                            </button>
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                                    className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isSettingsOpen ? 'bg-brand-50 text-brand-600' : 'text-slate-400 hover:bg-gray-50 hover:text-slate-600'}`}
+                                >
+                                    <Settings size={22} />
+                                </button>
+
+                                {isSettingsOpen && (
+                                    <>
+                                        <div className="fixed inset-0 z-[100]" onClick={() => setIsSettingsOpen(false)} />
+                                        <div className={`absolute top-full mt-2 ${direction === 'rtl' ? 'left-0' : 'right-0'} z-[110] w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 animate-slide-up overflow-hidden`}>
+                                            <div className="px-4 py-2 border-b border-gray-50 mb-2">
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t('nav.settings') || (language === 'ar' ? 'الإعدادات' : 'Settings')}</p>
+                                            </div>
+
+                                            <div className="px-2 space-y-1">
+                                                {/* Language Toggle Link */}
+                                                <button
+                                                    onClick={() => {
+                                                        toggleLanguage()
+                                                        setIsSettingsOpen(false)
+                                                    }}
+                                                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                            <span className="text-xs font-black uppercase">{language === 'ar' ? 'EN' : 'AR'}</span>
+                                                        </div>
+                                                        <span className="font-bold text-sm text-slate-700">{language === 'ar' ? 'تغيير للإنجليزية' : 'Switch to Arabic'}</span>
+                                                    </div>
+                                                </button>
+
+                                                {/* Profile Link */}
+                                                <button
+                                                    onClick={() => {
+                                                        navigate('/profile')
+                                                        setIsSettingsOpen(false)
+                                                    }}
+                                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                                                >
+                                                    <div className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-brand-600 group-hover:text-white transition-all">
+                                                        <UserRound size={18} />
+                                                    </div>
+                                                    <span className="font-bold text-sm text-slate-700">{t('profile.title') || (language === 'ar' ? 'الملف الشخصي' : 'Profile')}</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
 
                             <div className="relative">
                                 <button
@@ -308,15 +360,6 @@ export function AdminLayout() {
                                     </>
                                 )}
                             </div>
-
-                            <button
-                                onClick={toggleLanguage}
-                                className="px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-black bg-[#F3F7F9] text-[#35788D] hover:bg-[#35788D] hover:text-white transition-all shadow-sm active:scale-95"
-                            >
-                                <span className="uppercase">{language === 'ar' ? 'EN' : 'AR'}</span>
-                                <div className="w-px h-3 bg-current opacity-20" />
-                                <span>{language === 'ar' ? 'English' : 'العربية'}</span>
-                            </button>
                         </div>
 
                         {/* User Profile */}

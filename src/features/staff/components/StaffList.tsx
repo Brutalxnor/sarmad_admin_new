@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useStaffList, useDeleteStaff, useUpdateStaff } from '../hooks/useStaff'
+import { useStaffList, useDeleteStaff } from '../hooks/useStaff'
 import { useLanguage } from '@/shared/context/LanguageContext'
 import type { StaffUser } from '../api/staffService'
 import { CreateStaffModal } from './CreateStaffModal'
@@ -9,9 +9,9 @@ import {
     Edit2,
     CheckCircle2,
     AlertCircle,
-    ChevronDown,
     Trash2
 } from 'lucide-react'
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal'
 
 interface StaffListProps {
     searchTerm?: string
@@ -22,10 +22,10 @@ interface StaffListProps {
 export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 'all' }: StaffListProps) {
     const { data: staffListResponse, isLoading } = useStaffList()
     const deleteStaffMutation = useDeleteStaff()
-    const updateStaffMutation = useUpdateStaff()
     const { t, direction, language } = useLanguage()
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [editingStaff, setEditingStaff] = useState<StaffUser | null>(null)
+    const [staffToDelete, setStaffToDelete] = useState<string | null>(null)
     const isRTL = direction === 'rtl'
 
     // Filtering logic
@@ -53,25 +53,19 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
     })
 
     const handleDelete = async (id: string) => {
-        if (window.confirm(t('staff.delete_confirm'))) {
-            await deleteStaffMutation.mutateAsync(id)
+        setStaffToDelete(id)
+    }
+
+    const confirmDelete = async () => {
+        if (staffToDelete) {
+            await deleteStaffMutation.mutateAsync(staffToDelete)
+            setStaffToDelete(null)
         }
     }
 
     const handleEdit = (staff: StaffUser) => {
         setEditingStaff(staff)
         setIsCreateModalOpen(true)
-    }
-
-    const handleRoleChange = async (staffId: string, newRole: string) => {
-        try {
-            await updateStaffMutation.mutateAsync({
-                id: staffId,
-                data: { role: newRole as any }
-            })
-        } catch (error) {
-            console.error('Failed to update role:', error)
-        }
     }
 
     const closeCreateModal = () => {
@@ -139,26 +133,14 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                                             </div>
                                         </td>
 
-                                        {/* Role Select */}
+                                        {/* Role Display */}
                                         <td className="px-6 py-6">
-                                            <div className="relative group/select">
-                                                <select
-                                                    value={staff.role}
-                                                    onChange={(e) => handleRoleChange(staff.id, e.target.value)}
-                                                    disabled={updateStaffMutation.isPending && updateStaffMutation.variables?.id === staff.id}
-                                                    className={`appearance-none bg-[#F4F9FB] border-none rounded-xl py-2.5 px-4 pr-10 text-xs font-black text-slate-700 focus:ring-2 focus:ring-[#0095D9]/20 outline-none transition-all cursor-pointer hover:bg-slate-100 ${isRTL ? 'text-right' : 'text-left'}`}
-                                                >
-                                                    <option value="Coach">{t('staff.role.Coach')}</option>
-                                                    <option value="AdminOperations">{t('staff.role.AdminOperations')}</option>
-                                                    <option value="AdminClinical">{t('staff.role.AdminClinical')}</option>
-                                                    <option value="SuperAdmin">{t('role.superadmin')}</option>
-                                                </select>
-                                                <div className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 pointer-events-none text-slate-400`}>
-                                                    <ChevronDown size={14} />
-                                                </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-black text-slate-700">
+                                                    {t(`staff.role.${staff.role}`)}
+                                                </span>
                                             </div>
                                         </td>
-
                                         {/* Status */}
                                         <td className="px-6 py-6">
                                             <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-black ${!staff.must_change_password
@@ -233,7 +215,19 @@ export function StaffList({ searchTerm = '', roleFilter = 'all', statusFilter = 
                     initialData={editingStaff}
                 />
             )}
+
+            <ConfirmationModal
+                isOpen={!!staffToDelete}
+                title={language === 'ar' ? 'حذف عضو فريق' : 'Delete Staff Member'}
+                message={language === 'ar'
+                    ? 'هل أنت متأكد من حذف هذا العضو؟ لا يمكن التراجع عن هذا الإجراء.'
+                    : 'Are you sure you want to delete this staff member? This action cannot be undone.'}
+                confirmText={language === 'ar' ? 'تاكيد الحذف' : 'Confirm Delete'}
+                cancelText={language === 'ar' ? 'إلغاء' : 'Cancel'}
+                onConfirm={confirmDelete}
+                onCancel={() => setStaffToDelete(null)}
+                isDestructive
+            />
         </div>
     )
 }
-

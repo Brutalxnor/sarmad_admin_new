@@ -64,6 +64,16 @@ export default function AddQuestionPage() {
             return
         }
 
+        // Check if total percentage is 100%
+        const totalPercentage = answers.reduce((sum, a) => sum + a.points, 0)
+        if (totalPercentage !== 100) {
+            toast.error(isRTL
+                ? `يجب أن يكون مجموع النسب 100%. المجموع الحالي: ${totalPercentage}%`
+                : `Total percentage must be 100%. Current sum: ${totalPercentage}%`
+            )
+            return
+        }
+
         const toastId = toast.loading(isRTL ? 'جاري الحفظ...' : 'Saving...')
 
         try {

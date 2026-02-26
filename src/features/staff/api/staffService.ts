@@ -30,6 +30,7 @@ export interface CreateStaffRequest {
 export interface UpdateStaffRequest {
     name?: string
     role?: StaffRole
+    must_change_password?: boolean
 }
 
 export interface StaffAuthResponse {
@@ -101,8 +102,34 @@ export const staffService = {
     },
 
     // User Profile
-    updateProfile: async (data: Partial<UserProfile>) => {
-        const response = await apiClient.put<StaffAuthResponse>(`${BASE_URL}/profile`, data)
+    updateProfile: async (data: Partial<UserProfile>, file?: File) => {
+        const formData = new FormData()
+
+        // Allowed fields as per backend rules
+        const allowedFields: (keyof UserProfile)[] = [
+            'name',
+            'mobile',
+            'city',
+            'age_range',
+            'gender',
+            'specialization',
+            'bio'
+        ]
+
+        allowedFields.forEach((key) => {
+            const value = data[key]
+            if (value !== undefined && value !== null) {
+                formData.append(key, typeof value === 'string' ? value : String(value))
+            }
+        })
+
+        if (file) {
+            // Backend specifically looks for 'profile_picture' key for the file
+            formData.append('profile_picture', file)
+        }
+
+        // We don't set Content-Type header manually, axios/browser will handle it for FormData
+        const response = await apiClient.put<StaffAuthResponse>(`${BASE_URL}/profile`, formData)
         return response.data
     },
 

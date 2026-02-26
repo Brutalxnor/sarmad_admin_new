@@ -54,6 +54,12 @@ export default function AddStaffPage() {
             icon: <Shield className="w-6 h-6" />
         },
         {
+            id: 'AdminOperations',
+            title: language === 'ar' ? 'مسؤول عمليات' : 'Admin (Operations)',
+            desc: 'Admin (Operations)',
+            icon: <ShieldCheck className="w-6 h-6" />
+        },
+        {
             id: 'Coach',
             title: language === 'ar' ? 'أخصائي نوم' : 'Coach/Specialist',
             desc: 'Coach/Specialist',
@@ -202,7 +208,7 @@ export default function AddStaffPage() {
                             <h2 className="text-xl font-black">{language === 'ar' ? 'تعيين الدور' : 'Role Assignment'}</h2>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             {roles.map((role) => (
                                 <button
                                     key={role.id}

@@ -71,6 +71,9 @@ export function useCreateLesson() {
     return useMutation({
         mutationFn: coursesApi.createLesson,
         onSuccess: () => {
+            // We need the section to find the course_id, but the variables only have section_id.
+            // However, the easiest way is to invalidate all courses for now, 
+            // but ideally we'd pass courseId from the component.
             queryClient.invalidateQueries({ queryKey: COURSES_QUERY_KEYS.all })
         },
     })

@@ -13,6 +13,7 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
     const { t, language } = useLanguage()
     const { createTestimonial, isCreating } = useTestimonials()
     const [isUploading, setIsUploading] = useState(false)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
     const [formData, setFormData] = useState<Partial<Testimonial>>({
         name_en: '',
@@ -34,12 +35,16 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
         if (!file) return
 
         setIsUploading(true)
-        // Simulate upload delay
-        setTimeout(() => {
-            const fakeUrl = URL.createObjectURL(file)
-            setFormData(prev => ({ ...prev, image_url: fakeUrl }))
+        // Store the file directly in formData to be sent as FormData
+        setFormData(prev => ({ ...prev, image_url: file as any }))
+
+        // Create preview
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setPreviewUrl(reader.result as string)
             setIsUploading(false)
-        }, 1000)
+        }
+        reader.readAsDataURL(file)
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -184,17 +189,20 @@ export function CreateTestimonialForm({ onSuccess, onCancel }: CreateTestimonial
 
                         <div className="group relative max-w-sm">
                             <div className={`aspect-square w-32 rounded-3xl overflow-hidden border-4 border-dashed transition-all duration-500 bg-slate-50/50 flex flex-col items-center justify-center gap-4 ${formData.image_url ? 'border-brand-500/20' : 'border-slate-100 hover:border-brand-200 hover:bg-white'}`}>
-                                {formData.image_url ? (
+                                {previewUrl || (typeof formData.image_url === 'string' ? formData.image_url : null) ? (
                                     <div className="relative w-full h-full">
                                         <img
-                                            src={formData.image_url}
+                                            src={previewUrl || (formData.image_url as string)}
                                             alt="Preview"
                                             className="w-full h-full object-cover"
                                         />
                                         <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                             <button
                                                 type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, image_url: '' }))}
+                                                onClick={() => {
+                                                    setFormData(prev => ({ ...prev, image_url: '' }))
+                                                    setPreviewUrl(null)
+                                                }}
                                                 className="bg-white/20 backdrop-blur-md p-2 rounded-full text-white hover:bg-rose-500 transition-colors"
                                             >
                                                 <Trash2 size={20} />

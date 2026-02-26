@@ -19,40 +19,7 @@ import {
     ChevronDown
 } from 'lucide-react'
 
-const STATS = [
-    {
-        count: 128,
-        label: 'الاستشارات اليوم',
-        icon: <Video size={20} />,
-        bg: 'bg-blue-50',
-        textColor: 'text-blue-500',
-        gradient: 'from-blue-500/10 to-transparent'
-    },
-    {
-        count: 123,
-        label: 'البرامج النشطة',
-        icon: <TrendingUp size={20} />,
-        bg: 'bg-emerald-50',
-        textColor: 'text-emerald-500',
-        gradient: 'from-emerald-500/10 to-transparent'
-    },
-    {
-        count: 12,
-        label: 'إجمالي الخدمات',
-        icon: <Package size={20} />,
-        bg: 'bg-[#E0F7F9]',
-        textColor: 'text-[#00BCD4]',
-        gradient: 'from-[#00BCD4]/10 to-transparent'
-    },
-    {
-        count: 123,
-        label: 'المستخدمين النشطين',
-        icon: <Users size={20} />,
-        bg: 'bg-orange-50',
-        textColor: 'text-orange-500',
-        gradient: 'from-orange-500/10 to-transparent'
-    }
-]
+
 
 const TABS = [
     { id: 'all', label: 'جميع الطلبات' },
@@ -181,6 +148,54 @@ export default function OrdersPage() {
         itemsPerPage: 5
     })
 
+    const stats = useMemo(() => {
+        const today = new Date().toDateString()
+        const consultationsToday = mappedConsultations.filter((c: any) => {
+            if (!c.dateTime) return false
+            // This is a simple check, in reality, we might need to parse the date properly
+            return c.dateTime.includes(today) || c.status === 'pending'
+        }).length
+
+        const activePrograms = mappedOrders.filter((o: any) => o.status === 'in_progress').length
+        const totalServices = mappedOrders.length
+        const activeUsersCount = new Set(mappedOrders.map((o: any) => o.userId).filter(Boolean)).size
+
+        return [
+            {
+                count: consultationsToday,
+                label: 'الاستشارات اليوم',
+                icon: <Video size={20} />,
+                bg: 'bg-blue-50',
+                textColor: 'text-blue-500',
+                gradient: 'from-blue-500/10 to-transparent'
+            },
+            {
+                count: activePrograms,
+                label: 'البرامج النشطة',
+                icon: <TrendingUp size={20} />,
+                bg: 'bg-emerald-50',
+                textColor: 'text-emerald-500',
+                gradient: 'from-emerald-500/10 to-transparent'
+            },
+            {
+                count: totalServices,
+                label: 'إجمالي الخدمات',
+                icon: <Package size={20} />,
+                bg: 'bg-[#E0F7F9]',
+                textColor: 'text-[#00BCD4]',
+                gradient: 'from-[#00BCD4]/10 to-transparent'
+            },
+            {
+                count: activeUsersCount,
+                label: 'المستخدمين النشطين',
+                icon: <Users size={20} />,
+                bg: 'bg-orange-50',
+                textColor: 'text-orange-500',
+                gradient: 'from-orange-500/10 to-transparent'
+            }
+        ]
+    }, [mappedConsultations, mappedOrders])
+
     const handleOrderStatusChange = async (orderId: string, newStatus: string) => {
         try {
             await updateOrderMutation.mutateAsync({ id: orderId, status: newStatus })
@@ -232,7 +247,7 @@ export default function OrdersPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {STATS.map((stat, idx) => (
+                {stats.map((stat, idx) => (
                     <div key={idx} className="bg-white rounded-[2.5rem] p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 cursor-default">
                         <div className={`absolute -right-4 -top-4 w-32 h-32 bg-linear-to-br ${stat.gradient} opacity-20 rounded-full blur-3xl transition-opacity duration-500 group-hover:opacity-40`} />
                         <div className={`w-14 h-14 rounded-[1.25rem] ${stat.bg} ${stat.textColor} flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-sm`}>
