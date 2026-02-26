@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { filterApi, type LinkFilterData } from '../api/filterService'
+import { filterApi } from '../api/filterService'
 
 export const FILTER_QUERY_KEYS = {
     all: ['filters'] as const,
