@@ -17,9 +17,10 @@ export const contentApi = {
         Object.entries(body).forEach(([key, value]) => {
             if (value === undefined || value === null) return
 
-            if (key === 'tags' || key === 'segments') {
-                formData.append(key, JSON.stringify(value))
-            } else if (key === 'thumbnail_image') {
+            // Skip legacy fields that are now handled via filters or are otherwise incompatible with the backend schema
+            if (key === 'tags' || key === 'segments' || key === 'topic_id') return
+
+            if (key === 'thumbnail_image') {
                 if (value instanceof File) {
                     formData.append('thumbnail_image', value)
                 }
@@ -37,9 +38,10 @@ export const contentApi = {
         Object.entries(body).forEach(([key, value]) => {
             if (value === undefined || value === null) return
 
-            if (key === 'tags' || key === 'segments') {
-                formData.append(key, JSON.stringify(value))
-            } else if (key === 'thumbnail_image') {
+            // Skip legacy fields that are now handled via filters or are otherwise incompatible with the backend schema
+            if (key === 'tags' || key === 'segments' || key === 'topic_id') return
+
+            if (key === 'thumbnail_image') {
                 if (value instanceof File) {
                     formData.append('thumbnail_image', value)
                 } else if (typeof value === 'string') {
