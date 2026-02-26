@@ -8,7 +8,6 @@ import {
     Users,
     UserCheck,
     UserMinus,
-    TrendingUp,
     Plus,
     Search,
     Filter,

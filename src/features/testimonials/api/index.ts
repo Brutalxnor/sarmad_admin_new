@@ -11,8 +11,8 @@ export const testimonialsApi = {
         const formData = new FormData()
         Object.entries(data).forEach(([key, value]) => {
             if (value === undefined || value === null) return
-            if (key === 'image_url' && value instanceof File) {
-                formData.append('image', value)
+            if (key === 'image_url' && (value as unknown) instanceof File) {
+                formData.append('image', value as unknown as File)
             } else {
                 formData.append(key, String(value))
             }
@@ -25,8 +25,8 @@ export const testimonialsApi = {
         const formData = new FormData()
         Object.entries(data).forEach(([key, value]) => {
             if (value === undefined || value === null) return
-            if (key === 'image_url' && value instanceof File) {
-                formData.append('image', value)
+            if (key === 'image_url' && (value as unknown) instanceof File) {
+                formData.append('image', value as unknown as File)
             } else {
                 formData.append(key, String(value))
             }

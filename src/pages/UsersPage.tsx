@@ -5,7 +5,6 @@ import { useLanguage } from '@/shared/context/LanguageContext'
 import { usePagination } from '@/shared/hooks/use-pagination'
 import type { User } from '@/features/users/types'
 import {
-    Plus,
     Search,
     Users,
     UserCheck,
