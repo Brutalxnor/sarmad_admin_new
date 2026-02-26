@@ -5,7 +5,7 @@ import { FilterSelector } from '@/shared/components/FilterSelector'
 import type { ContentItem } from '../types'
 import { RichTextEditor } from '@/shared/components/RichTextEditor'
 import { useLanguage } from '@/shared/context/LanguageContext'
-import { ArrowLeft, Image as ImageIcon, Eye, Save, UserRound } from 'lucide-react'
+import { ArrowLeft, Image as ImageIcon, Save, UserRound } from 'lucide-react'
 
 interface CreateContentFormProps {
     initialData?: Partial<ContentItem>
