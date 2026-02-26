@@ -486,13 +486,13 @@ export function CreateContentForm({ initialData, onSuccess, onCancel }: CreateCo
                                 ? (language === 'ar' ? 'حفظ ورفع الفيديو' : 'Save & Upload')
                                 : (isPending ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ ورفع المقال' : 'Save & Publish'))}
                         </button>
-                        <button
+                        {/* <button
                             type="button"
                             className="w-full py-4 border-2 border-[#0095D9] dark:border-brand-500/50 text-[#0095D9] dark:text-brand-400 rounded-2xl font-black text-sm hover:bg-sky-50 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-3"
                         >
                             <Eye size={18} />
                             {formData.type === 'video' ? (language === 'ar' ? 'معاينة الفيديو قبل الرفع' : 'Preview Video') : (language === 'ar' ? 'معاينة المقال قبل الرفع' : 'Preview Article')}
-                        </button>
+                        </button> */}
                     </div>
                 </div>
 
