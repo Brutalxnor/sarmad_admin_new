@@ -56,13 +56,11 @@ export function WebinarList() {
 
     const total = webinars?.length || 0
     const withRecording = webinars?.filter((w: Webinar) => w.recording_url).length || 0
-    const registered = webinars?.reduce((sum: number, w: Webinar) => sum + (w.registration_count || 0), 0) || 0
     const drafts = webinars?.filter((w: Webinar) => !w.recording_url).length || 0
 
     const stats = [
         { label: isRTL ? 'إجمالي الندوات' : 'Total Webinars', value: total, icon: <Video size={20} className="text-[#35788D]" />, iconBg: 'bg-sky-50' },
         { label: isRTL ? 'منشور' : 'Published', value: withRecording, icon: <Eye size={20} className="text-teal-500" />, iconBg: 'bg-teal-50' },
-        { label: isRTL ? 'قيد المراجعة' : 'In Review', value: registered, icon: <Users size={20} className="text-orange-500" />, iconBg: 'bg-orange-50' },
         { label: isRTL ? 'مسودات' : 'Drafts', value: drafts, icon: <Clock size={20} className="text-blue-500" />, iconBg: 'bg-blue-50' },
     ]
 
@@ -122,7 +120,7 @@ export function WebinarList() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center relative">
                         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>

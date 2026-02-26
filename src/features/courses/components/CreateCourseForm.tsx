@@ -22,7 +22,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
     const isPending = isCreating || isUpdating
     const isEditMode = !!initialData?.id
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || null)
+    const [previewUrl, setPreviewUrl] = useState<string | null>(initialData?.thumbnail_url || (initialData as any)?.thumbnail_image || null)
 
     // Helper to get topic string and ID safely
     const getInitialTopicData = (data: Partial<Course> | undefined) => {
@@ -43,6 +43,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         access_type: 'public',
         category: '',
         topic_id: '',
+        duration: 0,
         ...initialData
     })
 
@@ -76,9 +77,20 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         const { topicName, topicId } = getInitialTopicData(initialData)
         console.log("here is intial data", initialData)
 
+        // Resolve topic_id from topics list if we only have a name (category)
+        let resolvedTopicId = topicId
+        if (!resolvedTopicId && topicName && topics && topics.length > 0) {
+            const foundTopic = topics.find(t =>
+                t.name_ar === topicName ||
+                t.name_en === topicName ||
+                t.id === topicId
+            )
+            if (foundTopic) resolvedTopicId = foundTopic.id
+        }
+
         const price = initialData.price !== undefined ? Number(initialData.price) : 0
         const accessType = initialData.access_type || 'public'
-        const thumb = typeof initialData.thumbnail_url === 'string' ? initialData.thumbnail_url : ''
+        const thumb = typeof initialData.thumbnail_url === 'string' ? initialData.thumbnail_url : (typeof (initialData as any).thumbnail_image === 'string' ? (initialData as any).thumbnail_image : '')
 
         setFormData({
             ...initialData,
@@ -87,8 +99,9 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
             price: price,
             access_type: accessType as any,
             category: topicName || '',
-            topic_id: topicId || '',
-            thumbnail_url: thumb
+            topic_id: resolvedTopicId || topicId || '',
+            thumbnail_url: thumb,
+            duration: initialData.duration || 0
         })
 
         if (initialData.id) setSavedCourseId(initialData.id)
@@ -97,7 +110,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         } else {
             setPreviewUrl(null)
         }
-    }, [initialData, language])
+    }, [initialData, language, topics])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -110,7 +123,7 @@ export function CreateCourseForm({ initialData, onSuccess, onCancel }: CreateCou
         if (isEditMode && initialData.id) {
             updateCourse({ id: initialData.id, data: payload }, {
                 onSuccess: () => {
-                    // Success, could show a toast or just stay here
+                    if (onSuccess) onSuccess()
                 }
             })
         } else {

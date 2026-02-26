@@ -2,6 +2,7 @@ import { useLanguage } from '../shared/context/LanguageContext'
 import { useAuth } from '@/features/staff/context/AuthContext'
 import { Users, Activity, Video, Database } from 'lucide-react'
 import { useRecentAuditLogs } from '@/features/staff/hooks/useAuditLogs'
+import { useDashboardStats } from '@/features/dashboard/hooks/use-dashboard-stats'
 import { formatDistanceToNow } from 'date-fns'
 import { ar } from 'date-fns/locale'
 
@@ -11,11 +12,19 @@ export default function Dashboard() {
     const isRTL = language === 'ar'
 
     const { data: recentLogsResponse, isLoading: isLoadingLogs } = useRecentAuditLogs(5)
+    const { data: dashboardStats, isLoading: isLoadingStats } = useDashboardStats()
+
+    const statsData = dashboardStats || {
+        users: 0,
+        orders: 0,
+        assessments: 0,
+        webinars: 0
+    }
 
     const stats = [
         {
             title: t('dashboard.users'),
-            value: '12,458',
+            value: statsData.users.toLocaleString(),
             change: '+12.5% عن الشهر الماضي',
             icon: <Users size={24} className="text-sky-400" />,
             bgColor: 'bg-sky-50',
@@ -23,7 +32,7 @@ export default function Dashboard() {
         },
         {
             title: t('dashboard.completed_tests'),
-            value: '8,342',
+            value: statsData.assessments.toLocaleString(),
             change: '+8.2% عن الشهر الماضي',
             icon: <Activity size={24} className="text-teal-400" />,
             bgColor: 'bg-teal-50',
@@ -31,7 +40,7 @@ export default function Dashboard() {
         },
         {
             title: t('dashboard.upcoming_webinars'),
-            value: '7',
+            value: statsData.webinars.toLocaleString(),
             change: 'ويبنار قادم (هذا الشهر)',
             icon: <Video size={24} className="text-rose-400" />,
             bgColor: 'bg-rose-50',
@@ -39,7 +48,7 @@ export default function Dashboard() {
         },
         {
             title: t('dashboard.new_orders') || 'طلبات جديدة',
-            value: '2945',
+            value: statsData.orders.toLocaleString(),
             change: '+13.2% عن الشهر الماضي',
             icon: <Database size={24} className="text-emerald-400" />,
             bgColor: 'bg-emerald-50',
@@ -92,25 +101,32 @@ export default function Dashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start group hover:shadow-md transition-shadow">
-                        <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} flex items-center justify-center mb-6`}>
-                            {stat.icon}
+                {isLoadingStats ? (
+                    // Stats Skeletons
+                    [1, 2, 3, 4].map((i) => (
+                        <div key={i} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start animate-pulse">
+                            <div className="w-14 h-14 rounded-2xl bg-gray-100 mb-6"></div>
+                            <div className="w-1/2 h-3 bg-gray-100 rounded-full mb-3"></div>
+                            <div className="w-3/4 h-8 bg-gray-100 rounded-full mb-3"></div>
+                            <div className="w-1/3 h-2 bg-gray-50 rounded-full"></div>
                         </div>
-                        <div className="text-center lg:text-start">
-                            <p className="text-gray-400 font-bold text-xs mb-2">{stat.title}</p>
-                            <h3 className="text-4xl font-black text-slate-800 mb-2">
-                                {stat.value}
-                            </h3>
-                            <div className="flex items-center justify-center lg:justify-start gap-1">
-                                {stat.trend === 'up' && <span className="text-emerald-500 text-xs">↑</span>}
-                                <span className={`${stat.trend === 'up' ? 'text-emerald-500' : 'text-gray-400'} text-[11px] font-bold`}>
-                                    {stat.change}
-                                </span>
+                    ))
+                ) : (
+                    stats.map((stat, idx) => (
+                        <div key={idx} className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-50 flex flex-col items-center lg:items-start group hover:shadow-md transition-shadow">
+                            <div className={`w-14 h-14 rounded-2xl ${stat.bgColor} flex items-center justify-center mb-6`}>
+                                {stat.icon}
+                            </div>
+                            <div className="text-center lg:text-start">
+                                <p className="text-gray-400 font-bold text-xs mb-2">{stat.title}</p>
+                                <h3 className="text-4xl font-black text-slate-800 mb-2">
+                                    {stat.value}
+                                </h3>
+
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))
+                )}
             </div>
 
             {/* Main Content Split */}

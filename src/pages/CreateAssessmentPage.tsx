@@ -35,8 +35,8 @@ export default function CreateAssessmentPage() {
         name: '',
         description: '',
         category: 'Health',
-        estimated_time: '15 mins',
-        is_active: true
+        estimated_time: 15,
+        is_active: false
     })
     const [questions, setQuestions] = useState<LocalQuestion[]>([])
 
@@ -79,6 +79,12 @@ export default function CreateAssessmentPage() {
         }
         if (currentQuestion.answers.some(a => !a.text.trim())) {
             toast.error(isRTL ? 'يرجى ملء كافة نصوص الإجابات' : 'Please fill all answer texts')
+            return
+        }
+
+        const totalPoints = currentQuestion.answers.reduce((sum, a) => sum + a.points, 0)
+        if (totalPoints !== 100) {
+            toast.error(isRTL ? 'مجموع نسب الإجابات يجب أن يكون 100% حالياً: ' + totalPoints + '%' : 'Total answer percentage must sum to 100% (Current: ' + totalPoints + '%)')
             return
         }
 
@@ -127,7 +133,7 @@ export default function CreateAssessmentPage() {
                 version: versionNum,
                 description: metadata.description,
                 category: metadata.category,
-                estimated_time: metadata.estimated_time,
+                estimated_time: `${metadata.estimated_time} ${isRTL ? 'دقيقة' : 'mins'}`,
                 is_active: metadata.is_active
             })
 
@@ -141,7 +147,8 @@ export default function CreateAssessmentPage() {
                         answer: a.text,
                         percentage: a.points
                     })),
-                    in_assessment: true
+                    in_assessment: true,
+                    actual_assess: true
                 })
             }
             toast.success(isRTL ? 'تم إنشاء التقييم والأسئلة بنجاح' : 'Assessment and questions created successfully', { id: toastId })
@@ -242,13 +249,18 @@ export default function CreateAssessmentPage() {
                                 <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
                                     {isRTL ? 'الوقت المقدر' : 'Estimated Time'}
                                 </label>
-                                <input
-                                    type="text"
-                                    value={metadata.estimated_time}
-                                    onChange={(e) => setMetadata(prev => ({ ...prev, estimated_time: e.target.value }))}
-                                    placeholder={isRTL ? 'مثال: 15 دقيقة' : 'e.g. 15 mins'}
-                                    className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={metadata.estimated_time}
+                                        onChange={(e) => setMetadata(prev => ({ ...prev, estimated_time: parseInt(e.target.value) || 0 }))}
+                                        placeholder="15"
+                                        className="w-full p-5 rounded-2xl bg-[#F9FBFC] border border-gray-100 outline-none focus:ring-2 focus:ring-[#0095D9]/10 focus:border-[#0095D9]/20 transition-all font-black text-slate-800"
+                                    />
+                                    <span className={`absolute top-1/2 -translate-y-1/2 ${isRTL ? 'left-5' : 'right-5'} text-slate-400 font-bold text-sm`}>
+                                        {isRTL ? 'دقيقة' : 'mins'}
+                                    </span>
+                                </div>
                             </div>
                             <div className="space-y-4">
                                 <label className={`block text-slate-400 font-bold text-sm ${isRTL ? 'text-right' : 'text-left'}`}>
@@ -379,6 +391,16 @@ export default function CreateAssessmentPage() {
                                     ))
                                 )}
                             </div>
+
+                            {currentQuestion.answers.length > 0 && (
+                                <div className={`p-4 rounded-2xl flex items-center justify-between ${currentQuestion.answers.reduce((sum, a) => sum + a.points, 0) === 100 ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-rose-50 text-rose-600 border border-rose-100'} transition-all`}>
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2 h-2 rounded-full ${currentQuestion.answers.reduce((sum, a) => sum + a.points, 0) === 100 ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse'}`} />
+                                        <span className="text-xs font-black uppercase tracking-wider">{isRTL ? 'إجمالي النسب' : 'Total Percentage'}</span>
+                                    </div>
+                                    <span className="text-xl font-black">{currentQuestion.answers.reduce((sum, a) => sum + a.points, 0)}%</span>
+                                </div>
+                            )}
                         </div>
 
                         <button

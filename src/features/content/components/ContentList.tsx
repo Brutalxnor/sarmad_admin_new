@@ -59,17 +59,18 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
         // Normalize and add courses
         if (courses) {
             const normalizedCourses = courses.map((course: Course) => ({
+                ...course, // Spread ALL original fields (including topic_id, topic, etc.)
                 id: course.id,
                 type: 'course',
                 title: course.title,
                 description: course.description,
                 thumbnail_image: course.thumbnail_url,
-                status: 'published', // Courses are generally public/published if returned by getAll
+                status: 'published',
                 tags: course.category ? [course.category] : [],
                 access_type: course.access_type,
                 created_at: course.created_at,
                 price: course.price || 0,
-                // Add fields expected by the UI
+                // These are for the UI display in the grid
                 duration: `${course.sections?.length || 0} Sections`,
                 author: 'Sarmad Academy',
             }))
@@ -357,18 +358,7 @@ export function ContentList({ typeFilter, hideHeader }: ContentListProps) {
                                                 {item.title || 'دليل النوم الصحي الشامل'}
                                             </h4>
 
-                                            {/* Progress Bar Placeholder for Courses */}
-                                            {(item as any).type === 'course' && (
-                                                <div className="space-y-2 pt-2">
-                                                    <div className="flex justify-between text-[10px] font-black">
-                                                        <span className="text-gray-400">75% مكتمل</span>
-                                                        <span className="text-[#35788D]">12/16 درس</span>
-                                                    </div>
-                                                    <div className="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100/50 p-0.5">
-                                                        <div className="h-full bg-linear-to-r from-sky-400 to-blue-500 rounded-full w-3/4" />
-                                                    </div>
-                                                </div>
-                                            )}
+
 
                                             <div className="flex flex-wrap gap-2 pt-2">
                                                 {(item.tags || ['نوم_سليم', 'صحة_الدماغ', 'طرق_النوم']).map((tag, i) => (

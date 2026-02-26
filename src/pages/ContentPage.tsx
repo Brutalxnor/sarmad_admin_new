@@ -8,7 +8,7 @@ import { CreateWebinarForm } from '@/features/webinars/components/CreateWebinarF
 import { useContent } from '@/features/content/hooks/use-content'
 import { useCourses } from '@/features/courses/hooks/use-courses'
 import { useLanguage } from '@/shared/context/LanguageContext'
-import { CheckCircle, Clock, Edit3, Plus, BookOpen, HelpCircle, Video, Users, ArrowLeft, FileText, GraduationCap, PlayCircle } from 'lucide-react'
+import { CheckCircle, Edit3, Plus, BookOpen, HelpCircle, Video, Users, ArrowLeft, FileText, GraduationCap, PlayCircle } from 'lucide-react'
 
 type ViewState = 'list' | 'add-selection' | 'create'
 
@@ -22,7 +22,6 @@ export default function ContentPage() {
 
     const totalCount = (contents?.length || 0) + (courses?.length || 0)
     const publishedCount = (contents?.filter(c => c.status === 'published' || c.status === 'approved').length || 0) + (courses?.length || 0)
-    const reviewCount = contents?.filter(c => c.status === 'review').length || 0
     const draftCount = contents?.filter(c => c.status === 'draft').length || 0
 
     const handleBackToList = () => {
@@ -157,11 +156,10 @@ export default function ContentPage() {
             </div>
 
             {/* Content Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
                     { title: 'إجمالي المحتوى', value: totalCount.toString(), icon: <BookOpen className="text-[#0095D9]" />, color: 'bg-white', iconBg: 'bg-sky-50' },
                     { title: 'منشور', value: publishedCount.toString(), icon: <CheckCircle className="text-teal-500" />, color: 'bg-white', iconBg: 'bg-teal-50' },
-                    { title: 'قيد المراجعة', value: reviewCount.toString(), icon: <Clock className="text-orange-500" />, color: 'bg-white', iconBg: 'bg-orange-50' },
                     { title: 'مسودات', value: draftCount.toString(), icon: <Edit3 className="text-blue-500" />, color: 'bg-white', iconBg: 'bg-blue-50' },
                 ].map((stat, i) => (
                     <div key={i} className={`${stat.color} p-8 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-shadow relative`}>

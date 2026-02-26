@@ -16,6 +16,14 @@ export function useCreateMetadata() {
     })
 }
 
+export function useAssessmentMetadata(id: string) {
+    return useQuery({
+        queryKey: ['assessment-metadata', id],
+        queryFn: () => metadataApi.getById(id),
+        enabled: !!id
+    })
+}
+
 export function useAllMetadata() {
     return useQuery({
         queryKey: ['assessment-metadata'],

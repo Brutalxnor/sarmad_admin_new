@@ -6,7 +6,7 @@ import { CreateFaqForm } from './CreateFaqForm'
 import type { FAQ } from '../types'
 import { usePagination } from '@/shared/hooks/use-pagination'
 import { Pagination } from '@/shared/components/Pagination'
-import { Plus, Search, Trash2, Pencil, HelpCircle, CheckCircle, Clock, FileText, ArrowLeft } from 'lucide-react'
+import { Plus, Search, Trash2, Pencil, HelpCircle, CheckCircle, FileText, ArrowLeft } from 'lucide-react'
 
 export function FaqList() {
     const { data: faqs, isLoading, deleteFaq, updateFaq } = useFaqs()
@@ -49,12 +49,10 @@ export function FaqList() {
     const total = faqs?.length || 0
     const published = faqs?.filter(f => f.is_active).length || 0
     const drafts = faqs?.filter(f => !f.is_active).length || 0
-    const review = 0 // placeholder — extend FAQ type if needed
 
     const stats = [
         { label: isRTL ? 'إجمالي الأسئلة' : 'Total FAQs', value: total, icon: <HelpCircle size={20} className="text-[#35788D]" />, iconBg: 'bg-sky-50' },
         { label: isRTL ? 'منشورة' : 'Published', value: published, icon: <CheckCircle size={20} className="text-teal-500" />, iconBg: 'bg-teal-50' },
-        { label: isRTL ? 'قيد المراجعة' : 'In Review', value: review, icon: <Clock size={20} className="text-orange-500" />, iconBg: 'bg-orange-50' },
         { label: isRTL ? 'مسودات' : 'Drafts', value: drafts, icon: <FileText size={20} className="text-blue-500" />, iconBg: 'bg-blue-50' },
     ]
 
@@ -109,7 +107,7 @@ export function FaqList() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center relative">
                         <div className={`absolute top-4 ${isRTL ? 'right-4' : 'left-4'} w-10 h-10 rounded-xl ${stat.iconBg} flex items-center justify-center`}>

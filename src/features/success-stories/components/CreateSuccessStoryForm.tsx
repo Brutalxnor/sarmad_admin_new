@@ -152,8 +152,8 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                     </div>
                 </div>
 
-                {/* Row: Stats & Meta (Rating, Order, Category) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-50">
+                {/* Row: Stats & Meta (Rating, Order) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-50">
                     <div className="space-y-3">
                         <label className={labelClasses}>{t('testimonials.rating')}</label>
                         <div className="flex items-center gap-4 bg-[#F4F9FB] p-4 rounded-2xl">
@@ -181,19 +181,6 @@ export function CreateSuccessStoryForm({ onSuccess, onCancel }: CreateSuccessSto
                             className={inputClasses}
                             placeholder="0"
                         />
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className={labelClasses}>{language === 'ar' ? 'الفئة' : 'Category'}</label>
-                        <select
-                            value={formData.category}
-                            onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                            className={inputClasses}
-                        >
-                            <option value="Success Story">{language === 'ar' ? 'قصة نجاح' : 'Success Story'}</option>
-                            <option value="General">{language === 'ar' ? 'عام' : 'General'}</option>
-                            <option value="Corporate">{language === 'ar' ? 'شركات' : 'Corporate'}</option>
-                        </select>
                     </div>
                 </div>
 

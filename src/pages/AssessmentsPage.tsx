@@ -25,6 +25,8 @@ import {
     CheckCircle2
 } from 'lucide-react'
 import { ConfirmationModal } from '@/shared/components/ConfirmationModal'
+import { EditAssessmentModal } from '@/features/assessments/components/EditAssessmentModal'
+import type { AssessmentMetadata } from '@/features/assessments/api/metadata'
 
 type TabType = 'overview' | 'questions' | 'scoring' | 'guidance'
 
@@ -40,6 +42,8 @@ export default function AssessmentsPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
     const [assessmentToDelete, setAssessmentToDelete] = useState<string | null>(null)
+    const [isAssessmentEditModalOpen, setIsAssessmentEditModalOpen] = useState(false)
+    const [selectedAssessmentForEdit, setSelectedAssessmentForEdit] = useState<AssessmentMetadata | null>(null)
     const deleteAssessment = useDeleteAssessment()
 
     const handleViewQuestion = (question: Question) => {
@@ -50,6 +54,19 @@ export default function AssessmentsPage() {
     const handleEditQuestion = (question: Question) => {
         setSelectedQuestion(question)
         setIsEditModalOpen(true)
+    }
+
+    const handleEditAssessment = (assessment: any) => {
+        setSelectedAssessmentForEdit({
+            id: assessment.id,
+            name: assessment.title,
+            version: parseFloat(assessment.version),
+            status: assessment.status === 'active',
+            is_active: assessment.status === 'active',
+            questions: assessment.questions,
+            lastUpdate: assessment.lastUpdate
+        } as any)
+        setIsAssessmentEditModalOpen(true)
     }
 
     const handleToggleStatus = (id: string, currentStatus: string) => {
@@ -89,7 +106,6 @@ export default function AssessmentsPage() {
             questions: assessment.questions?.length || 0,
             // Realistic mock data until backend provides these metrics
             submissions: '0',
-            completionRate: '0%',
             lastUpdate: assessment.updated_at ? new Date(assessment.updated_at).toLocaleDateString() : (assessment.created_at ? new Date(assessment.created_at).toLocaleDateString() : ''),
             questionsList: assessment.questions || []
         }))
@@ -127,20 +143,6 @@ export default function AssessmentsPage() {
             iconBg: 'bg-sky-50',
             suffix: ''
         },
-        {
-            label: t('assessments.stats.submissions'),
-            value: '21,245',
-            icon: <TrendingUp className="text-emerald-500" />,
-            iconBg: 'bg-emerald-50',
-            suffix: ''
-        },
-        {
-            label: t('assessments.stats.completion'),
-            value: '85%',
-            icon: <BarChart3 className="text-orange-600" />,
-            iconBg: 'bg-orange-50',
-            suffix: ''
-        }
     ]
 
     return (
@@ -165,7 +167,7 @@ export default function AssessmentsPage() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center group hover:shadow-md transition-all relative">
                         <div className={`absolute top-6 ${isRTL ? 'right-6' : 'left-6'} w-14 h-14 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm`}>
@@ -216,13 +218,13 @@ export default function AssessmentsPage() {
                             <div
                                 key={assessment.id}
                                 onClick={() => navigate(`/assessments/${assessment.version}/questions`)}
-                                className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm hover:shadow-md transition-all relative group cursor-pointer"
+                                className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all relative group cursor-pointer"
                             >
-                                <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-8 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                                <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isRTL ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                                     <div className={`flex items-center gap-4 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
                                         <div className="flex flex-col gap-1">
                                             <div className={`flex items-center gap-3 ${isRTL ? 'flex-row' : 'flex-row-reverse'}`}>
-                                                <h3 className="text-2xl font-black text-slate-800">{assessment.title}</h3>
+                                                <h3 className="text-xl font-black text-slate-800">{assessment.title}</h3>
                                                 <span className="text-sky-500 font-black text-xs px-2 py-0.5 bg-sky-50 rounded-md">
                                                     {assessment.version}
                                                 </span>
@@ -250,7 +252,10 @@ export default function AssessmentsPage() {
                                         >
                                             <Trash2 size={18} />
                                         </button>
-                                        <button className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm">
+                                        <button
+                                            onClick={() => handleEditAssessment(assessment)}
+                                            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-emerald-500 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                                        >
                                             <Edit2 size={18} />
                                         </button>
                                         <button
@@ -263,16 +268,14 @@ export default function AssessmentsPage() {
                                 </div>
 
 
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                                     {[
                                         { label: t('assessments.list.questions'), value: assessment.questions },
-                                        { label: t('assessments.list.submissions'), value: assessment.submissions },
-                                        { label: t('assessments.list.completion'), value: assessment.completionRate },
                                         { label: t('assessments.list.last_update'), value: assessment.lastUpdate }
                                     ].map((item, idx) => (
-                                        <div key={idx} className="bg-[#F4F9FB]/50 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                                        <div key={idx} className="bg-[#F4F9FB]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center">
                                             <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-2">{item.label}</p>
-                                            <p className="text-xl font-black text-slate-700">{item.value}</p>
+                                            <p className="text-lg font-black text-slate-700">{item.value}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -379,6 +382,12 @@ export default function AssessmentsPage() {
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 question={selectedQuestion}
+            />
+
+            <EditAssessmentModal
+                isOpen={isAssessmentEditModalOpen}
+                onClose={() => setIsAssessmentEditModalOpen(false)}
+                assessment={selectedAssessmentForEdit}
             />
         </div>
     )

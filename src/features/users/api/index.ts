@@ -1,7 +1,8 @@
 import { apiClient } from '@/shared/api/client'
+import type { User } from '../types'
 
 export const usersApi = {
-    getAll: async () => {
+    getAll: async (): Promise<User[]> => {
         const response = await apiClient.get('/users')
         return response.data.data
     },

@@ -55,29 +55,35 @@ export default function UsersPage() {
         itemsPerPage: 8
     })
 
-    const stats = [
-        {
-            label: isRTL ? 'إجمالي المستخدمين' : 'Total Users',
-            value: '2,567', // Static for now as per UI
-            icon: <Users className="text-sky-500" size={24} />,
-            bg: 'bg-sky-50',
-            iconColor: 'text-sky-500'
-        },
-        {
-            label: isRTL ? 'المرضى النشطون' : 'Active Patients',
-            value: '1,876',
-            icon: <UserCheck className="text-[#0095D9]" size={24} />,
-            bg: 'bg-sky-50',
-            iconColor: 'text-[#0095D9]'
-        },
-        {
-            label: isRTL ? 'الأخصائيين' : 'Specialists',
-            value: '234',
-            icon: <UserCog className="text-emerald-500" size={24} />,
-            bg: 'bg-emerald-50',
-            iconColor: 'text-emerald-500'
-        }
-    ]
+    const stats = useMemo(() => {
+        const total = users?.length || 0
+        const patients = users?.filter((u: User) => u.role === 'RegisteredUser').length || 0
+        const specialists = users?.filter((u: User) => u.role === 'specialist').length || 0
+
+        return [
+            {
+                label: isRTL ? 'إجمالي المستخدمين' : 'Total Users',
+                value: total.toLocaleString(),
+                icon: <Users className="text-sky-500" size={24} />,
+                bg: 'bg-sky-50',
+                iconColor: 'text-sky-500'
+            },
+            {
+                label: isRTL ? 'المرضى النشطون' : 'Active Patients',
+                value: patients.toLocaleString(),
+                icon: <UserCheck className="text-[#0095D9]" size={24} />,
+                bg: 'bg-sky-50',
+                iconColor: 'text-[#0095D9]'
+            },
+            {
+                label: isRTL ? 'الأخصائيين' : 'Specialists',
+                value: specialists.toLocaleString(),
+                icon: <UserCog className="text-emerald-500" size={24} />,
+                bg: 'bg-emerald-50',
+                iconColor: 'text-emerald-500'
+            }
+        ]
+    }, [users, isRTL])
 
     if (isLoading) {
         return <div className="flex justify-center items-center min-h-screen">
@@ -92,12 +98,7 @@ export default function UsersPage() {
                 <h1 className="text-4xl font-black text-slate-800 tracking-tight">
                     {isRTL ? 'إدارة المستخدمين' : 'Users Management'}
                 </h1>
-                <button
-                    onClick={() => navigate('/users/add')}
-                    className="bg-[#0095D9] text-white px-8 py-3.5 rounded-2xl font-black text-base shadow-lg shadow-[#0095D9]/20 hover:-translate-y-1 transition-all flex items-center gap-3">
-                    <Plus size={22} />
-                    {isRTL ? 'إضافة مستخدم جديد' : 'Add New User'}
-                </button>
+
             </div>
 
             {/* Stats Overview */}
